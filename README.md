@@ -1,6 +1,8 @@
 # Hardware-tailored grouping for Pauli measurements
 
+This repository contains an implementation of the algorithm presented in [this paper](https://doi.org/10.48550/arXiv.2203.03646) for prioritized grouping of Pauli operators into commuting subsets that can each be measured simultaneously by a readout circuit that is tailored to a certain quantum hardware connectivity. 
 
+Also, this project features a variety of C++ libraries for dealing with matrices, undirected graphs, Pauli operators, clifford circuits and more. 
 
 
 ## Dependencies

@@ -34,6 +34,7 @@ add_unit_test(${target}_unit_tests
 		tests/efficient_binary_math_tests.cpp
 		tests/binary_pauli_tests.cpp
 		tests/lc_classes_tests.cpp
+		tests/matrix_tests.cpp
 	DEPENDENCIES
 		${target}
 )

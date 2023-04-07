@@ -12,9 +12,8 @@
 
 
 
-#define MATRIX_EXCEPTIONS
 #ifdef MATRIX_EXCEPTIONS
-#define MATRIX_VERIFY(expr, msg, exception) if(!(expr)) throw exception(msg);
+#define MATRIX_VERIFY(expr, msg, exception) if(!(expr)) throw exception(msg)
 #else
 #define MATRIX_VERIFY(expr, msg, exception) assert((msg, expr))
 #endif
@@ -42,6 +41,7 @@ namespace Math {
 
 	struct Matrix_view_mismatch : public std::logic_error { using std::logic_error::logic_error; };
 	struct Matrix_block_domain_error : public std::domain_error { using std::domain_error::domain_error; };
+	struct Matrix_shape_error : public std::length_error { using std::length_error::length_error; };
 
 	inline constexpr Index dynamic = std::numeric_limits<Index>::max();
 
@@ -58,7 +58,7 @@ namespace Math {
 		using pointer = U*;
 		using reference = U&;
 
-		constexpr Matrix_iterator() noexcept : ptr() {};
+		constexpr Matrix_iterator() noexcept = default;
 		constexpr explicit Matrix_iterator(pointer ptr, size_type offset = 0) noexcept : ptr(ptr + offset) {}
 
 		constexpr reference operator*() const noexcept { return *ptr; }
@@ -74,12 +74,11 @@ namespace Math {
 		constexpr difference_type operator-(const Matrix_iterator& other) const noexcept { return ptr - other.ptr; }
 		constexpr reference operator[](const difference_type offset) const noexcept { return ptr[offset]; }
 		constexpr std::strong_ordering operator<=>(const Matrix_iterator& right) const noexcept { return ptr <=> right.ptr; }
-		constexpr friend bool operator==(const Matrix_iterator& a, const Matrix_iterator& b) noexcept { return a.ptr == b.ptr; }
-		constexpr friend bool operator!=(const Matrix_iterator& a, const Matrix_iterator& b) noexcept { return a.ptr != b.ptr; }
+		constexpr friend bool operator==(const Matrix_iterator& a, const Matrix_iterator& b) noexcept = default;
 		constexpr friend Matrix_iterator operator+(const difference_type offset, const Matrix_iterator a) noexcept { return a += offset; }
 
 	private:
-		pointer ptr;
+		pointer ptr{};
 	};
 
 
@@ -94,7 +93,7 @@ namespace Math {
 		using pointer = U*;
 		using reference = U&;
 
-		constexpr Matrix_stride_iterator() noexcept : ptr(), stride(1) {};
+		constexpr Matrix_stride_iterator() noexcept = default;
 		constexpr explicit Matrix_stride_iterator(pointer ptr, size_type stride = 1, size_type offset = 0) noexcept : ptr(ptr + offset), stride(stride) {}
 
 		constexpr reference operator*() const noexcept { return *ptr; }
@@ -111,12 +110,11 @@ namespace Math {
 		constexpr reference operator[](const difference_type offset) const noexcept { return ptr[offset * stride]; }
 		constexpr std::strong_ordering operator<=>(const Matrix_stride_iterator& right) const noexcept { return ptr <=> right.ptr; }
 		constexpr friend bool operator==(const Matrix_stride_iterator& a, const Matrix_stride_iterator& b) noexcept { return a.ptr == b.ptr; }
-		constexpr friend bool operator!=(const Matrix_stride_iterator& a, const Matrix_stride_iterator& b) noexcept { return a.ptr != b.ptr; }
 		constexpr friend Matrix_stride_iterator operator+(const difference_type offset, const Matrix_stride_iterator a) noexcept { return a += offset; }
 
 	private:
-		pointer ptr;
-		size_type stride;
+		pointer ptr{};
+		size_type stride{ 1 };
 	};
 
 
@@ -131,7 +129,7 @@ namespace Math {
 		using pointer = U*;
 		using reference = U&;
 
-		constexpr Matrix_block_iterator() noexcept : ptr(), row_length(1), jump(1), row_index(0) {};
+		constexpr Matrix_block_iterator() noexcept = default;
 		constexpr explicit Matrix_block_iterator(pointer ptr, size_type row_length = 1, size_type jump = 1, size_type row_index = 0) noexcept
 			: ptr(ptr), row_length(row_length), jump(jump), row_index(row_index) {}
 
@@ -149,13 +147,12 @@ namespace Math {
 		constexpr Matrix_block_iterator operator--(int) noexcept { Matrix_block_iterator tmp = *this; (*this)--; return tmp; }
 		constexpr std::strong_ordering operator<=>(const Matrix_block_iterator& right) const noexcept { return ptr <=> right.ptr; }
 		constexpr friend bool operator==(const Matrix_block_iterator& a, const Matrix_block_iterator& b) noexcept { return a.ptr == b.ptr; }
-		constexpr friend bool operator!=(const Matrix_block_iterator& a, const Matrix_block_iterator& b) noexcept { return a.ptr != b.ptr; }
 
 	private:
-		pointer ptr;
-		size_type row_length;
-		size_type row_index;
-		size_type jump;
+		pointer ptr{};
+		size_type row_length{ 1 };
+		size_type row_index{};
+		size_type jump{ 1 };
 	};
 
 
@@ -174,12 +171,15 @@ namespace Math {
 		using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 
-		constexpr Matrix_view() noexcept : ptr(), m(0), n(0), rows_(0), cols_(0) {}
+		constexpr Matrix_view() noexcept = default;
 		constexpr Matrix_view(T* ptr, size_type m, size_type n, size_type rows, size_type cols) noexcept
 			: ptr(ptr), m(m), n(n), rows_(rows), cols_(cols) {
 		}
 
-		constexpr Matrix_view& operator=(const Matrix_view<T>& mat) requires (!std::is_const_v<T>) {
+		constexpr Matrix_view(const Matrix_view<T>&) noexcept = default;
+		constexpr ~Matrix_view() noexcept = default;
+
+		constexpr Matrix_view& operator=(const Matrix_view& mat) requires (!std::is_const_v<T>) {
 			MATRIX_VERIFY(rows() == mat.rows() && cols() == mat.cols(), "Matrix view mismatch at Matrix_view::operator=(const Matrix_view&). Dimensions of target and destination need to match", Matrix_view_mismatch);
 			std::copy(mat.begin(), mat.end(), begin());
 			return *this;
@@ -213,27 +213,31 @@ namespace Math {
 		constexpr size_type cols() const noexcept { return cols_; }
 
 	private:
-		T* ptr; // first element of this matrix view block
-		size_type m, n; // dimensions of matrix that this view is pointing to 
-		size_type rows_, cols_; // dimensions of this matrix view block
+		T* ptr{}; // first element of this matrix view block
+		size_type m{};
+		size_type n{}; // dimensions of matrix that this view is pointing to 
+		size_type rows_{};
+		size_type cols_{}; // dimensions of this matrix view block
 
 	};
 
 
-	template<bool empty = true>
-	struct Dimensions {
-		constexpr void swap() const { /**/ }
-		constexpr Dimensions swapped() const { return *this; }
-		friend constexpr Dimensions operator*(Dimensions, Dimensions) { return {}; }
-	};
-
-	template<>
-	struct Dimensions<false> {
+	template<bool empty = false>
+	struct Shape {
 		Index m{};
 		Index n{};
 		constexpr void swap() { std::swap(m, n); }
-		constexpr Dimensions swapped() const { auto copy = *this; copy.swap(); return copy; }
-		friend constexpr Dimensions operator*(Dimensions d1, Dimensions d2) { return Dimensions{ d1.m, d2.n }; }
+		constexpr Shape swapped() const { auto copy = *this; copy.swap(); return copy; }
+		friend constexpr Shape operator*(Shape d1, Shape d2) { return Shape{ d1.m, d2.n }; }
+		friend constexpr bool operator==(const Shape& a, const Shape& b) = default;
+	};
+
+	template<>
+	struct Shape<true> {
+		constexpr void swap() const { /**/ }
+		constexpr Shape swapped() const { return *this; }
+		friend constexpr Shape operator*(Shape, Shape) { return {}; }
+		friend constexpr bool operator==(const Shape& a, const Shape& b) = default;
 	};
 
 
@@ -253,7 +257,6 @@ namespace Math {
 		static_assert(n > 0 || m == dynamic, "Column number m needs to be greater than zero");
 		static_assert((m == dynamic) == (n == dynamic), "Row and column number cannot be independantly dynamic");
 		static constexpr bool is_dynamic = (m == dynamic);
-		Dimensions<!is_dynamic> dimensions;
 
 		using iterator = Matrix_iterator<T>;
 		using const_iterator = Matrix_iterator<const T>;
@@ -266,54 +269,86 @@ namespace Math {
 		using const_col_iterator = Matrix_stride_iterator<const T>;
 
 
-		constexpr Matrix() : data_{} {}
-		constexpr Matrix(const T& value) : data_{} { fill(value); }
-		constexpr Matrix(const std::initializer_list<T> elems) : data_{} {
+		//
+		// Constructors
+		//
+
+
+		constexpr Matrix() = default;
+
+		explicit constexpr Matrix(const T& value) requires (!is_dynamic) { fill(value); }
+
+		explicit(false) constexpr Matrix(const std::initializer_list<T> elems) requires (!is_dynamic) {
 			size_type h = std::min(elems.size(), size());
 			std::copy(std::begin(elems), std::begin(elems) + h, begin());
 			std::fill(begin() + h, end(), T{});
 		}
-		constexpr Matrix(const storage_type& elems) : data_{} { std::copy(std::begin(elems), std::end(elems), begin()); }
-		constexpr Matrix(storage_type&& elems) noexcept : data_{} { data_ = elems; }
-		constexpr Matrix(const Matrix_view<T>& mat_view) : data_{} {
-			MATRIX_VERIFY(mat_view.rows() == rows() && mat_view.cols() == cols(), "Dimensions of block and matrix do not match in Matrix::operator=(const Matrix_view&)", Matrix_block_domain_error);
+
+		explicit constexpr Matrix(const storage_type& elems) requires (!is_dynamic) { std::copy(std::begin(elems), std::end(elems), begin()); }
+
+		explicit constexpr Matrix(storage_type&& elems) noexcept requires (!is_dynamic) : data_{ std::move(elems) } {}
+
+		explicit(false) constexpr Matrix(const Matrix_view<T>& mat_view) {
+			if constexpr (is_dynamic) {
+				resize(mat_view.rows(), mat_view.cols());
+			}
+			else {
+				MATRIX_VERIFY(mat_view.rows() == rows() && mat_view.cols() == cols(), "Dimensions of block and matrix do not match in Matrix::operator=(const Matrix_view&)", Matrix_block_domain_error);
+			}
 			std::copy(mat_view.begin(), mat_view.end(), begin());
 		}
-		constexpr Matrix(const Matrix_view<const T>& mat_view) : data_{} {
-			MATRIX_VERIFY(mat_view.rows() == rows() && mat_view.cols() == cols(), "Dimensions of block and matrix do not match in Matrix::operator=(const Matrix_view&)", Matrix_block_domain_error);
+
+		explicit(false) constexpr Matrix(const Matrix_view<const T>& mat_view) {
+			if constexpr (is_dynamic) {
+				resize(mat_view.rows(), mat_view.cols());
+			}
+			else {
+				MATRIX_VERIFY(mat_view.rows() == rows() && mat_view.cols() == cols(), "Dimensions of block and matrix do not match in Matrix::operator=(const Matrix_view&)", Matrix_block_domain_error);
+			}
 			std::copy(mat_view.begin(), mat_view.end(), begin());
 		}
-		//constexpr Matrix(const Matrix<T, m, 1>(&vecs)[n]) requires(m > 1) {
-		//	for (Index j = 0; j < cols(); j++) col(j) = vecs[j];
-		//}
-		//constexpr Matrix(const Matrix<T, 1, n>(&vecs)[m]) requires(n > 1) {
-		//	for (Index i = 0; i < rows(); i++) row(i) = vecs[i];
-		//}
 
-		constexpr Matrix(Index m, Index n) requires(is_dynamic) : data_(m* n), dimensions{ m,n } {}
-		constexpr Matrix(Index m, Index n, const T& value) requires(is_dynamic) : data_(m* n), dimensions{ m,n } {
-			fill(value);
-		}
-
-
-		constexpr Matrix(Dimensions<!is_dynamic> dimensions) : dimensions(dimensions) {
+		template<bool a>
+		explicit constexpr Matrix(Shape<a> shape_) : shape_(shape_) {
 			if constexpr (is_dynamic) {
 				data_.resize(size());
 			}
 		}
+
+		constexpr Matrix(Index m, Index n) requires is_dynamic : data_(m* n), shape_{ m,n } {}
+		constexpr Matrix(Index m, Index n, const T& value) requires is_dynamic : data_(m* n), shape_{ m,n } {
+			fill(value);
+		}
+
+		constexpr Matrix(Index m, Index n, const std::initializer_list<T> elems) requires (is_dynamic) : Matrix(m, n) {
+			size_type h = std::min(elems.size(), size());
+			std::copy(std::begin(elems), std::begin(elems) + h, begin());
+			std::fill(begin() + h, end(), T{});
+		}
+
+		constexpr Matrix(Index m, Index n, const storage_type& elems) requires is_dynamic : Matrix(m, n) {
+			std::copy(std::begin(elems), std::end(elems), begin());
+		}
+
+		constexpr Matrix(Index m, Index n, storage_type&& elems) noexcept requires is_dynamic : shape_{ m,n }, data_{ std::move(elems) } {
+			data_.resize(size());
+		}
+
 
 		//
 		// Size and access
 		// 
 
 		constexpr size_type rows() const noexcept {
-			if constexpr (is_dynamic) return dimensions.m;
+			if constexpr (is_dynamic) return shape_.m;
 			else return m;
 		}
+
 		constexpr size_type cols() const noexcept {
-			if constexpr (is_dynamic) return dimensions.n;
+			if constexpr (is_dynamic) return shape_.n;
 			else return n;
 		}
+
 		constexpr size_type size() const noexcept { return rows() * cols(); }
 		constexpr size_type max_size() const noexcept { return size(); }
 		constexpr bool empty() const noexcept { return size() == 0; }
@@ -332,13 +367,36 @@ namespace Math {
 		constexpr void swap(Matrix& a) noexcept { data_.swap(a.data_); }
 
 
+		constexpr void resize(Index m, Index n) requires (is_dynamic) {
+			shape_ = { m,n };
+			data_.resize(size());
+		}
+
+		// Note: the behaviour is undefined if the m*n != size()
+		constexpr void reshape(Index m, Index n) requires (is_dynamic) {
+			MATRIX_VERIFY(m * n == size(), "The new shape results in a different size than before", Matrix_shape_error);
+			shape_ = { m,n };
+		}
+
+		// Note: the behaviour is undefined if the m*n != size()
+		constexpr void reshape(Shape<false> new_shape) requires (is_dynamic) {
+			MATRIX_VERIFY(new_shape.m * new_shape.n == size(), "The new shape results in a different size than before", Matrix_shape_error);
+			shape_ = new_shape;
+		}
+
+		constexpr const Shape<!is_dynamic>& shape() const { return shape_; }
+
+
 		//
 		// Arithmetic
 		// 
 
 		template<class F> constexpr Matrix& apply(F f) { std::for_each(begin(), end(), f); return *this; }
 		template<class F> constexpr Matrix& apply(F f, const T& c) { std::for_each(begin(), end(), [&](T& v) {v = f(v, c); }); return *this; }
-		template<class F> constexpr Matrix& apply(F f, const Matrix& v) { std::transform(begin(), end(), v.begin(), begin(), f); return *this; }
+		template<class F> constexpr Matrix& apply(F f, const Matrix& v) {
+			MATRIX_VERIFY(shape_ == v.shape_, "Cannot operate matrices with non-matching dimensions", Matrix_shape_error);
+			std::transform(begin(), end(), v.begin(), begin(), f); return *this;
+		}
 
 		constexpr Matrix& operator+=(const T& c) { return apply(std::plus<T>(), c); }
 		constexpr Matrix& operator-=(const T& c) { return apply(std::minus<T>(), c); }
@@ -358,7 +416,7 @@ namespace Math {
 
 
 		constexpr Matrix<T, n, m> transpose() const {
-			Matrix<T, n, m> result{ dimensions.swapped() };
+			Matrix<T, n, m> result{ shape_.swapped() };
 			for (size_type i = 0; i < rows(); ++i)
 				for (size_type j = 0; j < cols(); ++j)
 					result(j, i) = (*this)(i, j);
@@ -367,13 +425,13 @@ namespace Math {
 
 		template<size_type p>
 		constexpr Matrix<T, m, p> operator*(const Matrix<T, n, p>& a) const {
-			assert(cols() == a.rows());
-			Matrix<T, m, p> result(dimensions * a.dimensions);
+			MATRIX_VERIFY(cols() == a.rows(), "Cannot multipliy matrices with non-matching dimensions", Matrix_shape_error);
+			Matrix<T, m, p> result(shape() * a.shape());
 
 			for (size_type i = 0; i < rows(); ++i) {
 				for (size_type j = 0; j < a.cols(); ++j) {
 					T value{};
-					for (size_type k = 0; k < a.cols(); ++k)
+					for (size_type k = 0; k < a.rows(); ++k)
 						value += (*this)(i, k) * a(k, j);
 					result(i, j) = value;
 				}
@@ -384,8 +442,8 @@ namespace Math {
 
 		template<class OtherScalar, class ResultScalar, size_type p>
 		constexpr friend Matrix<T, m, p> operator*(const Matrix<T, m, n>& a, const Matrix<OtherScalar, n, p>& b) {
-			assert(a.cols() == b.rows());
-			Matrix<ResultScalar, m, p> result(dimensions * a.dimensions);
+			MATRIX_VERIFY(cols() == a.rows(), "Cannot multipliy matrices with non-matching dimensions", Matrix_shape_error);
+			Matrix<ResultScalar, m, p> result(shape() * a.shape());
 
 			for (size_type i = 0; i < a.rows(); ++i) {
 				for (size_type j = 0; j < b.cols(); ++j) {
@@ -485,9 +543,11 @@ namespace Math {
 		//
 		// Vector operations (specialization for 1×n or m×1 matrices) 
 		//
+		constexpr bool is_vector() const { return rows() == 1 || cols() == 1; }
 
-		constexpr T& operator[](size_type i) noexcept requires vector_dimensions<m, n> { return data_[i]; }
-		constexpr const T& operator[](size_type i) const noexcept requires vector_dimensions<m, n>{ return data_[i]; }
+		constexpr T& operator[](size_type i) noexcept { return data_[i]; }
+		constexpr const T& operator[](size_type i) const noexcept { return data_[i]; }
+
 		constexpr T& x() noexcept requires vector_dimensions_1D<m, n> { return data_[0]; }
 		constexpr const T& x() const noexcept requires vector_dimensions_1D<m, n> { return data_[0]; }
 		constexpr T& y() noexcept requires vector_dimensions_2D<m, n> { return data_[1]; }
@@ -497,45 +557,60 @@ namespace Math {
 		constexpr T& w() noexcept requires vector_dimensions_4D<m, n> { return data_[3]; }
 		constexpr const T& w() const noexcept requires vector_dimensions_4D<m, n> { return data_[3]; }
 
-		T norm() const requires vector_dimensions<m, n> {
+		T norm() const requires (vector_dimensions<m, n> || is_dynamic) {
+			if constexpr (is_dynamic) {
+				MATRIX_VERIFY(is_vector(), "Matrix::norm() is only supported for vectors, not matrices", Matrix_shape_error);
+			}
 			T inner_product{};
 			std::for_each(begin(), end(), [&inner_product](const auto& value) { inner_product += value * value; });
 			return std::sqrt(inner_product);
 		}
 
-		Matrix& normalize() requires vector_dimensions<m, n> { return *this *= T(1) / norm(); }
+		Matrix& normalize() requires (vector_dimensions<m, n> || is_dynamic) {
+			if constexpr (is_dynamic) {
+				MATRIX_VERIFY(is_vector(), "Matrix::normalize() is only supported for vectors, not matrices", Matrix_shape_error);
+			}
+			return *this *= T(1) / norm();
+		}
 
-		constexpr T operator*(const Matrix& vec) const requires vector_dimensions<m, n>{
+		constexpr T dot(const Matrix& vec) const requires (vector_dimensions<m, n> || is_dynamic) {
+			if constexpr (is_dynamic) {
+				MATRIX_VERIFY(is_vector() && vec.is_vector(), "Matrix::dot() is only supported for vectors, not matrices", Matrix_shape_error);
+			}
 			return std::inner_product(begin(), end(), vec.begin(), T{});
 		}
 
+		constexpr T operator*(const Matrix& vec) const requires vector_dimensions<m, n>{
+			return (*this).dot(vec);
+		}
+
 		// Enable cast to T for 1×1 matrix (useful for matrix multiplications that yield a scalar) 
-		constexpr operator T() const requires (m == 1 && n == 1) { return data_[0]; }
+		explicit(false) constexpr operator T() const requires (m == 1 && n == 1) { return data_[0]; }
 
 
 		//
 		// Factory functions
 		//
 
-		constexpr static Matrix unspecified() { return Matrix(Unspecified{}); }
-		constexpr static Matrix zero() { return Matrix(); }
-		constexpr static Matrix zero(Index m, Index n) requires is_dynamic{ return Matrix(m, n, 0); }
-			constexpr static Matrix identity() requires (m == n && !is_dynamic) {
+		constexpr static Matrix zero() requires (!is_dynamic) { return Matrix(); }
+		constexpr static Matrix zero(Index m, Index n) requires (is_dynamic) { return Matrix(m, n, 0); }
+
+		constexpr static Matrix identity(Index n) requires (is_dynamic) {
+			Matrix mat(n, n);
+			for (size_type i = 0; i < n; ++i) mat(i, i) = T(1);
+			return mat;
+		}
+
+		constexpr static Matrix identity() requires (m == n && !is_dynamic) {
 			Matrix mat;
 			for (size_type i = 0; i < n; ++i) mat(i, i) = T(1);
 			return mat;
 		}
 
-		constexpr static Matrix identity(Index n) requires is_dynamic{
-			Matrix mat(n,n);
-			for (size_type i = 0; i < n; ++i) mat(i, i) = T(1);
-			return mat;
-		}
-
-			// Enable cast to other value_type U. T needs to be convertible to U (via static_cast) 
-			template<class U> requires std::convertible_to<T, U>
+		// Enable cast to other value_type U. T needs to be convertible to U (via static_cast) 
+		template<class U> requires std::convertible_to<T, U>
 		constexpr Matrix<U, m, n> cast() const {
-			Matrix<U, m, n> mat(dimensions);
+			Matrix<U, m, n> mat(shape_);
 			std::transform(begin(), end(), mat.begin(), [](const T& c) { return static_cast<U>(c); });
 			return mat;
 		}
@@ -543,13 +618,16 @@ namespace Math {
 		friend constexpr bool operator==(const Matrix& a, const Matrix& b) { return a.data_ == b.data_; }
 
 	private:
-		struct Unspecified {};
-		constexpr Matrix(Unspecified) {}
-		storage_type data_;
+		storage_type data_{};
+		Shape<!is_dynamic> shape_;
 
 		template<class U> struct divides { constexpr U operator()(const U& l, const U& r) const { return l / r; } };
 		template<class U> struct modulus { constexpr U operator()(const U& l, const U& r) const { return l % r; } };
 	};
+
+
+	template<class T>
+	Matrix(Index m, Index n, const std::initializer_list<T>& data)->Matrix<T, dynamic, dynamic>;
 
 
 	template<class T, Index m> using Vector = Matrix<T, m, 1>;
@@ -577,23 +655,16 @@ namespace Math {
 
 
 	template<class T, Index n>
-	constexpr Matrix<T, n, n> diag(const T(&values)[n]) {
+	constexpr Matrix<T, n, n> diag(const T(&values)[n]) requires(n != dynamic) {
 		Matrix<T, n, n> result;
 		for (Index i = 0; i < n; ++i) result(i, i) = values[i];
 		return result;
 	}
+
 	template<class T, Index n>
 	constexpr Matrix<T, n, n> diag(const Vector<T, n>& vec) {
 		Matrix<T, n, n> result;
-		for (Index i = 0; i < n; ++i) result(i, i) = vec[i];
-		return result;
-	}
-
-	template<class T>
-	constexpr Matrix<T> diag(const Matrix<T>& vec) {
-		assert(vec.cols() == 1);
-		Matrix<T> result(vec.rows(), vec.rows());
-		for (Index i = 0; i < vec.rows(); ++i) result(i, i) = vec(i, 0);
+		for (Index i = 0; i < vec.size(); ++i) result(i, i) = vec[i];
 		return result;
 	}
 
@@ -604,6 +675,26 @@ namespace Math {
 		return result;
 	}
 
+	template<class T>
+	constexpr Matrix<T, dynamic, dynamic> diag(const Matrix<T>& vec) {
+		MATRIX_VERIFY(vec.is_vector(), "Math::diag() needs a vector as argument, not a matrix", Matrix_shape_error);
+		const auto n = vec.size();
+		Matrix<T> result(n, n);
+		for (Index i = 0; i < n; ++i) result(i, i) = vec[i];
+		return result;
+	}
+
+	template<class T>
+	constexpr Matrix<T, dynamic, dynamic> diag(const std::initializer_list<T>& values) {
+		Matrix<T> result{ Shape{values.size(), values.size()} };
+		Index i{};
+		for (const auto& value : values) {
+			result(i, i) = value;
+			++i;
+		}
+		return result;
+	}
+
 	template<class T, Index n>
 	constexpr Matrix<T, n, n> antidiag(const T(&values)[n]) {
 		Matrix<T, n, n> result;
@@ -611,6 +702,40 @@ namespace Math {
 		return result;
 	}
 
+	template<class T, Index n>
+	constexpr Matrix<T, n, n> antidiag(const Vector<T, n>& vec) {
+		Matrix<T, n, n> result;
+		for (Index i = 0; i < vec.size(); ++i) result(n - i - 1, i) = vec[i];
+		return result;
+	}
+
+	template<class T, Index n>
+	constexpr Matrix<T, n, n> antidiag(const RowVector<T, n>& vec) {
+		Matrix<T, n, n> result;
+		for (Index i = 0; i < vec.size(); ++i) result(n - i - 1, i) = vec[i];
+		return result;
+	}
+
+	template<class T>
+	constexpr Matrix<T, dynamic, dynamic> antidiag(const Matrix<T>& vec) {
+		MATRIX_VERIFY(vec.is_vector(), "Math::antidiag() needs a vector as argument, not a matrix", Matrix_shape_error);
+		const auto n = vec.size();
+		Matrix<T> result(n, n);
+		for (Index i = 0; i < n; ++i) result(n - i - 1, i) = vec[i];
+		return result;
+	}
+
+	template<class T>
+	constexpr Matrix<T, dynamic, dynamic> antidiag(const std::initializer_list<T>& values) {
+		const auto n = values.size();
+		Matrix<T> result{ Shape{n,n} };
+		Index i{};
+		for (const auto& value : values) {
+			result(n - i - 1, i) = value;
+			++i;
+		}
+		return result;
+	}
 
 	using Matrix2f = Matrix<float, 2, 2>;
 	using Matrix3f = Matrix<float, 3, 3>;

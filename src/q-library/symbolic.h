@@ -13,7 +13,7 @@ namespace Q {
 		//Variable(char c) { name = c; }
 		Variable(const std::string& s) : name(s) {}
 		friend std::ostream& operator<<(std::ostream& out, const Variable& v) { return out << v.name; }
-		friend bool operator==(const Variable& a, const Variable& b) { return a.name == b.name; }
+		friend bool operator==(const Variable& a, const Variable& b) = default;
 		//private:
 		std::string name;
 	};
@@ -29,13 +29,13 @@ namespace Q {
 		Number operator+(const Number& n) const { return Number{ *this } += n; }
 		Number& operator*=(const Number& n) { value *= n.value; return *this; }
 		Number operator*(const Number& n) const { return Number{ *this } *= n; }
-		friend bool operator==(const Number& a, const Number& b) { return a.value == b.value; }
+		friend bool operator==(const Number& a, const Number& b) = default;
 
 		friend std::ostream& operator<<(std::ostream& out, const Number& v) {
 			if (v.value.imag() == 0.) return out << v.value.real();
 			return out << '(' << v.value.real() << '+' << v.value.imag() << 'i' << ')';
 		}
-		double real()const { return value.real(); }
+		double real() const { return value.real(); }
 	private:
 		std::complex<double> value;
 	};
@@ -291,7 +291,7 @@ namespace Q {
 	template<Numeric scalar, size_t m, size_t n, size_t p>
 	constexpr Math::Matrix<Term, m, p> operator*(const Math::Matrix<scalar, m, n>& a, const Math::Matrix<Term, n, p>& b) {
 		assert(a.cols() == b.rows());
-		Math::Matrix<Term, m, p> result(a.dimensions * b.dimensions);
+		Math::Matrix<Term, m, p> result(a.shape() * b.shape());
 
 		for (size_t i = 0; i < a.rows(); ++i) {
 			for (size_t j = 0; j < b.cols(); ++j) {
@@ -308,7 +308,7 @@ namespace Q {
 	template<Numeric scalar, size_t m, size_t n, size_t p>
 	constexpr Math::Matrix<Term, m, p> operator*(const Math::Matrix<Term, m, n>& a, const Math::Matrix<scalar, n, p>& b) {
 		assert(a.cols() == b.rows());
-		Math::Matrix<Term, m, p> result(a.dimensions * b.dimensions);
+		Math::Matrix<Term, m, p> result(a.shape() * b.shape());
 
 		for (size_t i = 0; i < a.rows(); ++i) {
 			for (size_t j = 0; j < b.cols(); ++j) {
@@ -356,9 +356,11 @@ namespace Q {
 	template<int m, int n>
 	Math::Matrix<Term, m, n> generateSymbolMatrix(const std::string& name) {
 		Math::Matrix<Term, m, n> matrix;
-		for (size_t i = 0; i < m; ++i)
-			for (size_t j = 0; j < n; ++j)
+		for (size_t i = 0; i < m; ++i) {
+			for (size_t j = 0; j < n; ++j) {
 				matrix(i, j) = Variable(name + std::to_string(i) + std::to_string(j));
+			}
+		}
 		return matrix;
 	}
 
@@ -367,59 +369,29 @@ namespace Q {
 
 	Math::Matrix<Term> generateSymbolMatrix(int m, int n, const std::string& name) {
 		Math::Matrix<Term> matrix(m, n);
-		for (size_t i = 0; i < m; ++i)
-			for (size_t j = 0; j < n; ++j)
+		for (size_t i = 0; i < m; ++i) {
+			for (size_t j = 0; j < n; ++j) {
 				matrix(i, j) = Variable(name + std::to_string(i) + std::to_string(j));
+			}
+		}
 		return matrix;
 	}
 
 	template<int n>
 	Math::Vector<Term, n> generateSymbolVector(const std::string& name) {
 		Math::Vector<Term, n> vector;
-		for (size_t j = 0; j < n; ++j)
+		for (size_t j = 0; j < n; ++j) {
 			vector[j] = Variable(name + std::to_string(j));
+		}
 		return vector;
 	}
 
 	constexpr Math::Matrix<Term> generateSymbolVector(int n, const std::string& name) {
 		Math::Matrix<Term> vector(n, 1);
-		for (size_t j = 0; j < n; ++j)
+		for (size_t j = 0; j < n; ++j) {
 			vector(j, 0) = Variable(name + std::to_string(j));
+		}
 		return vector;
 	}
-
-
-
-	void symbolicTest() {
-		using namespace std::complex_literals;
-		Number n{ 3 };
-		Variable a{ "a" };
-		Variable b{ "b" };
-		auto z = n + a;
-		Product p;
-		p + z;
-
-		p * 0;
-
-		//auto zz = ((a + n) * (n + 78 + a * n) * 0 + b * a) * b * 1 + n + n * 1*1*1;
-		Term zz = ((a + n) * (n + 78i + a * n * (2. + 4i)) + b * a) * b + (9. + 1i) + 5 + a * (a + b * (b + a)) * 0;
-		Term r = zz;
-		std::cout << zz << '\n';
-		std::cout << zz.simplify() << '\n';
-
-		using Mat = Math::Matrix<Term, 2, 2>;
-		Mat m{ 2 * b,3,4,5 * a };
-		auto m2 = m * m;
-		std::cout << m;
-		std::cout << m2;
-		std::cout << simplify(m2);
-
-		auto umat = generateSymbolMatrix<2, 3>("u");
-		auto bmat = generateSymbolMatrix<3, 4>("b");
-		std::cout << umat << bmat << umat * bmat;
-	}
-
-
-
 
 }

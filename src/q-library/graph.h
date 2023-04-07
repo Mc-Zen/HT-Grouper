@@ -11,12 +11,15 @@ namespace Q {
 
 	template<bool empty = true>
 	struct GraphSize {
+		constexpr friend bool operator==(const GraphSize& a, const GraphSize& b) = default;
 	};
 
 
 	template<>
 	struct GraphSize<false> {
 		int n{};
+		constexpr friend bool operator==(const GraphSize& a, const GraphSize& b) = default;
+
 	};
 
 
@@ -55,7 +58,7 @@ namespace Q {
 		constexpr static auto fullyConnectedGraph() requires !is_dynamic{
 			Graph graph;
 			graph.adjacencyMatrix.fill(1);
-			for (int i = 0; i < numVertices(); ++i) graph.adjacencyMatrix(i, i) = 0;
+			for (int i = 0; i < graph.numVertices(); ++i) graph.adjacencyMatrix(i, i) = 0;
 			return graph;
 		}
 			constexpr static auto fullyConnectedGraph(int n) requires is_dynamic{
@@ -245,11 +248,11 @@ namespace Q {
 
 		/// @brief Compress the graph into a single 64-bit integer. 
 		static int64_t compress(const Graph& graph) {
-			static_assert(numVertices() * (numVertices() - 1) / 2 <= 64);
+			static_assert(n * (n - 1) / 2 <= 64);
 			int64_t code{};
 			int index{};
-			for (int i = 0; i < numVertices() - 1; ++i) {
-				for (int j = i + 1; j < numVertices(); ++j) {
+			for (int i = 0; i < n - 1; ++i) {
+				for (int j = i + 1; j < n; ++j) {
 					if (graph.hasEdge(i, j)) code |= (1ULL << index);
 					++index;
 				}
@@ -259,11 +262,11 @@ namespace Q {
 
 		/// @brief Restore a graph from its compressed form. 
 		static Graph decompress(int64_t code) {
-			static_assert(numVertices() * (numVertices() - 1) / 2 <= 64);
+			static_assert(n * (n - 1) / 2 <= 64);
 			Graph graph;
 			int index{};
-			for (int i = 0; i < numVertices() - 1; ++i) {
-				for (int j = i + 1; j < numVertices(); ++j) {
+			for (int i = 0; i < n - 1; ++i) {
+				for (int j = i + 1; j < n; ++j) {
 					if (code & (1ULL << index)) graph.addEdge(i, j);
 					++index;
 				}
