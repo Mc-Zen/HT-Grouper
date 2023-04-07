@@ -41,7 +41,7 @@ namespace Q {
 				const auto pauli = Pauli{ trim(pauliAndValue[0], " \"") };
 
 				if (hamiltonian.numQubits == 0) {
-					hamiltonian.numQubits = pauli.n;
+					hamiltonian.numQubits = pauli.numQubits();
 				}
 				if (pauli != Pauli{ hamiltonian.numQubits }) {
 					hamiltonian.operators.emplace_back(pauli, std::stod(pauliAndValue[1]));

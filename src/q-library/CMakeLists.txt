@@ -3,6 +3,7 @@ add_library(${target}
 	basic_operators.h
 	binary.h
 	binary_pauli.h
+	binary_phase.h
 	efficient_mub.h
 	find_ht_circuit.h
 	formatting.h
