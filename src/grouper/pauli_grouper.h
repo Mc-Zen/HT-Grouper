@@ -37,41 +37,39 @@ namespace Q {
 		return false;
 	}
 
+
 	/// @brief Group Paulis of given hamiltonian into commuting subset that are diagonalizable
 	///        with the given hardware connectivity
 	/// @param hamiltonian   Hamiltonian specification
-	/// @param connectivity  Connectivity graph
+	/// @param graphs        Allowed graphs
 	/// @return Sets of commuting operators
 	template<int n>
-	auto applyPauliGrouper(Hamiltonian& hamiltonian, const Graph<n>& connectivity) {
-		const auto subgraphs = generateSubgraphs(connectivity);
-
+	auto applyPauliGrouper(Hamiltonian& hamiltonian, const std::vector<Graph<n>>& graphs) {
+		println("Num graphs: {}", graphs.size());
 		// Sort by magnitude in descending order 
-		std::ranges::sort(hamiltonian.operators,[](const auto& a, const auto& b) {return std::abs(a.second) > std::abs(b.second); });
+		std::ranges::sort(hamiltonian.operators, [](const auto& a, const auto& b) {return std::abs(a.second) > std::abs(b.second); });
+		//std::ranges::sort(hamiltonian.operators, [](const auto& a, const auto& b) {return std::abs(a.first.pauliWeight()) < std::abs(b.first.pauliWeight()); });
 
 		std::vector<std::vector<Pauli>> collections;
 
+		int i{};
 		for (const auto& [pauli, coefficient] : hamiltonian.operators) {
 			bool found{};
 			for (auto& collection : collections) {
 				if (!commutesWithAll(collection, pauli)) continue;
 
 				collection.push_back(pauli);
-				if (is_ht_measurable(collection, subgraphs)) {
+				if (is_ht_measurable(collection, graphs)) {
 					found = true;
 					break;
 				}
 				collection.pop_back();
 			}
 			if (!found) {
-				collections.insert(collections.begin(), std::vector{ pauli });
+				collections.insert(collections.end(), std::vector{ pauli });
 			}
+			println("{} of {}", ++i, hamiltonian.operators.size());
 		}
-		for (const auto& collection : collections) {
-			println("{}", collection);
-
-		}
-
 		return collections;
 	}
 }
