@@ -13,7 +13,7 @@ int main() {
 	auto hamiltonians = readHamiltonians(filename);
 
 	auto& ham = hamiltonians[0];
-	auto connectivity = Graph<>::linearGraph(ham.numQubits);
+	auto connectivity = Graph<>::linear(ham.numQubits);
 
 	int maxEdgeCount = 4;
 	// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
@@ -41,7 +41,7 @@ int main() {
 //	const std::vector a = { &set1,&set2,&set3,&set4,&set5 };
 //
 //
-//	auto connectivityGraph = Graph<>::linearGraph(2);
+//	auto connectivityGraph = Graph<>::linear(2);
 //
 //	const auto graphs = generateSubgraphs(connectivityGraph);
 //	for (const auto& base : a) {

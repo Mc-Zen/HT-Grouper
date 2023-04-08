@@ -8,7 +8,7 @@
 using namespace Q;
 
 TEST_CASE("Sector length distribution") {
-	auto graph = Graph<4>::starGraph(0);
+	auto graph = Graph<4>::star(0);
 	graph.removeEdge(0,2);
 	graph.removeEdge(0,3);
 	graph.addEdge(1,2);

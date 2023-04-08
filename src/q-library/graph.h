@@ -19,9 +19,7 @@ namespace Q {
 	struct GraphSize<false> {
 		int n{};
 		constexpr friend bool operator==(const GraphSize& a, const GraphSize& b) = default;
-
 	};
-
 
 
 	template<size_t n = Math::dynamic>
@@ -34,14 +32,15 @@ namespace Q {
 
 		AdjacencyMatrix adjacencyMatrix;
 
-		const AdjacencyMatrix& getAdjacencyMatrix() const { return adjacencyMatrix; }
 
 		constexpr Graph() requires !is_dynamic = default;
-		constexpr Graph(GraphSize<!is_dynamic> graphSize) : graphSize(graphSize) {
+
+		explicit constexpr Graph(GraphSize<!is_dynamic> graphSize) : graphSize(graphSize) {
 			if constexpr (is_dynamic) {
 				adjacencyMatrix = AdjacencyMatrix(numVertices(), numVertices());
 			}
 		}
+
 		explicit constexpr Graph(int numVertices) requires is_dynamic : graphSize{ numVertices }, adjacencyMatrix(numVertices, numVertices) {}
 
 
@@ -50,67 +49,22 @@ namespace Q {
 			else return n;
 		}
 
+		constexpr static auto fullyConnected() requires (!is_dynamic) { return Graph{}.fullyConnect(); }
+		constexpr static auto fullyConnected(int n) requires (is_dynamic) { return Graph{ n }.fullyConnect(); }
 
-		constexpr static auto emptyGraph() {
-			return Graph{};
-		}
+		constexpr static auto star(int center = 0) requires (!is_dynamic) { return Graph{}.makeStar(center); }
+		constexpr static auto star(int n, int center = 0) requires (is_dynamic) { return Graph{ n }.makeStar(center); }
 
-		constexpr static auto fullyConnectedGraph() requires !is_dynamic{
-			Graph graph;
-			graph.adjacencyMatrix.fill(1);
-			for (int i = 0; i < graph.numVertices(); ++i) graph.adjacencyMatrix(i, i) = 0;
-			return graph;
-		}
-			constexpr static auto fullyConnectedGraph(int n) requires is_dynamic{
-			Graph graph(n);
-			graph.adjacencyMatrix.fill(1);
-			for (int i = 0; i < graph.numVertices(); ++i) graph.adjacencyMatrix(i, i) = 0;
-			return graph;
-		}
+		constexpr static auto linear() requires (!is_dynamic) { return Graph{}.makeLinear(); }
+		constexpr static auto linear(int n) requires (is_dynamic) { return Graph{ n }.makeLinear(); }
 
-			constexpr static auto starGraph(int center = 0) {
-			Graph graph;
-			auto& mat = graph.adjacencyMatrix;
-			std::for_each(mat.col_begin(center), mat.col_end(center), [](Binary& el) { el.negate(); });
-			std::for_each(mat.row_begin(center), mat.row_end(center), [](Binary& el) { el.negate(); });
-			return graph;
-		}
+		constexpr static auto cycle() requires (!is_dynamic) { return Graph{}.makeCycle(); }
+		constexpr static auto cycle(int n) requires (is_dynamic) { return Graph{ n }.makeCycle(); }
 
-		constexpr static auto linearGraph() {
-			Graph graph;
-			for (int i = 0; i < n - 1; ++i) {
-				graph.addEdge(i, i + 1);
-			}
-			return graph;
-		}
-		
+		constexpr static auto pusteblume() requires (!is_dynamic) { return Graph{}.makePusteblume(); }
+		constexpr static auto pusteblume(int n) requires (is_dynamic) { return Graph{ n }.makePusteblume(); }
 
-		constexpr static auto linearGraph(int numVertices) requires is_dynamic {
-			Graph graph(numVertices);
-			for (int i = 0; i < numVertices - 1; ++i) {
-				graph.addEdge(i, i + 1);
-			}
-			return graph;
-		}
-
-		constexpr static auto cycleGraph() {
-			auto graph = linearGraph();
-			graph.addEdge(0, n - 1);
-			return graph;
-		}
-
-		constexpr static auto pusteblumeGraph() {
-			static_assert(n >= 5, "The Pusteblume graph is only possible for at least 5 vertices");
-			Graph graph;
-			auto& mat = graph.adjacencyMatrix;
-			for (size_t i = 1; i < 4; ++i) {
-				graph.addEdge(0, i);
-			}
-			for (size_t i = 4; i < n; ++i) {
-				graph.addEdge(3, i);
-			}
-			return graph;
-		}
+		constexpr const AdjacencyMatrix& getAdjacencyMatrix() const { return adjacencyMatrix; }
 
 		constexpr bool hasEdge(int vertex1, int vertex2) const {
 			return adjacencyMatrix(vertex1, vertex2) == 1;
@@ -234,7 +188,7 @@ namespace Q {
 		}
 
 		/// @brief Get all edges in form of integer pairs
-		auto getEdges() const {
+		constexpr auto getEdges() const {
 			std::vector<std::pair<int, int>> edges;
 			for (int i = 0; i < numVertices() - 1; ++i) {
 				for (int j = i + 1; j < numVertices(); ++j) {
@@ -247,12 +201,13 @@ namespace Q {
 		constexpr friend bool operator==(const Graph& g1, const Graph& g2) = default;
 
 		/// @brief Compress the graph into a single 64-bit integer. 
-		static int64_t compress(const Graph& graph) {
-			static_assert(n * (n - 1) / 2 <= 64);
+		static constexpr int64_t compress(const Graph& graph) {
+			static_assert(n * (n - 1) / 2 <= 64 || n != Math::dynamic, "Compression is not supported for graphs of this size");
+			assert(graph.numVertices() * (graph.numVertices() - 1) / 2 <= 64 && "Compression is not supported for graphs of this size");
 			int64_t code{};
 			int index{};
-			for (int i = 0; i < n - 1; ++i) {
-				for (int j = i + 1; j < n; ++j) {
+			for (int i = 0; i < graph.numVertices() - 1; ++i) {
+				for (int j = i + 1; j < graph.numVertices(); ++j) {
 					if (graph.hasEdge(i, j)) code |= (1ULL << index);
 					++index;
 				}
@@ -261,17 +216,69 @@ namespace Q {
 		}
 
 		/// @brief Restore a graph from its compressed form. 
-		static Graph decompress(int64_t code) {
-			static_assert(n * (n - 1) / 2 <= 64);
+		static constexpr Graph decompress(int64_t code) requires(!is_dynamic) {
+			static_assert(n * (n - 1) / 2 <= 64, "Deompression is not supported for graphs of this size");
 			Graph graph;
+			decompressImpl(graph, code);
+			return graph;
+		}
+
+		/// @brief Restore a graph from its compressed form. 
+		static constexpr Graph decompress(int numVertices, int64_t code) requires(is_dynamic) {
+			assert(numVertices * (numVertices - 1) / 2 <= 64 && "Deompression is not supported for graphs of this size");
+			Graph graph(numVertices);
+			decompressImpl(graph, code);
+			return graph;
+		}
+
+
+	private:
+
+		static constexpr void decompressImpl(Graph& graph, int64_t code) {
 			int index{};
-			for (int i = 0; i < n - 1; ++i) {
-				for (int j = i + 1; j < n; ++j) {
+			for (int i = 0; i < graph.numVertices() - 1; ++i) {
+				for (int j = i + 1; j < graph.numVertices(); ++j) {
 					if (code & (1ULL << index)) graph.addEdge(i, j);
 					++index;
 				}
 			}
-			return graph;
+		}
+
+		constexpr Graph& fullyConnect() {
+			adjacencyMatrix.fill(1);
+			for (int i = 0; i < numVertices(); ++i) adjacencyMatrix(i, i) = 0;
+			return *this;
+		}
+
+		constexpr Graph& makeStar(int center) {
+			std::for_each(adjacencyMatrix.col_begin(center), adjacencyMatrix.col_end(center), [](Binary& el) { el.negate(); });
+			std::for_each(adjacencyMatrix.row_begin(center), adjacencyMatrix.row_end(center), [](Binary& el) { el.negate(); });
+			return *this;
+		}
+
+		constexpr Graph& makeLinear() {
+			for (int i = 0; i < numVertices() - 1; ++i) {
+				addEdge(i, i + 1);
+			}
+			return *this;
+		}
+
+		constexpr Graph& makeCycle() {
+			makeLinear();
+			addEdge(0, numVertices() - 1);
+			return *this;
+		}
+
+		constexpr Graph& makePusteblume() {
+			static_assert(n >= 5 || n == Math::dynamic, "The Pusteblume graph is only possible for at least 5 vertices");
+			assert(numVertices() >= 5 && "The Pusteblume graph is only possible for at least 5 vertices");
+			for (size_t i = 1; i < 4; ++i) {
+				addEdge(0, i);
+			}
+			for (size_t i = 4; i < numVertices(); ++i) {
+				addEdge(3, i);
+			}
+			return *this;
 		}
 	};
 
@@ -346,8 +353,50 @@ namespace Q {
 		cout << "   o" << (g(3, 4) ? "---" : "   ") << "o\n";
 	}
 
+	inline void printGraph(const Graph<Math::dynamic>& graph) {
+		using std::cout;
+		const auto& g = graph.getAdjacencyMatrix();
+		switch (graph.numVertices()) {
+		case 3:
+			cout << "o" << (g(0, 1) ? "--" : "  ") << "o\n";
+			cout << ' ' << (g(0, 2) ? '\\' : ' ') << ' ' << (g(1, 2) ? '|' : ' ') << '\n';
+			cout << ' ' << ' ' << (g(0, 2) ? '\\' : ' ') << (g(1, 2) ? '|' : ' ') << '\n';
+			cout << "    o\n";
+			break;
+		case 4:
+			cout << "o" << (g(0, 1) ? "--" : "  ") << "o\n";
+			cout << (g(0, 3) ? '|' : ' ') << (g(0, 2) ? '\\' : ' ') << (g(1, 3) ? '/' : ' ') << (g(1, 2) ? '|' : ' ') << '\n';
+			cout << (g(0, 3) ? '|' : ' ') << (g(1, 3) ? '/' : ' ') << (g(0, 2) ? '\\' : ' ') << (g(1, 2) ? '|' : ' ') << '\n';
+			cout << "o" << (g(2, 3) ? "--" : "  ") << "o\n";
+			break;
+		case 5:
+			cout << "   o" << (g(0, 1) ? "---" : "   ") << "o\n  ";
+			cout << ' ' << (g(0, 4) ? '|' : g(0, 3) ? '\\' : ' ') << ' ' << (g(0, 2) ? '.' : ' ') << ' ' << (g(1, 3) ? '|' : g(1, 4) ? '/' : ' ') << (g(1, 2) ? '\\' : ' ') << '\n' << ' ';
+			cout << ' ' << ' ' << (g(0, 4) ? '|' : ' ') << (g(0, 3) ? '\\' : ' ') << ' ' << (g(1, 4) ? '/' : ' ') << (g(1, 3) ? '|' : ' ') << (g(0, 2) ? '.' : ' ') << (g(1, 2) ? '\\' : ' ') << '\n';
+			cout << ' ' << ' ' << ' ' << (g(0, 4) ? '|' : ' ') << ' ' << (g(0, 3) && g(1, 4) ? 'X' : (g(0, 3) ? '\\' : (g(1, 4) ? '/' : ' ')))
+				<< ' ' << (g(1, 3) ? '|' : ' ') << ' ' << ' ' << "o\n ";
+			cout << ' ' << ' ' << (g(0, 4) ? '|' : ' ') << (g(1, 4) ? '/' : ' ') << ' ' << (g(0, 3) ? '\\' : ' ') << (g(1, 3) ? '|' : ' ') << (g(2, 4) ? '.' : ' ') << (g(2, 3) ? '/' : ' ') << '\n' << ' ' << ' ';
+			cout << ' ' << (g(0, 4) ? '|' : g(1, 4) ? '/' : ' ') << ' ' << (g(2, 4) ? '.' : ' ') << ' ' << (g(1, 3) ? '|' : g(0, 3) ? '\\' : ' ') << (g(2, 3) ? '/' : ' ') << '\n';
+			cout << "   o" << (g(3, 4) ? "---" : "   ") << "o\n";
+		case 6:
+			cout << "   o" << (g(0, 1) ? "---" : "   ") << "o\n  ";
+			cout << (g(0, 5) ? '/' : ' ') << (g(0, 4) ? '|' : g(0, 3) ? '\\' : ' ') << ' ' << (g(0, 2) || g(1, 5) ? '.' : ' ') << ' ' << (g(1, 3) ? '|' : g(1, 4) ? '/' : ' ') << (g(1, 2) ? '\\' : ' ') << '\n' << ' ';
+			cout << (g(0, 5) ? '/' : ' ') << (g(1, 5) ? '.' : ' ') << (g(0, 4) ? '|' : ' ') << (g(0, 3) ? '\\' : ' ') << ' ' << (g(1, 4) ? '/' : ' ') << (g(1, 3) ? '|' : ' ') << (g(0, 2) ? '.' : ' ') << (g(1, 2) ? '\\' : ' ') << '\n';
+			cout << 'o' << (g(2, 5) ? '-' : ' ') << (g(2, 5) ? '-' : ' ') << (g(0, 4) ? '|' : g(2, 5) ? '-' : ' ') << (g(2, 5) ? '-' : ' ') << (g(0, 3) && g(1, 4) ? 'X' : (g(0, 3) ? '\\' : (g(1, 4) ? '/' : (g(2, 5) ? '-' : ' '))))
+				<< (g(2, 5) ? '-' : ' ') << (g(1, 3) ? '|' : g(2, 5) ? '-' : ' ') << (g(2, 5) ? '-' : ' ') << (g(2, 5) ? '-' : ' ') << "o\n ";
+			cout << (g(4, 5) ? '\\' : ' ') << (g(3, 5) ? '.' : ' ') << (g(0, 4) ? '|' : ' ') << (g(1, 4) ? '/' : ' ') << ' ' << (g(0, 3) ? '\\' : ' ') << (g(1, 3) ? '|' : ' ') << (g(2, 4) ? '.' : ' ') << (g(2, 3) ? '/' : ' ') << '\n' << ' ' << ' ';
+			cout << (g(4, 5) ? '\\' : ' ') << (g(0, 4) ? '|' : g(1, 4) ? '/' : ' ') << ' ' << (g(2, 4) || g(3, 5) ? '.' : ' ') << ' ' << (g(1, 3) ? '|' : g(0, 3) ? '\\' : ' ') << (g(2, 3) ? '/' : ' ') << '\n';
+			cout << "   o" << (g(3, 4) ? "---" : "   ") << "o\n";
+			break;
+		default:
+			cout << "Cannot print graph of this size";
+		}
+	}
+
+
+	/// @brief Generate all subgraphs of given graph that have at least [minEdges] edges and at most [maxEdges] edges
 	template<int n>
-	auto generateSubgraphs(const Graph<n>& graph, int minEdges, int maxEdges) {
+	std::vector<Graph<n>> generateSubgraphs(const Graph<n>& graph, int minEdges, int maxEdges) {
 		std::vector<std::pair<size_t, size_t>> edges;
 		std::vector<Graph<n>> subgraphs;
 		for (int i = 0; i < graph.numVertices(); ++i) {
@@ -389,15 +438,16 @@ namespace Q {
 
 			explicit constexpr Graph(const Q::Graph<numVertices>& graph) : adjacencyMatrix(graph.adjacencyMatrix) {}
 
-			Q::Graph<numVertices> toGraph() const {
+			constexpr Q::Graph<numVertices> toGraph() const {
 				Q::Graph<numVertices> graph;
 				graph.adjacencyMatrix = adjacencyMatrix.toMatrix();
 				return graph;
 			}
 
-			const AdjacencyMatrix& getAdjacencyMatrix() const { return adjacencyMatrix; }
-
-
+			constexpr const AdjacencyMatrix& getAdjacencyMatrix() const { return adjacencyMatrix; }
 		};
+
+
 	}
+
 }
