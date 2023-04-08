@@ -9,7 +9,7 @@ using std::cout;
 
 
 int main() {
-	auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)"
+	auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)";
 	auto hamiltonians = readHamiltonians(filename);
 
 	auto& ham = hamiltonians[0];
@@ -17,7 +17,7 @@ int main() {
 
 	int maxEdgeCount = 4;
 	// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
-	auto subgraphs = generateSubgraphs(connectivity, maxEdgeCount); 
+	auto subgraphs = generateSubgraphs(connectivity, maxEdgeCount);
 
 	auto collections = applyPauliGrouper(ham, subgraphs);
 
