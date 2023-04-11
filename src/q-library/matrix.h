@@ -75,7 +75,7 @@ namespace Math {
 		constexpr reference operator[](const difference_type offset) const noexcept { return ptr[offset]; }
 		constexpr std::strong_ordering operator<=>(const Matrix_iterator& right) const noexcept { return ptr <=> right.ptr; }
 		constexpr friend bool operator==(const Matrix_iterator& a, const Matrix_iterator& b) noexcept = default;
-		constexpr friend Matrix_iterator operator+(const difference_type offset, const Matrix_iterator a) noexcept { return a += offset; }
+		constexpr friend Matrix_iterator operator+(const difference_type offset, Matrix_iterator a) noexcept { return a += offset; }
 
 	private:
 		pointer ptr{};

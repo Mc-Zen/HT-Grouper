@@ -2,6 +2,8 @@
 #include "formatting.h"
 #include "read_hamiltonians.h"
 #include "pauli_grouper.h"
+#include <random>
+
 
 using namespace Q;
 using std::cout;
@@ -9,22 +11,72 @@ using std::cout;
 
 
 int main() {
-	auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)";
+	auto filename = R"(C:\Users\E-Bow\Documents\Code\Cplusplus\HT-Grouper\data\hamiltonians.py)";
 	auto hamiltonians = readHamiltonians(filename);
 
-	auto& ham = hamiltonians[0];
+	auto& ham = hamiltonians[2];
 	auto connectivity = Graph<>::linear(ham.numQubits);
 
-	int maxEdgeCount = 4;
+	int maxEdgeCount = 2;
 	// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
-	auto subgraphs = generateSubgraphs(connectivity, maxEdgeCount);
+	auto subgraphs = generateSubgraphs(connectivity, 1, maxEdgeCount);
+	decltype(subgraphs) selectedGraphs;
+	selectedGraphs.push_back(Graph<>(ham.numQubits));
+	std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), 10, std::mt19937{ std::random_device{}() });
 
 	auto collections = applyPauliGrouper(ham, subgraphs);
 
 	println("Found grouping into {} subsets", collections.size());
 	for (const auto& collection : collections) {
-		println("{}", collection);
+		println("{}", collection.first);
+		println("{} ({} graphs)", collection.second[0].getAdjacencyMatrix(), collection.second.size());
 	}
+	println("Found grouping into {} subsets", collections.size());
+	for (const auto& collection : collections) {
+		println("{}", collection.first);
+	}
+
+}
+
+
+
+
+
+
+int main2() {
+	auto filename = R"(C:\Users\E-Bow\Downloads\grouping H2O2.txt)";
+	auto groups = readPauliGroups(filename);
+
+	std::vector<Pauli> singles;
+
+	int initialGroupCount{};
+	for (const auto& group : groups) {
+		if (group.size() <=2) {
+			std::ranges::copy(group, std::back_inserter(singles));
+
+			++initialGroupCount;
+		}
+		//println("{}", group);
+	}
+	auto numQubits = singles[0].numQubits();
+
+	auto connectivity = Graph<>::linear(numQubits);
+
+	int maxEdgeCount = 7;
+	// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
+	auto subgraphs = generateSubgraphs(connectivity, 1, maxEdgeCount);
+	decltype(subgraphs) selectedGraphs;
+	selectedGraphs.push_back(Graph<>(numQubits));
+	std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), 10, std::mt19937{ std::random_device{}() });
+
+	Hamiltonian ham;
+	ham.numQubits = numQubits;
+	for (const auto& pauli : singles) {
+		ham.operators.emplace_back(pauli, 0.);
+	}
+
+	println("trying to regroup {} groups with {} Paulis", initialGroupCount, singles.size());
+	auto collections = applyPauliGrouper(ham, selectedGraphs);
 
 }
 

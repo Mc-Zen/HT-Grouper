@@ -52,4 +52,32 @@ namespace Q {
 		}
 		return hamiltonians;
 	}
+	/// @brief Read Pauli groups from file, in the following format:
+	///        {XYZ,ZZX,IXX}
+	///        {XZZ}
+	///        {XZX,YZY,YYY,IIY,IXI}
+	///        ...
+	/// @param filename Path to file
+	/// @return List of Pauli groups
+	std::vector<std::vector<Pauli>> readPauliGroups(const std::string& filename) {
+
+		std::ifstream file{ filename };
+		if (!file) throw std::runtime_error("Error, could not open file");
+
+		std::vector<std::vector<Pauli>> groups;
+
+		std::string line;
+		while (std::getline(file, line)) {
+			if (line.empty()) continue;
+
+			std::vector<Pauli> group;
+			line = trim(line, "{} ");
+			auto paulis = split(line, ",");
+			for (const auto& pauli : paulis) {
+				group.emplace_back(pauli);
+			}
+			groups.emplace_back(std::move(group));
+		}
+		return groups;
+	}
 }
