@@ -11,31 +11,57 @@ using std::cout;
 
 
 int main() {
-	auto filename = R"(C:\Users\E-Bow\Documents\Code\Cplusplus\HT-Grouper\data\hamiltonians.py)";
+
+	//HTCircuitFinder finder{ 12 , true};
+	//auto result = is_ht_measurable(std::vector<Pauli>{Pauli{ "IYXIIIIIXZIX" }}, Graph<>{12}, finder);
+
+	//auto filename = R"(C:\Users\E-Bow\Documents\Code\Cplusplus\HT-Grouper\data\hamiltonians.py)";
+	auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)";
 	auto hamiltonians = readHamiltonians(filename);
 
 	auto& ham = hamiltonians[2];
 	auto connectivity = Graph<>::linear(ham.numQubits);
 
-	int maxEdgeCount = 2;
+	int maxEdgeCount = 90;
 	// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
-	auto subgraphs = generateSubgraphs(connectivity, 1, maxEdgeCount);
+	auto subgraphs = generateSubgraphs(connectivity, 0, maxEdgeCount);
+	const auto numQubits = ham.numQubits;
+
+	//for (int starSize = 3; starSize < 8; ++starSize) {
+	//	for (int start = 0; start <= numQubits - starSize; ++start) {
+	//		Graph<> star{ numQubits };
+	//		for (int i = 0; i < starSize; ++i) {
+	//			star.addEdge(start, start + i);
+	//		}
+	//		subgraphs.push_back(star);
+	//	}
+	//}
+
+	//std::ranges::rotate(subgraphs, subgraphs.begin() + 128);
+	//for (int i = 128; i < subgraphs.size(); ++i) {
+	//	println("{}", subgraphs[i-128].getAdjacencyMatrix());
+	//}
+
+
 	decltype(subgraphs) selectedGraphs;
-	selectedGraphs.push_back(Graph<>(ham.numQubits));
-	std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), 10, std::mt19937{ std::random_device{}() });
+	std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), 50, std::mt19937{ std::random_device{}() });
+	std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
 
-	auto collections = applyPauliGrouper(ham, subgraphs);
+	for (auto g : selectedGraphs)println("{}", g.edgeCount());
+	println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", ham.operators.size(), selectedGraphs.size(), numQubits);
+	auto collections = applyPauliGrouper2(ham, selectedGraphs);
 
+	//println("Found grouping into {} subsets", collections.size());
+	//for (const auto& collection : collections) {
+	//	println("{}", collection.first);
+	//	println("{} ({} graphs)", collection.second[0].getAdjacencyMatrix(), collection.second.size());
+	//}
 	println("Found grouping into {} subsets", collections.size());
 	for (const auto& collection : collections) {
-		println("{}", collection.first);
-		println("{} ({} graphs)", collection.second[0].getAdjacencyMatrix(), collection.second.size());
-	}
-	println("Found grouping into {} subsets", collections.size());
-	for (const auto& collection : collections) {
-		println("{}", collection.first);
+		println("{} -> {}", collection.paulis, collection.graph.getEdges());
 	}
 
+	return 0;
 }
 
 
@@ -51,7 +77,7 @@ int main2() {
 
 	int initialGroupCount{};
 	for (const auto& group : groups) {
-		if (group.size() <=2) {
+		if (group.size() <= 2) {
 			std::ranges::copy(group, std::back_inserter(singles));
 
 			++initialGroupCount;
@@ -77,7 +103,7 @@ int main2() {
 
 	println("trying to regroup {} groups with {} Paulis", initialGroupCount, singles.size());
 	auto collections = applyPauliGrouper(ham, selectedGraphs);
-
+	return 0;
 }
 
 

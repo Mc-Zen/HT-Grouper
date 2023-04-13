@@ -69,6 +69,7 @@ namespace Q {
 		/// @brief Commutator of two Pauli operators. The result is in binary form, 0 if 
 		///        p1 and p2 commute, 1 if they anticommute. 
 		constexpr friend int commutator(const Pauli& p1, const Pauli& p2);
+		constexpr friend bool commutesQubitWise(const Pauli& p1, const Pauli& p2);
 
 	private:
 		constexpr void fromStringOperator(const std::string_view& str);
@@ -165,6 +166,9 @@ namespace Q {
 	/// @brief Commutator of two Pauli operators. The result is in binary form, 0 if 
 ///        p1 and p2 commute, 1 if they anticommute. 
 	constexpr int Q::commutator(const Pauli& p1, const Pauli& p2) { return std::popcount((p1.r & p2.s) ^ (p2.r & p1.s)) & 1; }
+
+
+	constexpr bool Q::commutesQubitWise(const Pauli& p1, const Pauli& p2) { return ~(p1.getIdentityString() | p2.getIdentityString() | (~(p1.getXString() ^ p2.getXString()) & ~(p1.getZString() ^ p2.getZString()))) == 0; }
 
 }
 
