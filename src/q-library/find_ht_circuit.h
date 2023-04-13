@@ -263,7 +263,6 @@ namespace Q {
 		std::unique_ptr<GRBModel> model;
 
 		std::vector<GRBVar> axxVars, axzVars, azxVars, azzVars;
-		std::vector<std::vector<GRBVar>*> aVars = { &axxVars,&axzVars,&azxVars,&azzVars };
 		Math::Matrix<Q::Term> Axx;
 		Math::Matrix<Q::Term> Axz;
 		Math::Matrix<Q::Term> Azx;
@@ -303,6 +302,11 @@ namespace Q {
 			}
 		}
 
+		HTCircuitFinder(const HTCircuitFinder&) = delete;
+		HTCircuitFinder& operator=(const HTCircuitFinder&) = delete;
+		HTCircuitFinder(HTCircuitFinder&&) = default;
+		HTCircuitFinder& operator=(HTCircuitFinder&&) = default;
+
 		void setOperators(auto&& RS) {
 			numOperatorsPerSet = RS.size();
 			R.resize(numQubits, numOperatorsPerSet);
@@ -325,6 +329,7 @@ namespace Q {
 		std::optional<std::vector<BinaryCliffordGate>> findHTCircuit(const Graph<>& graph, bool verbose = false) {
 			using std::cout;
 			auto numEqs = numQubits * numOperatorsPerSet;
+			std::vector<std::vector<GRBVar>*> aVars = { &axxVars,&axzVars,&azxVars,&azzVars };
 
 
 			auto t0 = std::chrono::high_resolution_clock::now();
@@ -367,6 +372,7 @@ namespace Q {
 					return expr;
 				};
 
+				//model->feasRelax(GRB_FEASRELAX_QUADRATIC, true, true, true);
 				// dummy variables (used for rhs to ensure that lhs is multiple of 2 (corresponding to 0 in binary field) for each entry
 				std::vector<GRBVar> dummyVars;
 				for (int i = 0; i < numEqs; ++i) {
