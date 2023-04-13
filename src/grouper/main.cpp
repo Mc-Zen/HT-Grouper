@@ -12,17 +12,22 @@ using std::cout;
 
 int main() {
 
-	//HTCircuitFinder finder{ 12 , true};
-	//auto result = is_ht_measurable(std::vector<Pauli>{Pauli{ "IYXIIIIIXZIX" }}, Graph<>{12}, finder);
-
 	//auto filename = R"(C:\Users\E-Bow\Documents\Code\Cplusplus\HT-Grouper\data\hamiltonians.py)";
-	auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)";
+	const auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)";
+	const int numThreads = 8;
+	const int maxEdgeCount = 1000;           // Maximum number of edges for subgraphs
+	const int numGraphs = 150;               // Maximum number of random subgraphs
+	const bool sortGraphsByEdgeCount = true; // Sort possible subgraphs by edge count so graphs with lower edge count are preferred
+	const int hamiltonianIndex = 2;          // Index of hamiltonian to group
+
+
+
+
 	auto hamiltonians = readHamiltonians(filename);
 
-	auto& ham = hamiltonians[2];
+	auto& ham = hamiltonians[hamiltonianIndex];
 	auto connectivity = Graph<>::linear(ham.numQubits);
 
-	int maxEdgeCount = 90;
 	// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
 	auto subgraphs = generateSubgraphs(connectivity, 0, maxEdgeCount);
 	const auto numQubits = ham.numQubits;
@@ -44,18 +49,15 @@ int main() {
 
 
 	decltype(subgraphs) selectedGraphs;
-	std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), 50, std::mt19937{ std::random_device{}() });
-	std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
+	std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), numGraphs, std::mt19937{ std::random_device{}() });
 
-	for (auto g : selectedGraphs)println("{}", g.edgeCount());
+	if (sortGraphsByEdgeCount) {
+		std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
+	}
+
 	println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", ham.operators.size(), selectedGraphs.size(), numQubits);
-	auto collections = applyPauliGrouper2(ham, selectedGraphs);
+	auto collections = applyPauliGrouper2Multithread(ham, selectedGraphs, numThreads);
 
-	//println("Found grouping into {} subsets", collections.size());
-	//for (const auto& collection : collections) {
-	//	println("{}", collection.first);
-	//	println("{} ({} graphs)", collection.second[0].getAdjacencyMatrix(), collection.second.size());
-	//}
 	println("Found grouping into {} subsets", collections.size());
 	for (const auto& collection : collections) {
 		println("{} -> {}", collection.paulis, collection.graph.getEdges());
