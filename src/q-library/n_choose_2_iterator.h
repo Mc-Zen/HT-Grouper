@@ -1,12 +1,12 @@
 ﻿
 #pragma once
 #include <iterator>
-
+#include <cmath>
 
 namespace Q {
 
 	int linearIndexFromNChoose2(int n, int i, int j) {
-		return n * (n - 1) / 2 - (n - i) * (n - i - j) / 2 + j - i - 1;
+		return n * (n - 1) / 2 - (n - i) * (n - i - 1) / 2 + j - i - 1;
 	}
 
 	std::pair<int, int> nChoose2FromLinearIndex(int n, int index) {

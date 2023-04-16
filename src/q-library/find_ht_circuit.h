@@ -12,7 +12,7 @@
 #include "formatting.h"
 
 namespace Q {
-	void qwe() { /**/ }
+	constexpr void qwe() { /**/ }
 
 	/// @brief Find a Local Clifford (if it exists) that rotates a given stabilizer into a given graph state |Γ〉. 
 	/// @param graph    Graph that describes the graph state |Γ〉
