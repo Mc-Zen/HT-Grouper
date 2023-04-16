@@ -9,7 +9,11 @@ Also, this project features a variety of C++ libraries for dealing with matrices
 
 - Gurobi
 
+
 ## Setup
+
+A recent C++ compiler version is needed, supporting the C++20 standard. Using Visual Studio 2019 or 2022 is recommended. 
+
 - Check that you have Gurobi installed and registered a valid license
 - Download or clone this repository
 - Run CMake at repository level

@@ -48,9 +48,6 @@ namespace Q {
 	bool locallyCommutesWithAll(const std::vector<Pauli>& collection, const Pauli& pauli, uint64_t support);
 
 	bool is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& graph);
-	bool is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& graph) {
-
-	}
 
 	bool is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& graph, HTCircuitFinder& finder);
 
@@ -111,4 +108,5 @@ namespace Q {
 	/// @param verbose       If set to true, will print current status to stdout console output
 	/// @return Sets of commuting operators
 	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
+	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread2(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
 }

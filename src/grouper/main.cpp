@@ -2,6 +2,7 @@
 #include "formatting.h"
 #include "read_hamiltonians.h"
 #include "pauli_grouper.h"
+#include "python_formatting.h"
 #include <random>
 
 
@@ -9,11 +10,11 @@ using namespace Q;
 using std::cout;
 
 
-
 int main() {
 
 	//auto filename = R"(C:\Users\E-Bow\Documents\Code\Cplusplus\HT-Grouper\data\hamiltonians.py)";
 	const auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)";
+	const auto outfilename = R"(C:\Users\alpha\Downloads\mygrouping.py)"; // where to output the grouping (in python dict/list format)
 	const int numThreads = 8;
 	const int maxEdgeCount = 1000;           // Maximum number of edges for subgraphs
 	const int numGraphs = 150;               // Maximum number of random subgraphs
@@ -56,13 +57,16 @@ int main() {
 	}
 
 	println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", ham.operators.size(), selectedGraphs.size(), numQubits);
-	auto collections = applyPauliGrouper2Multithread(ham, selectedGraphs, numThreads);
+	auto collections = applyPauliGrouper2Multithread2(ham, selectedGraphs, numThreads);
 
 	println("Found grouping into {} subsets", collections.size());
-	for (const auto& collection : collections) {
-		println("{} -> {}", collection.paulis, collection.graph.getEdges());
-	}
 
+
+	std::ofstream file{ outfilename };
+	auto out = std::ostream_iterator<char>(std::cout);
+	auto fileout = std::ostream_iterator<char>(file);
+	PythonFormatting::printPauliCollections(out, collections);
+	PythonFormatting::printPauliCollections(fileout, collections);
 	return 0;
 }
 
