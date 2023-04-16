@@ -20,7 +20,7 @@ namespace Q {
 		explicit constexpr Pauli(int n) : n(n) {};
 
 		/// @brief Create a Pauli operator from a string, e.g. XIIXZ, -XYYYX, -iZZ, iXIX
-		explicit(false) Pauli(std::string_view pauliString);
+		explicit(false) constexpr Pauli(std::string_view pauliString);
 
 		/// @brief Create A Pauli operator with just one X at the specified position, e.g. IIXIII
 		static constexpr Pauli SingleX(int n, int qubit);
@@ -62,14 +62,24 @@ namespace Q {
 		/// @brief Get a binary string with 1 for each identity, e.g. XYZI -> 0001
 		constexpr Bitstring getIdentityString() const;
 
-		std::string toString() const;
+		constexpr std::string toString() const;
 
 		constexpr friend bool operator==(const Pauli& a, const Pauli& b) = default;
 
 		/// @brief Commutator of two Pauli operators. The result is in binary form, 0 if 
 		///        p1 and p2 commute, 1 if they anticommute. 
 		constexpr friend int commutator(const Pauli& p1, const Pauli& p2);
+
+		/// @brief Check if p1 and p2 commute on each qubit. 
 		constexpr friend bool commutesQubitWise(const Pauli& p1, const Pauli& p2);
+
+		/// @brief Check if p1 and p2 commute locally on subset A, i.e. whether p1' and p2' commute
+		///        where 
+		///            p'[i] = | p[i]  if i in A
+		///                    | I     else.
+		///        The argument support encodes A with a bit at location j set to 1 if j in A. 
+		constexpr friend bool commutesLocally(const Pauli& p1, const Pauli& p2, uint64_t support);
+
 
 	private:
 		constexpr void fromStringOperator(const std::string_view& str);
@@ -87,7 +97,7 @@ namespace Q {
 
 
 
-	Pauli::Pauli(std::string_view pauliString) {
+	constexpr Pauli::Pauli(std::string_view pauliString) {
 		if (pauliString.starts_with('i')) {
 			phase += 1;
 			fromStringOperator(pauliString.substr(1));
@@ -139,7 +149,7 @@ namespace Q {
 
 	constexpr Pauli::Bitstring Pauli::getZString() const { return s; }
 
-	std::string Pauli::toString() const {
+	constexpr std::string Pauli::toString() const {
 		constexpr std::array<char, 4> c{ 'I','X','Z','Y' };
 		std::string str;
 		str.reserve(n);
@@ -164,12 +174,30 @@ namespace Q {
 	}
 
 	/// @brief Commutator of two Pauli operators. The result is in binary form, 0 if 
-///        p1 and p2 commute, 1 if they anticommute. 
-	constexpr int Q::commutator(const Pauli& p1, const Pauli& p2) { return std::popcount((p1.r & p2.s) ^ (p2.r & p1.s)) & 1; }
+	///        p1 and p2 commute, 1 if they anticommute. 
+	constexpr int commutator(const Pauli& p1, const Pauli& p2) { return std::popcount((p1.r & p2.s) ^ (p2.r & p1.s)) & 1; }
 
 
-	constexpr bool Q::commutesQubitWise(const Pauli& p1, const Pauli& p2) { return ~(p1.getIdentityString() | p2.getIdentityString() | (~(p1.getXString() ^ p2.getXString()) & ~(p1.getZString() ^ p2.getZString()))) == 0; }
+	constexpr bool commutesQubitWise(const Pauli& p1, const Pauli& p2) { return ~(p1.getIdentityString() | p2.getIdentityString() | (~(p1.getXString() ^ p2.getXString()) & ~(p1.getZString() ^ p2.getZString()))) == 0; }
 
+
+	constexpr bool commutesLocally(const Pauli& p1, const Pauli& p2, uint64_t support) {
+		return (std::popcount((p1.r & p2.s & support) ^ (p2.r & p1.s & support)) & 1) == 0; 
+	}
+
+	///// @brief See @commutesLocally(const Pauli& p1, const Pauli& p2, int64_t support), 
+	/////        but here the A is directly stored as indices in a container. 
+	//template<class ForwardIterable> requires requires (ForwardIterable container) { {std::begin(container) } -> std::convertible_to<typename ForwardIterable::iterator>; }
+	//constexpr bool commutesLocally(const Pauli& p1, const Pauli& p2, const ForwardIterable& A);
+
+	//template<class ForwardIterable>
+	//constexpr bool commutesLocally(const Pauli& p1, const Pauli& p2, const ForwardIterable& A) {
+	//	int64_t support{};
+	//	for (auto index : A) {
+	//		support |= (1ULL << index);
+	//	}
+	//	return commutesLocally(p1, p2, support);
+	//}
 }
 
 

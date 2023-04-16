@@ -11,31 +11,31 @@ namespace Q {
 	class Variable {
 	public:
 		//Variable(char c) { name = c; }
-		Variable(const std::string& s) : name(s) {}
+		constexpr Variable(const std::string& s) : name(s) {}
+		constexpr friend bool operator==(const Variable& a, const Variable& b) = default;
 		friend std::ostream& operator<<(std::ostream& out, const Variable& v) { return out << v.name; }
-		friend bool operator==(const Variable& a, const Variable& b) = default;
 		//private:
 		std::string name;
 	};
 
 	class Number {
 	public:
-		Number() = default;
-		template<std::integral T> Number(T value) : value(value) {};
-		template<std::floating_point T>	Number(T value) : value(value) {};
-		template<std::floating_point T>	Number(const std::complex<T> value) : value(value) {};
+		constexpr Number() = default;
+		template<std::integral T> constexpr Number(T value) : value(value) {};
+		template<std::floating_point T>	constexpr Number(T value) : value(value) {};
+		template<std::floating_point T>	constexpr Number(const std::complex<T> value) : value(value) {};
 
-		Number& operator+=(const Number& n) { value += n.value; return *this; }
-		Number operator+(const Number& n) const { return Number{ *this } += n; }
-		Number& operator*=(const Number& n) { value *= n.value; return *this; }
-		Number operator*(const Number& n) const { return Number{ *this } *= n; }
-		friend bool operator==(const Number& a, const Number& b) = default;
+		constexpr Number& operator+=(const Number& n) { value += n.value; return *this; }
+		constexpr Number operator+(const Number& n) const { return Number{ *this } += n; }
+		constexpr Number& operator*=(const Number& n) { value *= n.value; return *this; }
+		constexpr Number operator*(const Number& n) const { return Number{ *this } *= n; }
+		constexpr friend bool operator==(const Number& a, const Number& b) = default;
 
 		friend std::ostream& operator<<(std::ostream& out, const Number& v) {
 			if (v.value.imag() == 0.) return out << v.value.real();
 			return out << '(' << v.value.real() << '+' << v.value.imag() << 'i' << ')';
 		}
-		double real() const { return value.real(); }
+		constexpr double real() const { return value.real(); }
 	private:
 		std::complex<double> value;
 	};
@@ -46,28 +46,28 @@ namespace Q {
 
 	class Product {
 	public:
-		Product() = default;
-		Product(const Number& n) { numbers.push_back(n); }
+		constexpr Product() = default;
+		constexpr Product(const Number& n) { numbers.push_back(n); }
 
-		Product& operator*=(const Number& v) { numbers.push_back(v); return *this; }
-		Product& operator*=(const Variable& v) { variables.push_back(v); return *this; }
-		Product& operator*=(const Sum& v);
-		Product& operator*=(const Product& v) {
+		constexpr Product& operator*=(const Number& v) { numbers.push_back(v); return *this; }
+		constexpr Product& operator*=(const Variable& v) { variables.push_back(v); return *this; }
+		constexpr Product& operator*=(const Sum& v);
+		constexpr Product& operator*=(const Product& v) {
 			numbers.insert(numbers.end(), v.numbers.begin(), v.numbers.end());
 			variables.insert(variables.end(), v.variables.begin(), v.variables.end());
 			sums.insert(sums.end(), v.sums.begin(), v.sums.end());
 			return *this;
 		}
 
-		Product& simplify();
+		constexpr Product& simplify();
 
 		// only yields correct result after call to simplify
 		//bool isOneSimplified() const { return (numbers.size() == 0 || (numbers.size() == 1 && numbers[0] == 1.)) && variables.empty() && sums.empty(); }
 		//bool isZeroSimplified() const { return numbers.size() == 1 && numbers[0] == 0 && variables.empty() && sums.empty(); }
-		bool isNumeric() const { return variables.empty() && sums.empty(); }
-		bool hasOnlySums() const { return numbers.empty() && variables.empty(); }
-		Number numericProduct() const { return std::accumulate(numbers.begin(), numbers.end(), Number{ 1 }, std::multiplies{}); }
-		size_t numTerms() const { return numbers.size() + variables.size() + sums.size(); }
+		constexpr bool isNumeric() const { return variables.empty() && sums.empty(); }
+		constexpr bool hasOnlySums() const { return numbers.empty() && variables.empty(); }
+		constexpr Number numericProduct() const { return std::accumulate(numbers.begin(), numbers.end(), Number{ 1 }, std::multiplies{}); }
+		constexpr size_t numTerms() const { return numbers.size() + variables.size() + sums.size(); }
 
 		friend std::ostream& operator<<(std::ostream& out, const Product& v);
 
@@ -79,29 +79,29 @@ namespace Q {
 
 	class Sum {
 	public:
-		Sum() = default;
-		Sum(const Number& n) { numbers.push_back(n); }
+		constexpr Sum() = default;
+		constexpr Sum(const Number& n) { numbers.push_back(n); }
 
-		Sum& operator+=(const Number& v) { numbers.push_back(v); return *this; }
-		Sum& operator+=(const Variable& v) { variables.push_back(v); return *this; }
-		Sum& operator+=(const Product& v);
-		Sum& operator+=(const Sum& v) {
+		constexpr Sum& operator+=(const Number& v) { numbers.push_back(v); return *this; }
+		constexpr Sum& operator+=(const Variable& v) { variables.push_back(v); return *this; }
+		constexpr Sum& operator+=(const Product& v);
+		constexpr Sum& operator+=(const Sum& v) {
 			numbers.insert(numbers.end(), v.numbers.begin(), v.numbers.end());
 			variables.insert(variables.end(), v.variables.begin(), v.variables.end());
 			products.insert(products.end(), v.products.begin(), v.products.end());
 			return *this;
 		}
 
-		Sum& simplify();
+		constexpr Sum& simplify();
 
 		// only yields correct result after call to simplify
 		//bool isZeroSimplified() const { return numbers.empty() && variables.empty() && products.empty(); }
 		//bool isOneSimplified() const { return numbers.size() == 1 && numbers[0] == 1 && variables.empty() && products.empty(); }
-		bool isNumeric() const { return variables.empty() && products.empty(); }
-		bool hasOnlyProducts() const { return numbers.empty() && variables.empty(); }
-		Number numericSum() const { return std::accumulate(numbers.begin(), numbers.end(), Number{}); }
+		constexpr bool isNumeric() const { return variables.empty() && products.empty(); }
+		constexpr bool hasOnlyProducts() const { return numbers.empty() && variables.empty(); }
+		constexpr Number numericSum() const { return std::accumulate(numbers.begin(), numbers.end(), Number{}); }
+		constexpr size_t numTerms() const { return numbers.size() + variables.size() + products.size(); }
 		friend std::ostream& operator<<(std::ostream& out, const Sum& v);
-		size_t numTerms() const { return numbers.size() + variables.size() + products.size(); }
 
 		//private:
 		std::vector<Number> numbers;
@@ -109,7 +109,7 @@ namespace Q {
 		std::vector<Product> products;
 	};
 
-	std::ostream& operator<<(std::ostream& out, const Product& v) {
+	inline std::ostream& operator<<(std::ostream& out, const Product& v) {
 		bool printedOne = false;
 		if (!v.numbers.empty()) {
 			out << v.numbers[0];
@@ -139,7 +139,7 @@ namespace Q {
 		return out;
 	}
 
-	std::ostream& operator<<(std::ostream& out, const Sum& v) {
+	inline std::ostream& operator<<(std::ostream& out, const Sum& v) {
 		bool printedOne = false;
 		if (!v.numbers.empty()) {
 			out << v.numbers[0];
@@ -162,7 +162,7 @@ namespace Q {
 		return out;
 	}
 
-	Product& Product::operator*=(const Sum& v) {
+	constexpr Product& Product::operator*=(const Sum& v) {
 		if (v.numTerms() == 1) {
 			for (const auto& c : v.numbers) (*this) *= c;
 			for (const auto& c : v.variables) (*this) *= c;
@@ -174,7 +174,7 @@ namespace Q {
 		return *this;
 	}
 
-	Sum& Sum::operator+=(const Product& v) {
+	constexpr Sum& Sum::operator+=(const Product& v) {
 		if (v.numTerms() == 1) {
 			for (const auto& c : v.numbers) (*this) += c;
 			for (const auto& c : v.variables) (*this) += c;
@@ -228,7 +228,7 @@ namespace Q {
 	//  1. All numbers are accumulated
 	//  2. All sub-terms are simplified. All purely-numeric sub-terms are absorbed into this expression. 
 
-	Product& Product::simplify() {
+	constexpr Product& Product::simplify() {
 		Number n = 1;
 		for (auto& sum : sums) {
 			sum.simplify();
@@ -251,7 +251,7 @@ namespace Q {
 		return *this;
 	}
 
-	Sum& Sum::simplify() {
+	constexpr Sum& Sum::simplify() {
 		Number n = 0;
 		for (auto& product : products) {
 			product.simplify();
@@ -270,11 +270,11 @@ namespace Q {
 		return *this;
 	}
 
-	Sum& simplify(Sum& sum) { return sum.simplify(); }
-	Product& simplify(Product& product) { return product.simplify(); }
+	constexpr Sum& simplify(Sum& sum) { return sum.simplify(); }
+	constexpr Product& simplify(Product& product) { return product.simplify(); }
 
 	template<class Expr>
-	Expr simplified(const Expr& expr) {
+	constexpr Expr simplified(const Expr& expr) {
 		auto e = expr;
 		return simplify(e);
 	}
@@ -334,7 +334,7 @@ namespace Q {
 	// Sums have an advantage for Term-Term operations. In the case of mutiplying products, this can lead to
 	// unnecessarily nested expressions. If both terms have exactly one summand, the product can be directly 
 	// expressed as the product of the two summands. 
-	Term operator*(const Term& t, const Term& u) {
+	constexpr Term operator*(const Term& t, const Term& u) {
 		if (t.numTerms() == 1 && u.numTerms() == 1) {
 			Product product;
 			for (const auto& c : t.numbers) product *= c;
@@ -354,7 +354,7 @@ namespace Q {
 
 
 	template<int m, int n>
-	Math::Matrix<Term, m, n> generateSymbolMatrix(const std::string& name) {
+	constexpr Math::Matrix<Term, m, n> generateSymbolMatrix(const std::string& name) {
 		Math::Matrix<Term, m, n> matrix;
 		for (size_t i = 0; i < m; ++i) {
 			for (size_t j = 0; j < n; ++j) {
@@ -367,7 +367,7 @@ namespace Q {
 
 
 
-	Math::Matrix<Term> generateSymbolMatrix(int m, int n, const std::string& name) {
+	constexpr Math::Matrix<Term> generateSymbolMatrix(int m, int n, const std::string& name) {
 		Math::Matrix<Term> matrix(m, n);
 		for (size_t i = 0; i < m; ++i) {
 			for (size_t j = 0; j < n; ++j) {
@@ -378,7 +378,7 @@ namespace Q {
 	}
 
 	template<int n>
-	Math::Vector<Term, n> generateSymbolVector(const std::string& name) {
+	constexpr Math::Vector<Term, n> generateSymbolVector(const std::string& name) {
 		Math::Vector<Term, n> vector;
 		for (size_t j = 0; j < n; ++j) {
 			vector[j] = Variable(name + std::to_string(j));
