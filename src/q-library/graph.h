@@ -231,6 +231,43 @@ namespace Q {
 			return graph;
 		}
 
+		/// @brief Get connected components of the graph in form of a vector of vector of vertex indices. 
+		/// @param sortBySize If true, the components are sorted by size (smallest to largest). 
+		/// @return Connected components of the graph
+		std::vector<std::vector<int>> connectedComponents(bool sortBySize = false) const {
+			std::vector<std::vector<int>> components;
+
+			auto copy = adjacencyMatrix;
+			auto edges = getEdges();
+			std::vector<int> remainingVertices(numVertices());
+			std::vector<int> visited(numVertices());
+			std::iota(remainingVertices.begin(), remainingVertices.end(), 0);
+
+			for (int i = 0; i < numVertices(); ++i) {
+				if (visited[i]) continue;
+				visited[i] = 1;
+				std::vector<int> component{ i };
+				std::vector<int> queue{ i };
+				while (!queue.empty()) {
+					auto vertex = queue.back();
+					queue.pop_back();
+					for (int k = 0; k < numVertices(); ++k) {
+						if (hasEdge(vertex, k) && visited[k] == 0) {
+							queue.push_back(k);
+							component.push_back(k);
+							visited[k] = 1;
+						}
+					}
+				}
+				components.emplace_back(std::move(component));
+			}
+			if (sortBySize) {
+				std::ranges::sort(components, std::less{}, &std::vector<int>::size);
+			}
+			return components;
+		}
+
+
 
 	private:
 

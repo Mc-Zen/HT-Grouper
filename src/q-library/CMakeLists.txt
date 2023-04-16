@@ -36,6 +36,7 @@ add_unit_test(${target}_unit_tests
 		tests/binary_pauli_tests.cpp
 		tests/lc_classes_tests.cpp
 		tests/matrix_tests.cpp
+		tests/pauli_tests.cpp
 	DEPENDENCIES
 		${target}
 )

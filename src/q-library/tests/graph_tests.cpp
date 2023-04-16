@@ -44,3 +44,17 @@ TEST_CASE("Compress/Decompress") {
 	REQUIRE(Graph<>::decompress(9, Graph<>::compress(Graph<>::fullyConnected(9))) == Graph<>::fullyConnected(9));
 	REQUIRE(Graph<>::decompress(9, Graph<>::compress(Graph<>::linear(9))) == Graph<>::linear(9));
 }
+
+TEST_CASE("Connected components") {
+	Graph<> graph(8);
+	graph.addPath({ 2,3,5 });
+	graph.addPath({ 0,7 });
+	REQUIRE(graph.connectedComponents(true) == std::vector<std::vector<int>>{ { {1}, { 4 }, { 6 }, { 0,7 }, { 2,3,5 }}});
+
+	graph = Graph<>{ 8 };
+	println("{}", graph.getAdjacencyMatrix());
+	REQUIRE(graph.connectedComponents(true) == std::vector<std::vector<int>>{ { std::vector<int>{0}, { 1 }, { 2 }, { 3 }, { 4 }, { 5 }, { 6 }, { 7 }}});
+
+	graph = Graph<>::star(8);
+	REQUIRE(graph.connectedComponents(true) == std::vector<std::vector<int>>{ { {0, 1, 2, 3, 4, 5, 6, 7}}});
+}
