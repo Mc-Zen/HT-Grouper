@@ -34,6 +34,18 @@ A recent C++ compiler version is needed, supporting the C++20 standard. Using Vi
 - The grouper algorithm can be found and run from the `ht-grouper` sub-project
 
 
-## Code example
+## Code example 1
 
 [TODO]
+
+show code that finds HT circuits for {P1, P2}, {P1,P3}, {P2,P3} but fails for {P1, P2, P3}:
+![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/aa53f136-46a7-499f-8a2b-480df6df35f4)
+
+
+## Code example 2
+
+[TODO]
+
+show code that reconstructs the Pauli grouping in Tab IX for the Hamiltonian in Tab VII.
+
+Also apply sorted-insertion-qwc and print R^_HT/R^_TPB.
