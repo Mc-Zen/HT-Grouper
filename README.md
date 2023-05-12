@@ -1,4 +1,4 @@
-# Hardware-Tailoring Pauli Grouper
+# HT-Grouper 
 
 This repository is maintained by Kyano Levi and Daniel Miller [(AG Eisert, FU Berlin)](https://www.physik.fu-berlin.de/en/einrichtungen/ag/ag-eisert/people/index.html).
 
