@@ -4,17 +4,25 @@ This repository is maintained by Kyano Levi and Daniel Miller [(AG Eisert, FU Be
 
 ## Grouping Pauli operators into commuting sets that admit hardware-tailored readout circuits
 
-In the preprint [Hardware-Tailored Diagonalization Circuits](https://doi.org/10.48550/arXiv.2203.03646) by Daniel Miller et al., 
+In the preprint [Hardware-Tailored Diagonalization Circuits](https://doi.org/10.48550/arXiv.2203.03646) by Daniel Miller _et al._, 
 a theoretical framework for the construction of hardware-tailored readout circuits was developed.
 The original code of the presented algorithms is not publically available, however, the algorithms are precisely described in Sec. II of the supplementary material.
-Here, we present an open-source version of the algorithm that is referred to as ``numerical solver'' in [arXiv.2203.03646](https://doi.org/10.48550/arXiv.2203.03646).
+Here, we present an open-source version of the algorithm that is referred to as "numerical solver" in [arXiv.2203.03646](https://doi.org/10.48550/arXiv.2203.03646).
 
 This repository contains a C++ implementation the algorithm that relies on the Mixed Integer Quadradically Constrained Program (MIQCP).
 Our implementation leverages [Gurobi](https://www.gurobi.com/downloads/gurobi-software/), 
 a commercially available software with [special offers for academics](https://www.gurobi.com/academia/academic-program-and-licenses/).
 
 
-Furthemore, this project includes C++ code for dealing with matrices, undirected graphs, Pauli operators, Clifford circuits and more. 
+Furthermore, this project includes C++ code for dealing with matrices, undirected graphs, Pauli operators, Clifford circuits and more. 
+
+## License
+
+This library is distributed under the [MIT License][license].
+If you want to support work like this, please cite our paper:
+[arXiv.2203.03646](https://doi.org/10.48550/arXiv.2203.03646)
+
+[license]: https://github.com/Mc-Zen/HT-Grouper/blob/master/LICENSE.txt
 
 
 ## Dependencies
@@ -24,14 +32,16 @@ Furthemore, this project includes C++ code for dealing with matrices, undirected
 
 ## Setup
 
-A recent C++ compiler version is needed, supporting the C++20 standard. Using Visual Studio 2019 or 2022 is recommended. 
+This is a quick setup guide for users that are somewhat familar with C++ development. Check out the [full installation guide](docs/installation-guide.md) for detailed step-by-step information on how to setup this code. 
+
+A recent C++ compiler version is needed, supporting the C++20 standard. We highly recommand using Visual Studio 2019 or 2022 (note: not Visual Studio Code).
 
 - Check that you have Gurobi installed and registered a valid license
 - Download or clone this repository
 - Run CMake at repository level
   - During configuration, you may choose the path for the Gurobi binaries by setting the variable `GUROBI_PATH` (defaults to `C:/gurobi1000/win64`)
   - Generate and open project
-- The grouper algorithm can be found and run from the `ht-grouper` sub-project
+- The grouper algorithm can be found and run from the `grouper` sub-project
 
 
 ## Code example 1
