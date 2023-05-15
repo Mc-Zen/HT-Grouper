@@ -2,7 +2,6 @@
 #pragma once
 #include "efficient_binary_math.h"
 #include <iostream>
-#include <vector>
 
 namespace Q {
 
@@ -104,7 +103,7 @@ namespace Q {
 		}
 
 		constexpr void localComplementation(int vertex) {
-			Math::Vector<Binary, numVertices()> ithColumn = adjacencyMatrix.col(vertex);
+			Math::Vector<Binary, n> ithColumn = adjacencyMatrix.col(vertex);
 			adjacencyMatrix += ithColumn * ithColumn.transpose();
 			for (int i = 0; i < numVertices(); ++i) {
 				adjacencyMatrix(i, i) = 0;
@@ -112,10 +111,10 @@ namespace Q {
 		}
 
 		constexpr void swap(int vertex1, int vertex2) {
-			Math::Vector<Binary, numVertices()> col = adjacencyMatrix.col(vertex1);
+			Math::Vector<Binary, n> col = adjacencyMatrix.col(vertex1);
 			adjacencyMatrix.col(vertex1) = adjacencyMatrix.col(vertex2);
 			adjacencyMatrix.col(vertex2) = col;
-			Math::RowVector<Binary, numVertices()> row = adjacencyMatrix.row(vertex1);
+			Math::RowVector<Binary, n> row = adjacencyMatrix.row(vertex1);
 			adjacencyMatrix.row(vertex1) = adjacencyMatrix.row(vertex2);
 			adjacencyMatrix.row(vertex2) = row;
 		}
@@ -201,10 +200,10 @@ namespace Q {
 		constexpr friend bool operator==(const Graph& g1, const Graph& g2) = default;
 
 		/// @brief Compress the graph into a single 64-bit integer. 
-		static constexpr int64_t compress(const Graph& graph) {
+		static constexpr uint64_t compress(const Graph& graph) {
 			static_assert(n * (n - 1) / 2 <= 64 || n != Math::dynamic, "Compression is not supported for graphs of this size");
 			assert(graph.numVertices() * (graph.numVertices() - 1) / 2 <= 64 && "Compression is not supported for graphs of this size");
-			int64_t code{};
+			uint64_t code{};
 			int index{};
 			for (int i = 0; i < graph.numVertices() - 1; ++i) {
 				for (int j = i + 1; j < graph.numVertices(); ++j) {
@@ -216,7 +215,7 @@ namespace Q {
 		}
 
 		/// @brief Restore a graph from its compressed form. 
-		static constexpr Graph decompress(int64_t code) requires(!is_dynamic) {
+		static constexpr Graph decompress(uint64_t code) requires(!is_dynamic) {
 			static_assert(n * (n - 1) / 2 <= 64, "Deompression is not supported for graphs of this size");
 			Graph graph;
 			decompressImpl(graph, code);
@@ -224,7 +223,7 @@ namespace Q {
 		}
 
 		/// @brief Restore a graph from its compressed form. 
-		static constexpr Graph decompress(int numVertices, int64_t code) requires(is_dynamic) {
+		static constexpr Graph decompress(int numVertices, uint64_t code) requires(is_dynamic) {
 			assert(numVertices * (numVertices - 1) / 2 <= 64 && "Deompression is not supported for graphs of this size");
 			Graph graph(numVertices);
 			decompressImpl(graph, code);

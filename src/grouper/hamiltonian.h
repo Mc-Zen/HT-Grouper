@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "pauli.h"
+#include <vector>
+#include <utility>
 
 namespace Q {
 
