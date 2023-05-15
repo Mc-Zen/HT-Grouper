@@ -16,10 +16,14 @@ set(target gurobi_c++)
 add_library(${target} INTERFACE)
 target_link_libraries(${target} INTERFACE optimized ${GUROBI_CXX_LIBRARY} debug ${GUROBI_CXX_DEBUG_LIBRARY})
 target_link_libraries(${target} INTERFACE ${GUROBI_LIBRARY})
-target_include_directories(${target} INTERFACE "${GUROBI_PATH}/include")
+target_include_directories(${target} INTERFACE ${GUROBI_INCLUDE_DIRS})
 
 include(cmake/add_unit_test.cmake)
 
+configure_file(cmake/data_path.h.in include/data_path.h)
+set(target data)
+add_library(${target} INTERFACE)
+target_include_directories(${target} INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/include")
 
 
 if (UNIT_TESTING)

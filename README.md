@@ -34,13 +34,11 @@ If you want to support work like this, please cite our paper:
 
 This is a quick setup guide for users that are somewhat familar with C++ development. Check out the [full installation guide](docs/installation-guide.md) for detailed step-by-step information on how to setup this code. 
 
-A recent C++ compiler version is needed, supporting the C++20 standard. We highly recommand using Visual Studio 2019 or 2022 (note: not Visual Studio Code).
+A recent C++ compiler version is needed, supporting the C++20 standard. We highly recommend using Visual Studio 2019 or 2022 (note: not Visual Studio Code).
 
 - Check that you have Gurobi installed and registered a valid license
 - Download or clone this repository
-- Run CMake at repository level
-  - During configuration, you may choose the path for the Gurobi binaries by setting the variable `GUROBI_PATH` (defaults to `C:/gurobi1000/win64`)
-  - Generate and open project
+- Run CMake at repository level, configure, generate and open project. 
 - The grouper algorithm can be found and run from the `grouper` sub-project
 
 

@@ -1,0 +1,1 @@
+#define DATA_PATH "@PROJECT_SOURCE_DIR@""/data/"
