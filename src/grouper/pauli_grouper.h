@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <algorithm>
 #include "graph.h"
 #include "hamiltonian.h"
 
@@ -18,24 +17,6 @@ namespace Q {
 
 	class HTCircuitFinder;
 
-
-	struct GraphRepr {
-		explicit GraphRepr(const Graph<>& graph) : graph(graph), connectedComponents(graph.connectedComponents(true)) {
-			for (const auto& component : connectedComponents) {
-				uint64_t supportVector{};
-				for (auto vertex : component) {
-					supportVector |= (1ULL << vertex);
-				}
-				connectedComponentSupportVectors.push_back(supportVector);
-			}
-		}
-
-		Graph<> graph;
-		std::vector<std::vector<int>> connectedComponents;
-		// Support vector for each connected component (a bitstring with 1 
-		// for each vertex in the connected component and zeros elsewhere). 
-		std::vector<uint64_t> connectedComponentSupportVectors;
-	};
 
 
 	/// @brief Check if given pauli commutes with every other Pauli in the collection. 

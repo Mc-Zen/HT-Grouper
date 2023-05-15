@@ -1,8 +1,11 @@
-﻿#include "find_ht_circuit.h"
-#include "formatting.h"
+﻿
 #include "read_hamiltonians.h"
 #include "pauli_grouper.h"
 #include "python_formatting.h"
+#include "json_formatting.h"
+#include "estimated_shot_reduction.h"
+#include "data_path.h"
+#include "read_config.h"
 #include <random>
 
 
@@ -10,63 +13,105 @@ using namespace Q;
 using std::cout;
 
 
+
 int main() {
+	try {
 
-	//auto filename = R"(C:\Users\E-Bow\Documents\Code\Cplusplus\HT-Grouper\data\hamiltonians.py)";
-	const auto filename = R"(C:\Users\alpha\Downloads\hamiltonians.py)";
-	const auto outfilename = R"(C:\Users\alpha\Downloads\mygrouping.py)"; // where to output the grouping (in python dict/list format)
-	const int numThreads = 8;
-	const int maxEdgeCount = 1000;           // Maximum number of edges for subgraphs
-	const int numGraphs = 150;               // Maximum number of random subgraphs
-	const bool sortGraphsByEdgeCount = true; // Sort possible subgraphs by edge count so graphs with lower edge count are preferred
-	const int hamiltonianIndex = 2;          // Index of hamiltonian to group
-
-
-
-
-	auto hamiltonians = readHamiltonians(filename);
-
-	auto& ham = hamiltonians[hamiltonianIndex];
-	auto connectivity = Graph<>::linear(ham.numQubits);
-
-	// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
-	auto subgraphs = generateSubgraphs(connectivity, 0, maxEdgeCount);
-	const auto numQubits = ham.numQubits;
-
-	//for (int starSize = 3; starSize < 8; ++starSize) {
-	//	for (int start = 0; start <= numQubits - starSize; ++start) {
-	//		Graph<> star{ numQubits };
-	//		for (int i = 0; i < starSize; ++i) {
-	//			star.addEdge(start, start + i);
-	//		}
-	//		subgraphs.push_back(star);
-	//	}
-	//}
-
-	//std::ranges::rotate(subgraphs, subgraphs.begin() + 128);
-	//for (int i = 128; i < subgraphs.size(); ++i) {
-	//	println("{}", subgraphs[i-128].getAdjacencyMatrix());
-	//}
+		Configuration config = readConfig(DATA_PATH "config.txt");
+		println(R"(Configuration:
+  filename = {}
+  outfilename = {}
+  connectivity = {}
+  numThreads = {}
+  maxEdgeCount = {}
+  numGraphs = {}
+  sortGraphsByEdgeCount = {}
+)", config.filename, config.outfilename, config.connectivity, config.numThreads, config.maxEdgeCount, config.numGraphs, config.sortGraphsByEdgeCount);
 
 
-	decltype(subgraphs) selectedGraphs;
-	std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), numGraphs, std::mt19937{ std::random_device{}() });
 
-	if (sortGraphsByEdgeCount) {
-		std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
+		// Read a hamiltonian consisting of Paulis together with weightings
+		// and find a grouping into simultaneously measurable sets respecting
+		// a given hardware connectivity. 
+
+		auto filename = config.filename;
+		if (!filename.starts_with("C:")) {
+			filename = DATA_PATH + filename;
+		}
+		auto outfilename = config.outfilename;
+		if (!outfilename.starts_with("C:")) {
+			outfilename = DATA_PATH + outfilename;
+		}
+		auto connectivityFile = config.connectivity;
+		if (!connectivityFile.starts_with("C:")) {
+			connectivityFile = DATA_PATH + connectivityFile;
+		}
+
+		Connectivity connectivitySpec = readConnectivity(connectivityFile);
+		auto hamiltonian = readHamiltonianFromJson(filename);
+		auto connectivity = connectivitySpec.getGraph(hamiltonian.numQubits);
+		println("Adjacency matrix:\n{}", connectivity.getAdjacencyMatrix());
+
+		auto& ham = hamiltonian;
+		const auto numQubits = ham.numQubits;
+
+		// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
+		auto subgraphs = generateSubgraphs(connectivity, 0, config.maxEdgeCount);
+
+		//for (int starSize = 3; starSize < 8; ++starSize) {
+		//	for (int start = 0; start <= numQubits - starSize; ++start) {
+		//		Graph<> star{ numQubits };
+		//		for (int i = 0; i < starSize; ++i) {
+		//			star.addEdge(start, start + i);
+		//		}
+		//		subgraphs.push_back(star);
+		//	}
+		//}
+
+		//std::ranges::rotate(subgraphs, subgraphs.begin() + 128);
+		//for (int i = 128; i < subgraphs.size(); ++i) {
+		//	println("{}", subgraphs[i-128].getAdjacencyMatrix());
+		//}
+
+
+		decltype(subgraphs) selectedGraphs;
+		std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), config.numGraphs, std::mt19937{ std::random_device{}() });
+
+		if (config.sortGraphsByEdgeCount) {
+			std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
+		}
+
+		println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", ham.operators.size(), selectedGraphs.size(), numQubits);
+		auto htGrouping = applyPauliGrouper2Multithread2(ham, selectedGraphs, config.numThreads);
+		auto tpbGrouping = applyPauliGrouper2Multithread2(ham, { Graph<>(numQubits) }, config.numThreads, false);
+
+		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);
+		//tpbGrouping.erase(tpbGrouping.begin(), tpbGrouping.begin() + 2);
+
+		auto R_hat_HT = estimated_shot_reduction(ham, htGrouping);
+		auto R_hat_tpb = estimated_shot_reduction(ham, tpbGrouping);
+
+		println("Found grouping into {} subsets", htGrouping.size());
+
+
+		std::ofstream file{ outfilename };
+		auto out = std::ostream_iterator<char>(std::cout);
+		auto fileout = std::ostream_iterator<char>(file);
+
+		JsonFormatting::printPauliCollections(out, htGrouping);
+		JsonFormatting::printPauliCollections(fileout, htGrouping);
+		println("{} groups. Estimated shot reduction R_hat = {}", htGrouping.size(), R_hat_HT / R_hat_tpb);
+		println("{} groups. Estimated shot reduction R_hat = {}, {}", htGrouping.size(), R_hat_HT, R_hat_tpb);
 	}
-
-	println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", ham.operators.size(), selectedGraphs.size(), numQubits);
-	auto collections = applyPauliGrouper2Multithread2(ham, selectedGraphs, numThreads);
-
-	println("Found grouping into {} subsets", collections.size());
-
-
-	std::ofstream file{ outfilename };
-	auto out = std::ostream_iterator<char>(std::cout);
-	auto fileout = std::ostream_iterator<char>(file);
-	PythonFormatting::printPauliCollections(out, collections);
-	PythonFormatting::printPauliCollections(fileout, collections);
+	catch (ConfigReadError& e) {
+		println("ConfigReadError: {}", e.what());
+	}
+	catch (ConnectivityError& e) {
+		println("ConnectivityError: {}", e.what());
+	}
+	catch (std::exception& e) {
+		println("{}", e.what());
+	}
 	return 0;
 }
 

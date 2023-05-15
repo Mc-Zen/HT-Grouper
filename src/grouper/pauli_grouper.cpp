@@ -1,11 +1,32 @@
-#include "pauli_grouper.h"
 
+#include "pauli_grouper.h"
 #include "find_ht_circuit.h"
 #include <ranges>
 #include <thread>
+#include <algorithm>
+
 
 using namespace Q;
 
+
+
+struct GraphRepr {
+	explicit GraphRepr(const Graph<>& graph) : graph(graph), connectedComponents(graph.connectedComponents(true)) {
+		for (const auto& component : connectedComponents) {
+			uint64_t supportVector{};
+			for (auto vertex : component) {
+				supportVector |= (1ULL << vertex);
+			}
+			connectedComponentSupportVectors.push_back(supportVector);
+		}
+	}
+
+	Graph<> graph;
+	std::vector<std::vector<int>> connectedComponents;
+	// Support vector for each connected component (a bitstring with 1 
+	// for each vertex in the connected component and zeros elsewhere). 
+	std::vector<uint64_t> connectedComponentSupportVectors;
+};
 
 bool Q::commutesWithAll(const std::vector<Pauli>& collection, const Pauli& pauli) {
 	for (const auto& p : collection) {
@@ -65,7 +86,7 @@ bool Q::is_ht_measurable2(const std::vector<Pauli>& collection, std::vector<Grap
 		}
 	}
 	if (success) {
-		std::erase_if(graphs, [&](const auto& graph) { return !finder.findHTCircuit(graph).has_value(); });
+		std::erase_if(graphs, [&finder](const auto& graph) { return !finder.findHTCircuit(graph).has_value(); });
 	}
 	return success;
 }
@@ -180,7 +201,8 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread(const Hamilton
 		std::atomic_int visitedGraphs{};
 		std::atomic_int finishedThreads{};
 
-		auto work = [&](size_t first, size_t last, std::vector<CollectionWithGraph>& partialSolution, HTCircuitFinder& finder) {
+		auto work = [&graphs, &mainPauli, &paulis, &visitedGraphs, &finishedThreads](
+			size_t first, size_t last, std::vector<CollectionWithGraph>& partialSolution, HTCircuitFinder& finder) {
 			for (auto i = first; i < last; ++i) {
 				++visitedGraphs;
 				const auto& graph = graphs[i];
@@ -243,7 +265,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread(const Hamilton
 
 
 std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads, bool verbose) {
-	const auto numGraphsPerThread = static_cast<size_t>(std::ceil(static_cast<float>(graphs.size()) / numThreads));
+	const auto numGraphsPerThread = static_cast<size_t>(std::ceil(static_cast<float>(graphs.size()) / static_cast<float>(numThreads)));
 	std::vector<HTCircuitFinder> finders;
 	for (int i = 0; i < numThreads; ++i) finders.emplace_back(hamiltonian.numQubits);
 
@@ -282,7 +304,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 					if (!commutesWithAll(collection.paulis, pauli)) continue;
 
 					bool ouch{};
-					if (!std::ranges::all_of(graphRepr.connectedComponentSupportVectors, [&](int supportVector) {
+					if (!std::ranges::all_of(graphRepr.connectedComponentSupportVectors, [&](auto supportVector) {
 						return locallyCommutesWithAll(collection.paulis, pauli, supportVector); })) {
 						continue;
 					}

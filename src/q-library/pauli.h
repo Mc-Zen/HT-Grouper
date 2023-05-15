@@ -27,6 +27,10 @@ namespace Q {
 		/// @brief Create A Pauli operator with just one Z at the specified position, e.g. IIZIII
 		static constexpr Pauli SingleZ(int n, int qubit);
 
+		static constexpr Pauli Identity(int n);
+
+
+
 		constexpr int numQubits() const { return n; };
 
 		/// @brief Check if operator at given qubit has an x component
@@ -128,6 +132,10 @@ namespace Q {
 		return pauli;
 	}
 
+	constexpr Pauli Pauli::Identity(int n) {
+		return Pauli{ n };
+	}
+
 
 	constexpr uint64_t Pauli::x(int qubit) const { return (r >> qubit) & 1ULL; }
 
@@ -182,7 +190,7 @@ namespace Q {
 
 
 	constexpr bool commutesLocally(const Pauli& p1, const Pauli& p2, uint64_t support) {
-		return (std::popcount((p1.r & p2.s & support) ^ (p2.r & p1.s & support)) & 1) == 0; 
+		return (std::popcount((p1.r & p2.s & support) ^ (p2.r & p1.s & support)) & 1) == 0;
 	}
 
 	///// @brief See @commutesLocally(const Pauli& p1, const Pauli& p2, int64_t support), 
