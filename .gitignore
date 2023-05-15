@@ -1,5 +1,4 @@
 
 build/
 .vs/
-data/
-jobfiles/
+/data/groupings
