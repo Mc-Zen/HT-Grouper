@@ -1,25 +1,26 @@
 cmake_minimum_required(VERSION 3.19)
 
+project(HT-Grouper)
+
 option(UNIT_TESTING "Enable unit tests for this project" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+find_package(GUROBI REQUIRED)
 
 # Setup gurobi
-set(GUROBI_PATH "C:/gurobi1000/win64" CACHE STRING "Path to the gurobi libraries")
 set(target gurobi_c++)
 add_library(${target} INTERFACE)
-target_link_libraries(${target} INTERFACE debug "${GUROBI_PATH}/lib/gurobi_c++mdd2017.lib" optimized "${GUROBI_PATH}/lib/gurobi_c++md2017.lib")
-target_link_libraries(${target} INTERFACE "${GUROBI_PATH}/lib/gurobi100.lib")
+target_link_libraries(${target} INTERFACE optimized ${GUROBI_CXX_LIBRARY} debug ${GUROBI_CXX_DEBUG_LIBRARY})
+target_link_libraries(${target} INTERFACE ${GUROBI_LIBRARY})
 target_include_directories(${target} INTERFACE "${GUROBI_PATH}/include")
-
 
 include(cmake/add_unit_test.cmake)
 
 
-project(HT-Grouper)
 
 if (UNIT_TESTING)
 	find_package(Catch2 REQUIRED)
@@ -28,3 +29,4 @@ if (UNIT_TESTING)
 endif()
 
 add_subdirectory(src)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT grouper)
