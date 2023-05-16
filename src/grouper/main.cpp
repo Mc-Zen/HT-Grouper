@@ -47,13 +47,13 @@ int main() {
 			connectivityFile = DATA_PATH + connectivityFile;
 		}
 
-		Connectivity connectivitySpec = readConnectivity(connectivityFile);
 		auto hamiltonian = readHamiltonianFromJson(filename);
-		auto connectivity = connectivitySpec.getGraph(hamiltonian.numQubits);
+		const auto numQubits = hamiltonian.numQubits;
+
+		Connectivity connectivitySpec = readConnectivity(connectivityFile);
+		auto connectivity = connectivitySpec.getGraph(numQubits);
 		println("Adjacency matrix:\n{}", connectivity.getAdjacencyMatrix());
 
-		auto& ham = hamiltonian;
-		const auto numQubits = ham.numQubits;
 
 		// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
 		auto subgraphs = generateSubgraphs(connectivity, 0, config.maxEdgeCount);
@@ -81,15 +81,15 @@ int main() {
 			std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
 		}
 
-		println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", ham.operators.size(), selectedGraphs.size(), numQubits);
-		auto htGrouping = applyPauliGrouper2Multithread2(ham, selectedGraphs, config.numThreads);
-		auto tpbGrouping = applyPauliGrouper2Multithread2(ham, { Graph<>(numQubits) }, config.numThreads, false);
+		println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
+		auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads);
+		auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
 
 		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);
 		//tpbGrouping.erase(tpbGrouping.begin(), tpbGrouping.begin() + 2);
 
-		auto R_hat_HT = estimated_shot_reduction(ham, htGrouping);
-		auto R_hat_tpb = estimated_shot_reduction(ham, tpbGrouping);
+		auto R_hat_HT = estimated_shot_reduction(hamiltonian, htGrouping);
+		auto R_hat_tpb = estimated_shot_reduction(hamiltonian, tpbGrouping);
 
 		println("Found grouping into {} subsets", htGrouping.size());
 
@@ -98,11 +98,9 @@ int main() {
 		auto out = std::ostream_iterator<char>(std::cout);
 		auto fileout = std::ostream_iterator<char>(file);
 
-		JsonFormatting::printPauliCollections(out, htGrouping);
+		//JsonFormatting::printPauliCollections(out, htGrouping);
 		JsonFormatting::printPauliCollections(fileout, htGrouping);
-		println("{} groups. Estimated shot reduction R_hat = {}", htGrouping.size(), R_hat_HT / R_hat_tpb);
-		println("{} groups. Estimated shot reduction R_hat_T = {}, R_hat_TPB = {}", htGrouping.size(), R_hat_HT, R_hat_tpb);
-		computeSingleQubitLayer(htGrouping);
+		println("{} groups. Estimated shot reduction R_hat_HT = {}, R_hat_TPB = {}, R_hat = {}", htGrouping.size(), R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
 	}
 	catch (ConfigReadError& e) {
 		println("ConfigReadError: {}", e.what());
