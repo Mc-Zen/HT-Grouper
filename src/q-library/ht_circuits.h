@@ -191,13 +191,13 @@ namespace Q {
 
 	namespace Latex {
 
-		auto toLatex(const BinaryCliffordGate& gate, int spaceBuffer = 4) {
+		inline auto toLatex(const BinaryCliffordGate& gate, int spaceBuffer = 4) {
 			const auto gateName = toString(gate);
 			return "\\gate{" + gateName + "}" + std::string(std::max(0ULL, spaceBuffer - gateName.size()), ' ');
 		}
 
 		template<int n>
-		auto toLatex(const HTCircuit <n>& circuit) {
+		inline auto toLatex(const HTCircuit <n>& circuit) {
 			std::vector<std::string> vs(n);
 			for (size_t i = 0; i < n; ++i) {
 				vs[i] += "\t & " + toLatex(circuit.singleQubitLayer[i]);
@@ -237,7 +237,7 @@ namespace Q {
 
 
 		template<int n, int m>
-		auto toLatex(const HTCircuit <n>& circuit, const std::array<BinaryPauliOperator<n>, m>& ops) {
+		inline auto toLatex(const HTCircuit <n>& circuit, const std::array<BinaryPauliOperator<n>, m>& ops) {
 			std::vector<std::string> vs(n);
 			for (size_t i = 0; i < n; ++i) {
 				vs[i] += "\t & " + toLatex(circuit.singleQubitLayer[i]);
@@ -286,56 +286,4 @@ namespace Q {
 		}
 	}
 
-
-
-	void test3() {
-		using namespace BinaryPauli;
-		constexpr BinaryMatrix<3, 3> Γ1 = {
-			0,1,0,
-			1,0,1,
-			0,1,0
-		};
-		constexpr BinaryMatrix<3, 3> Γ2 = {
-			0,0,0,
-			0,0,0,
-			0,0,0
-		};
-		constexpr BinaryMatrix<3, 3> Γ3 = {
-			0,1,0,
-			1,0,0,
-			0,0,0
-		};
-		constexpr BinaryMatrix<3, 3> Γ4 = {
-			0,0,0,
-			0,0,1,
-			0,1,0
-		};
-		constexpr BinaryMatrix<3, 3> Γ5 = {
-			0,0,1,
-			0,0,0,
-			1,0,0
-		};
-		constexpr auto set1 = parseMubSet<3, 7>("ZII IIZ IZI ZIZ IZZ ZZZ ZZI"); // HHH      Γ2  000111111000
-		constexpr auto set2 = parseMubSet<3, 7>("XII IXI IIX XXI IXX XXX XIX"); // III      Γ2  111000000111
-		constexpr auto set3 = parseMubSet<3, 7>("YII IXZ IZX YXZ IYY YYY YZX"); // SHH      Γ4  100011111100
-
-		constexpr auto set4 = parseMubSet<3, 7>("XIZ IYI ZIY XYZ ZYY YYX YIX"); // SH S H   Γ5  010101111110
-		constexpr auto set5 = parseMubSet<3, 7>("XZI ZXZ IZY YYZ ZYX YXX XIY"); // HSH I SH Γ1  110101001111
-		constexpr auto set6 = parseMubSet<3, 7>("YIZ IYZ ZZY YYI ZXX XXY XZX"); // S HS HS  Γ1  111011111100
-
-		constexpr auto set7 = parseMubSet<3, 7>("XZZ ZYZ ZZX YXI IXY XYX YIY"); // S H SH   Γ1  100011111101
-		constexpr auto set8 = parseMubSet<3, 7>("YZZ ZYI ZIX XXZ IYX YXY XZY"); // HS HS I  Γ1  111110110001
-		constexpr auto set9 = parseMubSet<3, 7>("YZI ZXI IIY XYI ZXY XYY YZY"); // HS H S   Γ3  101110111001
-
-
-		testHTCircuit(Γ2, { 0,0,0 }, { 1,1,1 }, { 1,1,1 }, { 0,0,0 }, set1); // HHH      Γ4
-		testHTCircuit(Γ2, { 1,1,1 }, { 0,0,0 }, { 0,0,0 }, { 1,1,1 }, set2); // III      Γ4
-		testHTCircuit(Γ4, { 1,0,0 }, { 0,1,1 }, { 1,1,1 }, { 1,0,0 }, set3); // SHH      Γ4
-		testHTCircuit(Γ5, { 0,1,0 }, { 1,0,1 }, { 1,1,1 }, { 1,1,0 }, set4); // 
-		testHTCircuit(Γ1, { 1,1,0 }, { 1,0,1 }, { 0,0,1 }, { 1,1,1 }, set5); // HSH I SH Γ1
-		testHTCircuit(Γ1, { 1,1,1 }, { 0,1,1 }, { 1,1,1 }, { 1,0,0 }, set6); // S HS HS  Γ1
-		testHTCircuit(Γ1, { 1,0,0 }, { 0,1,1 }, { 1,1,1 }, { 1,0,1 }, set7); // S H SH   Γ1
-		testHTCircuit(Γ1, { 1,1,1 }, { 1,1,0 }, { 1,1,0 }, { 0,0,1 }, set8); // HS HS I  Γ1
-		testHTCircuit(Γ3, { 1,0,1 }, { 1,1,0 }, { 1,1,1 }, { 0,0,1 }, set9); // HS H S   Γ3
-	}
 }

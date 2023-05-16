@@ -28,6 +28,18 @@ struct GraphRepr {
 	std::vector<uint64_t> connectedComponentSupportVectors;
 };
 
+void Q::computeSingleQubitLayer(CollectionWithGraph& collection, HTCircuitFinder& finder) {
+	auto result = finder.findHTCircuit(collection.graph, collection.paulis);
+	if (!result) throw std::runtime_error(std::format("The collection {} could not be diagonalized", collection.paulis));
+	collection.singleQubitLayer = *result;
+}
+
+void Q::computeSingleQubitLayer(std::vector<CollectionWithGraph>& grouping) {
+	HTCircuitFinder finder{ grouping[0].graph.numVertices() };
+	std::ranges::for_each(grouping, [&finder](auto& group) {computeSingleQubitLayer(group, finder); });
+
+}
+
 bool Q::commutesWithAll(const std::vector<Pauli>& collection, const Pauli& pauli) {
 	for (const auto& p : collection) {
 		if (commutator(p, pauli) == 1) return false;
@@ -56,6 +68,16 @@ bool Q::is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& gr
 bool Q::is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& graph, HTCircuitFinder& finder) {
 	finder.setOperators(collection);
 	return finder.findHTCircuit(graph).has_value();
+}
+
+namespace Q {
+	bool is_ht_measurable(const std::vector<Pauli>& collection, const GraphRepr& graph, HTCircuitFinder& finder) {
+		for (auto& component : graph.connectedComponents) {
+			auto result = finder.findHTCircuit(graph.graph, collection, component);
+			if (!result.has_value()) return false;
+		}
+		return true;
+	}
 }
 
 
@@ -203,22 +225,22 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread(const Hamilton
 
 		auto work = [&graphs, &mainPauli, &paulis, &visitedGraphs, &finishedThreads](
 			size_t first, size_t last, std::vector<CollectionWithGraph>& partialSolution, HTCircuitFinder& finder) {
-			for (auto i = first; i < last; ++i) {
-				++visitedGraphs;
-				const auto& graph = graphs[i];
-				CollectionWithGraph collection{ { mainPauli }, graph };
-				if (!is_ht_measurable(collection.paulis, graph, finder)) continue;
+				for (auto i = first; i < last; ++i) {
+					++visitedGraphs;
+					const auto& graph = graphs[i];
+					CollectionWithGraph collection{ { mainPauli }, graph };
+					if (!is_ht_measurable(collection.paulis, graph, finder)) continue;
 
-				for (const auto& [pauli, _] : paulis | std::ranges::views::drop(1)) {
-					if (!commutesWithAll(collection.paulis, pauli)) continue;
-					collection.paulis.push_back(pauli);
-					if (!is_ht_measurable(collection.paulis, graph, finder)) {
-						collection.paulis.pop_back();
+					for (const auto& [pauli, _] : paulis | std::ranges::views::drop(1)) {
+						if (!commutesWithAll(collection.paulis, pauli)) continue;
+						collection.paulis.push_back(pauli);
+						if (!is_ht_measurable(collection.paulis, graph, finder)) {
+							collection.paulis.pop_back();
+						}
 					}
+					partialSolution.push_back(collection);
 				}
-				partialSolution.push_back(collection);
-			}
-			++finishedThreads;
+				++finishedThreads;
 		};
 
 		std::vector<std::vector<CollectionWithGraph>> partialSolutions(numThreads);
@@ -315,7 +337,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 					}
 
 					collection.paulis.push_back(pauli);
-					if (!is_ht_measurable(collection.paulis, graph, finder)) {
+					if (!is_ht_measurable(collection.paulis, graphRepr, finder)) {
 						collection.paulis.pop_back();
 					}
 				}

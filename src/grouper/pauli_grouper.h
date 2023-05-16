@@ -2,6 +2,7 @@
 
 #include "graph.h"
 #include "hamiltonian.h"
+#include "ht_circuits.h"
 
 
 namespace Q {
@@ -12,11 +13,15 @@ namespace Q {
 	struct CollectionWithGraph {
 		std::vector<Pauli> paulis;
 		Graph<> graph;
+		std::vector<BinaryCliffordGate> singleQubitLayer;
 		auto size() const { return paulis.size(); }
 	};
 
 	class HTCircuitFinder;
 
+
+	void computeSingleQubitLayer(CollectionWithGraph& collection, HTCircuitFinder& finder);
+	void computeSingleQubitLayer(std::vector<CollectionWithGraph>& grouping);
 
 
 	/// @brief Check if given pauli commutes with every other Pauli in the collection. 

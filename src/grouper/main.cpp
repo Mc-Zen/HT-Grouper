@@ -85,6 +85,7 @@ int main() {
 		auto htGrouping = applyPauliGrouper2Multithread2(ham, selectedGraphs, config.numThreads);
 		auto tpbGrouping = applyPauliGrouper2Multithread2(ham, { Graph<>(numQubits) }, config.numThreads, false);
 
+		computeSingleQubitLayer(htGrouping);
 		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);
 		//tpbGrouping.erase(tpbGrouping.begin(), tpbGrouping.begin() + 2);
 
