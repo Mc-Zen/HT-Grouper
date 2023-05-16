@@ -29,9 +29,19 @@ struct GraphRepr {
 };
 
 void Q::computeSingleQubitLayer(CollectionWithGraph& collection, HTCircuitFinder& finder) {
-	auto result = finder.findHTCircuit(collection.graph, collection.paulis);
-	if (!result) throw std::runtime_error(std::format("The collection {} could not be diagonalized", collection.paulis));
-	collection.singleQubitLayer = *result;
+	auto repr = GraphRepr(collection.graph);
+	std::vector<BinaryCliffordGate> fullLayer(collection.graph.numVertices());
+
+	for (const auto& component : repr.connectedComponents) {
+		auto result = finder.findHTCircuit(collection.graph, collection.paulis, component);
+		if (!result) throw std::runtime_error(std::format("The collection {} could not be diagonalized", collection.paulis));
+
+		int index{};
+		for (int qubit : component) {
+			fullLayer[qubit] = (*result)[index++];
+		}
+	}
+	collection.singleQubitLayer = fullLayer;
 }
 
 void Q::computeSingleQubitLayer(std::vector<CollectionWithGraph>& grouping) {
@@ -72,6 +82,7 @@ bool Q::is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& gr
 
 namespace Q {
 	bool is_ht_measurable(const std::vector<Pauli>& collection, const GraphRepr& graph, HTCircuitFinder& finder) {
+		return finder.findHTCircuit(graph.graph, collection).has_value();
 		for (auto& component : graph.connectedComponents) {
 			auto result = finder.findHTCircuit(graph.graph, collection, component);
 			if (!result.has_value()) return false;
@@ -320,7 +331,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 				const auto& graphRepr = graphReprs[i];
 				const auto& graph = graphRepr.graph;
 				CollectionWithGraph collection{ { mainPauli }, graph };
-				if (!is_ht_measurable(collection.paulis, graph, finder)) continue;
+				if (!is_ht_measurable(collection.paulis, graphRepr, finder)) continue;
 
 				for (const auto& [pauli, _] : paulis | std::ranges::views::drop(1)) {
 					if (!commutesWithAll(collection.paulis, pauli)) continue;
@@ -331,10 +342,10 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 						continue;
 					}
 
-					if (graphRepr.connectedComponents.back().size() <= 3) {
-						collection.paulis.push_back(pauli);
-						continue;
-					}
+					//if (graphRepr.connectedComponents.back().size() <= 2) {
+					//	collection.paulis.push_back(pauli);
+					//	continue;
+					//}
 
 					collection.paulis.push_back(pauli);
 					if (!is_ht_measurable(collection.paulis, graphRepr, finder)) {
@@ -383,5 +394,6 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 			paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
 			collections.back().paulis, collections.back().graph.getEdges());
 	}
+	computeSingleQubitLayer(collections);
 	return collections;
 }

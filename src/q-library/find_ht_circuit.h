@@ -342,72 +342,42 @@ namespace Q {
 			if (verbose)
 				std::cout << R << S << lhs;
 
-			try {
 
-
-				auto toGRBLinExpression = [&](const Term& t) {
-					auto getVar = [&](const Variable& t) -> GRBVar& {
-						return aVars[((t.name[1] == 'z') * 2) + (t.name[2] == 'z')]->operator[](t.name[3] - '0');
-					};
-					GRBLinExpr expr;
-					const auto simplifiedTerm = simplified(t);
-					for (const auto& c : simplifiedTerm.numbers) {
-						expr += c.real();
-					}
-					for (const auto& c : simplifiedTerm.variables) {
-						expr += getVar(c);
-					}
-					assert(simplifiedTerm.products.empty() && "Expression is not linear");
-					for (const auto& c : simplifiedTerm.products) {
-						assert(c.sums.empty());
-						GRBLinExpr p;
-
-						for (const auto& d : c.numbers) {
-							p *= d.real();
-						}
-						for (const auto& d : c.variables) {
-							//p *= getVar(d);
-						}
-						expr += p;
-					}
-					return expr;
+			auto toGRBLinExpression = [&](const Term& t) {
+				auto getVar = [&](const Variable& t) -> GRBVar& {
+					return aVars[((t.name[1] == 'z') * 2) + (t.name[2] == 'z')]->operator[](t.name[3] - '0');
 				};
-
-				std::vector<GRBConstr> constraints;
-				int i{};
-				for (const auto& row : lhs) {
-					constraints.push_back(model->addConstr(toGRBLinExpression(row) * 0.5 == dummyVars[i], "i" + std::to_string(i)));
-					++i;
+				GRBLinExpr expr;
+				const auto simplifiedTerm = simplified(t);
+				for (const auto& c : simplifiedTerm.numbers) {
+					expr += c.real();
 				}
-
-				model->optimize();
-				auto t2 = std::chrono::high_resolution_clock::now();
-				//println("Time A: {}, Time B {}", t1 - t0, t2 - t1);
-
-
-				for (auto& constr : constraints) {
-					model->remove(constr);
+				for (const auto& c : simplifiedTerm.variables) {
+					expr += getVar(c);
 				}
-				if (model->get(GRB_IntAttr_Status) != 2) { // failed
-					return std::nullopt;
+				assert(simplifiedTerm.products.empty() && "Expression is not linear");
+				for (const auto& c : simplifiedTerm.products) {
+					assert(c.sums.empty());
+					GRBLinExpr p;
+
+					for (const auto& d : c.numbers) {
+						p *= d.real();
+					}
+					for (const auto& d : c.variables) {
+						//p *= getVar(d);
+					}
+					expr += p;
 				}
-				//model.write("model.lp");
-				std::vector<BinaryCliffordGate> singleQubitLayer(numQubits);
-				for (int i = 0; i < numQubits; ++i) {
-					singleQubitLayer[i] = { axxVars[i].get(GRB_DoubleAttr_X) ,axzVars[i].get(GRB_DoubleAttr_X) ,azxVars[i].get(GRB_DoubleAttr_X) ,azzVars[i].get(GRB_DoubleAttr_X) };
-					if (verbose)
-						cout << "U_" << i << "\n" << singleQubitLayer[i];
-				}
-				return singleQubitLayer;
+				return expr;
+			};
+
+			std::vector<GRBConstr> constraints;
+			int i{};
+			for (const auto& row : lhs) {
+				constraints.push_back(model->addConstr(toGRBLinExpression(row) * 0.5 == dummyVars[i], "i" + std::to_string(i)));
+				++i;
 			}
-			catch (const GRBException& e) {
-				cout << "Error code = " << e.getErrorCode() << '\n';
-				cout << e.getMessage() << '\n';
-			}
-			catch (...) {
-				cout << "Exception during optimization" << '\n';
-			}
-			return std::nullopt;
+			return optimize(constraints, verbose);
 		}
 
 
@@ -421,10 +391,8 @@ namespace Q {
 		std::optional<std::vector<BinaryCliffordGate>> findHTCircuit(
 			const Graph<>& graph,
 			const std::vector<Pauli>& paulis,
-			const std::vector<int>& qubits = {},
 			bool verbose = false
 		) {
-			using std::cout;
 			auto numQubits = graph.numVertices();
 			auto numPaulis = paulis.size();
 			auto numEqs = numQubits * numPaulis;
@@ -449,6 +417,50 @@ namespace Q {
 				}
 			}
 
+			return optimize(constraints, verbose);
+		}
+		
+
+		/// @brief Find a Local Clifford (if it exists) that rotates a given stabilizer into a given graph state |Γ〉. 
+		/// @param graph    Graph that describes the graph state |Γ〉
+		/// @param RS       Stabilizer as a list of Pauli operators
+		/// @param verbose  If set to true, the generated equations are printed to stdout
+		/// @return         If successfull, a list of symplectic 2x2 matrices, corresponding to the 6 single-qubit Clifford gates
+		std::optional<std::vector<BinaryCliffordGate>> findHTCircuit(
+			const Graph<>& graph,
+			const std::vector<Pauli>& paulis,
+			const std::vector<int>& qubits,
+			bool verbose = false
+		) {
+			auto numQubits = qubits.size();
+			auto numPaulis = paulis.size();
+			auto numEqs = numQubits * numPaulis;
+			const auto& gamma = graph.getAdjacencyMatrix();
+			updateSize(numQubits, numPaulis);
+
+			std::vector<GRBConstr> constraints;
+
+			for (int i = 0; i < numQubits; ++i) {
+				for (int j = 0; j < numPaulis; ++j) {
+
+					GRBLinExpr expr;
+					if (paulis[j].x(qubits[i])) expr += azxVars[i];
+					if (paulis[j].z(qubits[i])) expr += azzVars[i];
+					for (int k = 0; k < numQubits; ++k) {
+						if (gamma(qubits[i], qubits[k])) {
+							if (paulis[j].x(qubits[k])) expr += axxVars[k];
+							if (paulis[j].z(qubits[k])) expr += axzVars[k];
+						}
+					}
+					constraints.push_back(model->addConstr(expr * 0.5 == dummyVars[i * numPaulis + j]));
+				}
+			}
+
+			return optimize(constraints, verbose);
+		}
+
+
+		std::optional<std::vector<BinaryCliffordGate>> optimize(const std::vector<GRBConstr>& constraints, bool verbose) {
 
 			try {
 				model->optimize();
@@ -466,16 +478,16 @@ namespace Q {
 				for (int i = 0; i < numQubits; ++i) {
 					singleQubitLayer[i] = { axxVars[i].get(GRB_DoubleAttr_X) ,axzVars[i].get(GRB_DoubleAttr_X) ,azxVars[i].get(GRB_DoubleAttr_X) ,azzVars[i].get(GRB_DoubleAttr_X) };
 					if (verbose)
-						cout << "U_" << i << "\n" << singleQubitLayer[i];
+						std::cout << "U_" << i << "\n" << singleQubitLayer[i];
 				}
 				return singleQubitLayer;
 			}
 			catch (const GRBException& e) {
-				cout << "Error code = " << e.getErrorCode() << '\n';
-				cout << e.getMessage() << '\n';
+				std::cout << "Error code = " << e.getErrorCode() << '\n';
+				std::cout << e.getMessage() << '\n';
 			}
 			catch (...) {
-				cout << "Exception during optimization" << '\n';
+				std::cout << "Exception during optimization" << '\n';
 			}
 			return std::nullopt;
 		}

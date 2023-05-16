@@ -85,7 +85,6 @@ int main() {
 		auto htGrouping = applyPauliGrouper2Multithread2(ham, selectedGraphs, config.numThreads);
 		auto tpbGrouping = applyPauliGrouper2Multithread2(ham, { Graph<>(numQubits) }, config.numThreads, false);
 
-		computeSingleQubitLayer(htGrouping);
 		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);
 		//tpbGrouping.erase(tpbGrouping.begin(), tpbGrouping.begin() + 2);
 
@@ -102,7 +101,8 @@ int main() {
 		JsonFormatting::printPauliCollections(out, htGrouping);
 		JsonFormatting::printPauliCollections(fileout, htGrouping);
 		println("{} groups. Estimated shot reduction R_hat = {}", htGrouping.size(), R_hat_HT / R_hat_tpb);
-		println("{} groups. Estimated shot reduction R_hat = {}, {}", htGrouping.size(), R_hat_HT, R_hat_tpb);
+		println("{} groups. Estimated shot reduction R_hat_T = {}, R_hat_TPB = {}", htGrouping.size(), R_hat_HT, R_hat_tpb);
+		computeSingleQubitLayer(htGrouping);
 	}
 	catch (ConfigReadError& e) {
 		println("ConfigReadError: {}", e.what());
