@@ -29,7 +29,7 @@ If you want to support work like this, please cite our paper:
 
 - Gurobi 10.0.0 (or more recent)
 - Qiskit 
-- Currently only Windows is supported.
+- Currently, only Windows is supported.
 
 
 ## Setup
