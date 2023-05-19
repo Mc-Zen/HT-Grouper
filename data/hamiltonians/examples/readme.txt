@@ -1,0 +1,1 @@
+Hydrogen chains: 1 Angstrom spacing between nuclei, Bravyi-Kitaev encoding (#qubits = 2#atoms)
