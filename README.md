@@ -9,7 +9,7 @@ a theoretical framework for the construction of hardware-tailored readout circui
 The original code of the presented algorithms is not publically available, however, the algorithms are precisely described in Sec. II of the supplementary material.
 Here, we present an open-source version of the algorithm that is referred to as "numerical solver" in [arXiv.2203.03646](https://doi.org/10.48550/arXiv.2203.03646).
 
-This repository contains a C++ implementation the algorithm that relies on the Mixed Integer Quadradically Constrained Program (MIQCP).
+This repository contains a C++ implementation of the algorithm that relies on the Mixed Integer Quadradically Constrained Program (MIQCP).
 Our implementation leverages [Gurobi](https://www.gurobi.com/downloads/gurobi-software/), 
 a commercially available software with [special offers for academics](https://www.gurobi.com/academia/academic-program-and-licenses/).
 
