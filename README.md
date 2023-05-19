@@ -28,6 +28,8 @@ If you want to support work like this, please cite our paper:
 ## Dependencies
 
 - Gurobi
+- Qiskit
+- Windows 95 or better
 
 
 ## Setup
