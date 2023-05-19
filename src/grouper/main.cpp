@@ -7,7 +7,7 @@
 #include "data_path.h"
 #include "read_config.h"
 #include <random>
-
+#include <chrono>
 
 using namespace Q;
 using std::cout;
@@ -29,6 +29,7 @@ int main() {
 )", config.filename, config.outfilename, config.connectivity, config.numThreads, config.maxEdgeCount, config.numGraphs, config.sortGraphsByEdgeCount);
 
 
+		auto t0 = std::chrono::high_resolution_clock::now();
 
 		// Read a hamiltonian consisting of Paulis together with weightings
 		// and find a grouping into simultaneously measurable sets respecting
@@ -91,7 +92,11 @@ int main() {
 		auto R_hat_HT = estimated_shot_reduction(hamiltonian, htGrouping);
 		auto R_hat_tpb = estimated_shot_reduction(hamiltonian, tpbGrouping);
 
-		println("Found grouping into {} subsets", htGrouping.size());
+		auto t1 = std::chrono::high_resolution_clock::now();
+
+		auto timeInSeconds = std::chrono::duration_cast<std::chrono::seconds>(t1 - t0).count();
+
+		println("Found grouping into {} subsets, run time: {}s", htGrouping.size(), timeInSeconds);
 
 
 		std::ofstream file{ outfilename };
@@ -99,7 +104,7 @@ int main() {
 		auto fileout = std::ostream_iterator<char>(file);
 
 		//JsonFormatting::printPauliCollections(out, htGrouping);
-		JsonFormatting::printPauliCollections(fileout, htGrouping);
+		JsonFormatting::printPauliCollections(fileout, htGrouping, timeInSeconds);
 		println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
 	}
 	catch (ConfigReadError& e) {
