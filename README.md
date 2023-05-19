@@ -6,7 +6,7 @@ This repository is maintained by Kyano Levi and Daniel Miller [(AG Eisert, FU Be
 
 In the preprint [Hardware-Tailored Diagonalization Circuits](https://doi.org/10.48550/arXiv.2203.03646) by Daniel Miller _et al._, 
 a theoretical framework for the construction of hardware-tailored readout circuits was developed.
-The original code of the presented algorithms is not publically available, however, the algorithms are precisely described in Sec. II of the supplementary material.
+The original implementation of the presented algorithms is not publically available, however, the algorithms are precisely described in Sec. II of the supplementary material.
 Here, we present an open-source version of the algorithm that is referred to as "numerical solver" in [arXiv.2203.03646](https://doi.org/10.48550/arXiv.2203.03646).
 
 This repository contains a C++ implementation of the algorithm that relies on the Mixed Integer Quadradically Constrained Program (MIQCP).
