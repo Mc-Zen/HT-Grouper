@@ -95,4 +95,5 @@ namespace Q {
 	/// @return Sets of commuting operators
 	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
 	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread2(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
+	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread3(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
 }

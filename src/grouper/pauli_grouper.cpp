@@ -87,9 +87,34 @@ bool Q::is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& gr
 namespace Q {
 	bool is_ht_measurable(const std::vector<Pauli>& collection, const GraphRepr& graph, HTCircuitFinder& finder) {
 		return finder.findHTCircuit(graph.graph, collection).has_value();
-		for (auto& component : graph.connectedComponents) {
-			auto result = finder.findHTCircuit(graph.graph, collection, component);
-			if (!result.has_value()) return false;
+	}
+
+	/// @brief Optimized version that checks connected components and tries diagonalizing them individually. 
+	/// 
+	/// @param collection Collection of Paulis, the next argument pauli is expected to already be in this collection
+	/// @param pauli Newly added Pauli
+	/// @param graph Graph
+	/// @param finder Finder
+	/// @return 
+	bool is_ht_measurable_with(const std::vector<Pauli>& collection, const Pauli& pauli, const GraphRepr& graph, HTCircuitFinder& finder) {
+		//return finder.findHTCircuit(graph.graph, collection).has_value();
+		for (size_t i = 0; i < graph.connectedComponents.size(); ++i) {
+			auto& component = graph.connectedComponents[i];
+			auto support = graph.connectedComponentSupportVectors[i];
+			if (component.size() == 1) {
+				if (!locallyCommutesWithAll(collection, pauli, support)) return false;
+			}
+			else if (component.size() == 2) {
+				if (!locallyCommutesWithAll(collection, pauli, support)) return false;
+
+				for (const auto& p : collection) {
+					if (std::popcount(p.getIdentityString() & support) == 1) return false; // they need to be entangled
+				}
+			}
+			else {
+				auto result = finder.findHTCircuit(graph.graph, collection, component);
+				if (!result.has_value()) return false;
+			}
 		}
 		return true;
 	}
@@ -352,7 +377,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 					//}
 
 					collection.paulis.push_back(pauli);
-					if (!is_ht_measurable(collection.paulis, graphRepr, finder)) {
+					if (!is_ht_measurable(collection.paulis,graphRepr, finder)) {
 						collection.paulis.pop_back();
 					}
 				}
