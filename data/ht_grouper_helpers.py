@@ -112,48 +112,6 @@ def generate_readout_circuits(grouping: List[dict]) -> List[QuantumCircuit]:
     return circuits
 
 
-def R_hat(grouping: List[dict], hamiltonian: Dict[str, float]) -> float:
-    """
-    Compute estimated shot reduction compared to single Pauli measurements. 
-
-                       ∑_i^N ∑_j^{m_i} |a_ij|    
-         \hat{R} = (----------------------------)²  
-                         ∑_i^N √(∑_j^{m_i} |a_ij|²) 
-
-        as defined in https://doi.org/10.22331/q-2021-01-20-385
-
-
-    Parameters
-    ----------
-    grouping : List[dict]
-        Pauli grouping, a list of dictionaries each containing a list of 
-        Pauli strings for the key "operators", i.e. grouping[0]["groupings"]
-        needs to return a list of Pauli strings. 
-
-    hamiltonian : Dict[str, float]
-        A hamiltonian specification as a dictionary with Pauli strings as keys 
-        and coefficients as values
-
-    Returns
-    -------
-    float
-        Estimated shot reduction R_hat
-    """
-    numerator = 0
-    denominator = 0
-    identity = "I" * len(next(iter(hamiltonian)))
-
-    for group in grouping:
-        term = 0
-        for pauli in group["operators"]:
-            if pauli == identity:
-                continue
-            absolute = abs(hamiltonian[pauli])
-            numerator += absolute
-            term += absolute * absolute
-        denominator += term ** .5
-    return (numerator / denominator) ** 2
-
 
 Bitstring = np.int64
 

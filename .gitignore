@@ -2,3 +2,5 @@
 build/
 .vs/
 /data/groupings
+.ipynb_checkpoints/
+__pycache__/
