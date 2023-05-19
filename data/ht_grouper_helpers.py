@@ -1,5 +1,6 @@
 import numpy as np
 import qiskit
+from qiskit.providers import Job
 from qiskit.quantum_info import Pauli
 from qiskit.result import Result
 import json
@@ -13,7 +14,7 @@ from qiskit.circuit.library import HGate
 h_gate_canceller = PassManager([InverseCancellation([HGate()])])
 
 
-def read_hamiltonian(filename: str) -> Dict[str, float]:
+def read_hamiltonian_from_json(filename: str) -> Dict[str, float]:
     """
     Read a hamiltonian from a JSON file containing Pauli strings
     as keys and real-valued coefficients as values. 
@@ -27,7 +28,7 @@ def read_hamiltonian(filename: str) -> Dict[str, float]:
         return json.load(file)
 
 
-def write_hamiltonian(filename: str, hamiltonian: Dict[str, float], invert_pauli_order: bool = False):
+def write_hamiltonian_to_json(filename: str, hamiltonian: Dict[str, float], invert_pauli_order: bool = False):
     """
     Write a hamiltonian in form of a dictionary with Pauli strings
     as keys and real-valued coefficients as values to a JSON file. 
@@ -42,7 +43,7 @@ def write_hamiltonian(filename: str, hamiltonian: Dict[str, float], invert_pauli
         json.dump(hamiltonian, file, indent=2)
 
 
-def read_grouping(filename: str) -> List[dict]:
+def read_grouping_from_json(filename: str) -> List[dict]:
     """
     Read a Pauli grouping from a JSON file of the following format:
     ```
@@ -110,7 +111,6 @@ def generate_readout_circuits(grouping: List[dict]) -> List[QuantumCircuit]:
 
         circuits.append(h_gate_canceller.run(circuit))
     return circuits
-
 
 
 Bitstring = np.int64
@@ -221,11 +221,11 @@ class HamiltonianExperiment:
     def simulate(self, shots):
         circuits = self.get_circuits()
         backend_sim = qiskit.Aer.get_backend("qasm_simulator")
-        job_sim = qiskit.execute(circuits, backend=backend_sim, shots=shots)
-        return job_sim.result()
+        job = qiskit.execute(circuits, backend=backend_sim, shots=shots)
+        return job
 
-    def evaluate(self, result: Result) -> Dict[Pauli, float]:
-        all_counts = result.get_counts()
+    def evaluate(self, job: Job) -> Dict[Pauli, float]:
+        all_counts = job.result().get_counts()
         expectation_values: Dict[Pauli, float] = {}
 
         for group, readout_circuit, counts in zip(self.grouping, self.get_readout_circuits(), all_counts):
