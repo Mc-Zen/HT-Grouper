@@ -100,7 +100,7 @@ int main() {
 
 		//JsonFormatting::printPauliCollections(out, htGrouping);
 		JsonFormatting::printPauliCollections(fileout, htGrouping);
-		println("{} groups. Estimated shot reduction R_hat_HT = {}, R_hat_TPB = {}, R_hat = {}", htGrouping.size(), R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
+		println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
 	}
 	catch (ConfigReadError& e) {
 		println("ConfigReadError: {}", e.what());
