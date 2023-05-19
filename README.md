@@ -27,7 +27,7 @@ If you want to support work like this, please cite our paper:
 
 ## Dependencies
 
-- Gurobi
+- Gurobi 10.0.0 (or more recent)
 - Qiskit
 - Windows 95 or better
 
