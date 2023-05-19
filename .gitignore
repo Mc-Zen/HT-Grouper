@@ -2,3 +2,5 @@
 build/
 .vs/
 /data/groupings
+
+__pycache__

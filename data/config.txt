@@ -1,11 +1,14 @@
+# Configure your problem here.
 
 # The filenames may be absolute: e.g., C:\Users\me\Desktop\myhamiltonian.txt)
 # or relative to the data/ directory in the repository: e.g., ../myfolder/myhamiltonian.txt
 
-filename = hamiltonians/H_chain.json				# where to read the hamiltonian data from 
-outfilename = groupings/H_chain_grouping.json	# where to output the grouping (in python dict/list format)
-connectivity = connectivity.txt				# which connectivity file to use
+filename = hamiltonians/examples/H4_bk.json				# where to read the hamiltonian data from 
+outfilename = grouping_result/examples/H4_bk_lin.json	# where to output the grouping (in python dict/list format)
+connectivity = connectivities/default_connectivity.txt	# which connectivity file to use
+
+numGraphs = 1000					# Hyperparameter: Maximum number of random subgraphs
+maxEdgeCount = 1000				# Hyperparameter: Maximum number of edges for subgraphs
+sortGraphsByEdgeCount = true			# Sort possible subgraphs by edge count so graphs with lower edge count are preferred
+
 numThreads = 8								# option for multithreading
-maxEdgeCount = 1000							# Hyperparameter: Maximum number of edges for subgraphs
-numGraphs = 1000							# Hyperparameter: Maximum number of random subgraphs
-sortGraphsByEdgeCount = true				# Sort possible subgraphs by edge count so graphs with lower edge count are preferred
