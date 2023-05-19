@@ -42,9 +42,11 @@ namespace JsonFormatting {
 	}
 
 
-	void printPauliCollections(auto out, const auto& collections) {
+	void printPauliCollections(auto out, const auto& collections, int timeInSeconds) {
 
-		std::format_to(out, "{{\n  \"grouping\": [\n");
+		std::format_to(out, "{{\n  \"runtime [seconds]\": {},\n", timeInSeconds);
+
+		std::format_to(out, "  \"grouping\": [\n");
 		for (size_t i = 0; i < collections.size(); ++i) {
 			printPauliCollection(out, collections[i]);
 			if (i != collections.size() - 1) {
