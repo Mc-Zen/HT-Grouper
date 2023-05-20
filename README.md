@@ -11,7 +11,7 @@ However, the working principle of the grouping algorithms are precisely describe
 This enabled us to reimplement an open-source version of one of the algorithms. 
 Specifically, in this GitHub repository, we implement a modified version of the the algorithm based on the "numerical solver" described in [Sec. II D ](https://doi.org/10.48550/arXiv.2203.03646)  of the supplementary material.
 
-This repository contains a C++ implementation of the algorithm that relies on the Mixed Integer Quadradically Constrained Program (MIQCP).
+This repository contains a C++ implementation of the algorithm that relies on the Mixed Integer Quadratically Constrained Program (MIQCP).
 Our implementation leverages [Gurobi](https://www.gurobi.com/downloads/gurobi-software/), 
 a commercially available software with [special offers for academics](https://www.gurobi.com/academia/academic-program-and-licenses/).
 
@@ -32,7 +32,8 @@ If you want to support work like this, please cite our paper:
 
 - Gurobi 10.0.0 (or more recent)
 - Qiskit 
-- Currently, only Windows is supported.
+
+ The code has only been tested on Windows. 
 
 
 ## Setup
@@ -41,10 +42,10 @@ This is a quick setup guide for users that are somewhat familar with C++ develop
 
 A recent C++ compiler version is needed, supporting the C++20 standard. We highly recommend using Visual Studio 2019 or 2022 (not to be confused with Visual Studio Code).
 
-- Check that you have Gurobi installed and registered a valid license
-- Download or clone this repository
+- Check that you have Gurobi installed and registered a valid license.
+- Download or clone this repository.
 - Run CMake at repository level, configure, generate and open project. 
-- The grouper algorithm can be found and run from the `grouper` sub-project
+- The grouper algorithm can be found and run from the `grouper` sub-project.
 
 
 ## Code example 1
