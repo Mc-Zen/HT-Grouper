@@ -68,8 +68,6 @@ We applied HT-Grouper with two hyperparameter choices:
 As expected, the [estimated shot reduction](https://doi.org/10.22331/q-2021-01-20-385) lies between the grouping result of [Sorted Insertion](https://doi.org/10.22331/q-2021-01-20-385) with general commutativity (red), which requires all-to-all connectivity, and Sorted Insertion with qubit-wise commutativity (blue), which only requires single-qubit Clifford gates at the readout stage.
 
 Here, we did not fully explore the tradeoff between runtime and quality:
-For example, for 20 qubits (10 hydrogen atoms), the HT-grouper with 100 random subgraphs required less than 800 seconds to terminate. However, the resulting estimated shot reduction is 13.8 (still better than blue), which can likely be improved by re-running the HT-Grouper with an increased number of subgraphs. 
+For example, for 24 qubits (10 hydrogen atoms), the HT-grouper with 100 random subgraphs required less than 35 minutes to terminate. However, the resulting estimated shot reduction is 12.4 (still better than blue), which can likely be improved by re-running the HT-Grouper with an increased number of subgraphs. 
 
-![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/ea7e18b5-aa4b-4fe2-b162-7023929be444)
-
-
+![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/4a1fd706-836e-4a7c-972c-aa4fd0e3dcd2)
