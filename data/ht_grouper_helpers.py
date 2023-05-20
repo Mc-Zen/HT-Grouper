@@ -230,18 +230,17 @@ class HamiltonianExperiment:
 
         for group, readout_circuit, counts in zip(self.grouping, self.get_readout_circuits(), all_counts):
             circuit_result = CircuitResult(counts)
-            inverse_circuit = readout_circuit.inverse()
             for pauli_string in group["operators"]:
-                pauli = Pauli(pauli_string)
-                pauli_z = pauli.evolve(inverse_circuit)
-                assert pauli_z.phase == 2 or pauli_z.phase == 0
+                pauli = Pauli(pauli_string[::-1])
+                pauli_z = pauli.evolve(readout_circuit, frame="s")
+                assert (pauli_z.phase == 2 or pauli_z.phase == 0) and not pauli_z.x.any()
 
                 expectation_value = _compute_expectation_value(circuit_result, create_bitstring_from_nparray(pauli_z.z))
                 if pauli_z.phase == 2:
                     expectation_value *= -1
                 expectation_values[pauli] = expectation_value
 
-        expectation_values[Pauli("I" * self.num_qubits)] = 1
+        expectation_values[Pauli("I" * self.num_qubits)] = 1.
         return expectation_values
 
 
