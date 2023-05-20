@@ -19,6 +19,7 @@ namespace Q {
 		int64_t maxEdgeCount{};
 		int64_t numGraphs{};
 		bool sortGraphsByEdgeCount{ true };
+		unsigned int seed{};
 	};
 
 
@@ -80,6 +81,12 @@ namespace Q {
 				auto numGraphs = string_to_int(value);
 				if (numGraphs < 1) throw ConfigReadError("The \"numGraphs\" attribute needs to be positive");
 				config.numGraphs = numGraphs;
+			}
+			else if (name == "seed") {
+				if (config.seed != 0) throw ConfigReadError("Duplicate attribute \"seed\"");
+				auto seed = string_to_int(value);
+				if (seed < 1) throw ConfigReadError("The \"seed\" attribute needs to be positive");
+				config.seed = seed;
 			}
 			else if (name == "sortGraphsByEdgeCount") {
 				bool sortGraphsByEdgeCount;

@@ -18,6 +18,41 @@ std::string toAbsolutePath(const std::string& filename) {
 }
 
 
+template<class RNG>
+auto getRandomSubgraphs(const Graph<>& graph, int64_t num, int maxEdgeCount, RNG&& rng) {
+	const auto edgeCount = graph.edgeCount();
+	if (edgeCount <= 63) {
+		// Check if num wanted graphs is greater or equal the total number of subgraphs
+		// then we just return all subgraphs 
+		const uint64_t totalNumSubgraphs = 1ULL << edgeCount;
+		if (num >= totalNumSubgraphs) {
+			return generateSubgraphs(graph, 0, maxEdgeCount);
+		}
+		else {
+			auto edges = graph.getEdges();
+			auto edgeMask = (1ULL << edgeCount) - 1;
+			std::vector<Graph<>> subgraphs;
+			while(subgraphs.size() < num) {
+				uint64_t randomInt = rng() & edgeMask;
+				if (const auto ec = std::popcount(randomInt); ec > maxEdgeCount) continue;
+
+				Graph<> subgraph(graph.graphSize);
+				for (size_t j = 0; j < edges.size(); ++j) {
+					if (randomInt & (1ULL << j)) {
+						subgraph.addEdge(edges[j].first, edges[j].second);
+					}
+				}
+				subgraphs.push_back(subgraph);
+			}
+			return subgraphs;
+		}
+	}
+	else {
+		throw std::runtime_error("More than 63 edges are currently not supported");
+	}
+}
+
+
 int main() {
 	try {
 
@@ -70,15 +105,20 @@ int main() {
 		//	println("{}", subgraphs[i-128].getAdjacencyMatrix());
 		//}
 
+		
 
-		decltype(subgraphs) selectedGraphs;
-		std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), config.numGraphs, std::mt19937{ std::random_device{}() });
+		const auto seed = config.seed == 0 ? std::random_device{}() : config.seed;
+		std::mt19937_64 randomGenerator{ seed };
+		//decltype(subgraphs) selectedGraphs;
+		//std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), config.numGraphs, randomGenerator);
+		auto selectedGraphs = getRandomSubgraphs(connectivity, config.numGraphs, config.maxEdgeCount, randomGenerator);
 
 		if (config.sortGraphsByEdgeCount) {
 			std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
 		}
 
 		println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
+		println("Random seed: {}\n", seed);
 		auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads);
 		auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
 
