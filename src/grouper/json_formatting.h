@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <format>
-
+#include "graph.h"
 
 namespace JsonFormatting {
 
@@ -8,8 +8,17 @@ namespace JsonFormatting {
 	struct MetaInfo {
 		long long timeInSeconds{};
 		size_t numGraphs{};
-		//Graph<> connectivity;
+		Q::Graph<> connectivity;
 	};
+
+	void printEdgeList(auto out, const std::vector<std::pair<int, int>>& edges) {
+		for (size_t i = 0; i < edges.size(); ++i) {
+			std::format_to(out, "[{},{}]", edges[i].first, edges[i].second);
+			if (i != edges.size() - 1) {
+				std::format_to(out, ",");
+			}
+		}
+	}
 
 
 	void printPauliCollection(auto out, const auto& collection) {
@@ -22,13 +31,7 @@ namespace JsonFormatting {
 			}
 		}
 		std::format_to(out, "],\n      \"edges\": [");
-		const auto edges = collection.graph.getEdges();
-		for (size_t i = 0; i < edges.size(); ++i) {
-			std::format_to(out, "[{},{}]", edges[i].first, edges[i].second);
-			if (i != edges.size() - 1) {
-				std::format_to(out, ",");
-			}
-		}
+		printEdgeList(out, collection.graph.getEdges());
 		std::format_to(out, "],\n      \"cliffords\": [");
 
 		for (size_t i = 0; i < collection.singleQubitLayer.size(); ++i) {
@@ -52,7 +55,9 @@ namespace JsonFormatting {
 		std::format_to(out, "{{\n");
 		std::format_to(out, "  \"runtime [seconds]\": {},\n", metaInfo.timeInSeconds);
 		std::format_to(out, "  \"num graphs\": {},\n", metaInfo.numGraphs);
-		//std::format_to(out, "  \"adjacency matrix\": {},\n", metaInfo.numGraphs);
+		std::format_to(out, "  \"connectivity\": [");
+		printEdgeList(out, metaInfo.connectivity.getEdges());
+		std::format_to(out, "],\n", metaInfo.numGraphs);
 
 		//auto mat = metaInfo.connectivity.getAdjacencyMatrix();
 		//for(int i=0; i < )
