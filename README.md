@@ -6,8 +6,10 @@ This repository is maintained by Kyano Levi and Daniel Miller [(AG Eisert, FU Be
 
 In the preprint [Hardware-Tailored Diagonalization Circuits](https://doi.org/10.48550/arXiv.2203.03646) by Daniel Miller _et al._, 
 a theoretical framework for the construction of hardware-tailored readout circuits was developed.
-The original implementation of the presented algorithms is not publically available, however, the algorithms are precisely described in Sec. II of the supplementary material.
-Here, we present an open-source version of the algorithm that is referred to as "numerical solver" in [arXiv.2203.03646](https://doi.org/10.48550/arXiv.2203.03646).
+The original implementation of the accompanying algorithms is not publically available.
+However, the working principle of the grouping algorithms are precisely described in [Sec. II](https://doi.org/10.48550/arXiv.2203.03646)  of the supplementary material.
+This enabled us to reimplement an open-source version of one of the algorithms. 
+Specifically, in this GitHub repository, we implement a modified version of the the algorithm based on the "numerical solver" described in [Sec. II D ](https://doi.org/10.48550/arXiv.2203.03646)  of the supplementary material.
 
 This repository contains a C++ implementation of the algorithm that relies on the Mixed Integer Quadradically Constrained Program (MIQCP).
 Our implementation leverages [Gurobi](https://www.gurobi.com/downloads/gurobi-software/), 
@@ -19,6 +21,7 @@ Furthermore, this project includes C++ code for dealing with matrices, undirecte
 ## License
 
 This library is distributed under the [MIT License][license].
+
 If you want to support work like this, please cite our paper:
 [arXiv.2203.03646](https://doi.org/10.48550/arXiv.2203.03646)
 
@@ -36,7 +39,7 @@ If you want to support work like this, please cite our paper:
 
 This is a quick setup guide for users that are somewhat familar with C++ development. Check out the [full installation guide](docs/installation-guide.md) for detailed step-by-step information on how to setup this code. 
 
-A recent C++ compiler version is needed, supporting the C++20 standard. We highly recommend using Visual Studio 2019 or 2022 (note: not Visual Studio Code).
+A recent C++ compiler version is needed, supporting the C++20 standard. We highly recommend using Visual Studio 2019 or 2022 (not to be confused with Visual Studio Code).
 
 - Check that you have Gurobi installed and registered a valid license
 - Download or clone this repository
