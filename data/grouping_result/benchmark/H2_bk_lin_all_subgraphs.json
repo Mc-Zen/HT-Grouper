@@ -1,0 +1,17 @@
+{
+  "runtime [seconds]": 0,
+  "num graphs": 8,
+  "connectivity": [[0,1],[1,2],[2,3]],
+  "grouping": [
+    {
+      "operators": ["IIII","ZIZZ","ZIZI","ZZZI","ZZZZ","IIZI","ZIII","ZZII","IZZZ","IZII","IZIZ"],
+      "edges": [],
+      "cliffords": ["H","H","H","H"]
+    },
+    {
+      "operators": ["XIXI","XIXZ","XZXI","XZXZ"],
+      "edges": [],
+      "cliffords": ["I","H","I","H"]
+    }
+  ]
+}
