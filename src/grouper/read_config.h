@@ -15,11 +15,21 @@ namespace Q {
 		std::string filename;
 		std::string outfilename;
 		std::string connectivity;
-		int numThreads{};
-		int maxEdgeCount{};
-		int numGraphs{};
-		bool sortGraphsByEdgeCount{};
+		int64_t numThreads{};
+		int64_t maxEdgeCount{};
+		int64_t numGraphs{};
+		bool sortGraphsByEdgeCount{ true };
 	};
+
+
+	int64_t string_to_int(const std::string& str) {
+		try {
+			return std::stoll(str);
+		}
+		catch (std::out_of_range& e) {
+			throw ConfigReadError(std::format("Integer out of range: \"{}\"", str));
+		}
+	}
 
 	Configuration readConfig(const std::string& filename) {
 
@@ -33,11 +43,12 @@ namespace Q {
 			if (line.empty()) continue;
 			line = trim(split(line, '#')[0], " \t"); // strip comments and whitespace
 			if (line.empty()) continue;
-			auto components = split(line, '=');
+			auto components = splitOnce(line, '=');
 			if (components.size() != 2) throw ConfigReadError(std::format("Invalid attribute format for attribute \"{}\". Name and value need to be seperated by a \"=\" sign. ", line));
 
 			auto name = trim(components[0], " \t");
 			auto value = trim(components[1], " \t");
+
 
 			if (name == "filename") {
 				if (config.filename != "") throw ConfigReadError("Duplicate attribute \"filename\"");
@@ -53,20 +64,20 @@ namespace Q {
 			}
 			else if (name == "numThreads") {
 				if (config.numThreads != 0) throw ConfigReadError("Duplicate attribute \"numThreads\"");
-				int numThreads = std::stoi(value);
+				auto numThreads = string_to_int(value);
 				if (numThreads < 1 || numThreads > 255) throw ConfigReadError("The \"numThreads\" attribute can only take values between 1 and 255");
 				config.numThreads = numThreads;
 			}
 			else if (name == "maxEdgeCount") {
 				if (config.maxEdgeCount != 0) throw ConfigReadError("Duplicate attribute \"maxEdgeCount\"");
-				int maxEdgeCount = std::stoi(value);
+				auto maxEdgeCount = string_to_int(value);
 				if (maxEdgeCount < 1) throw ConfigReadError("The \"maxEdgeCount\" attribute needs to be positive");
 				config.maxEdgeCount = maxEdgeCount;
 			}
 
 			else if (name == "numGraphs") {
 				if (config.numGraphs != 0) throw ConfigReadError("Duplicate attribute \"numGraphs\"");
-				int numGraphs = std::stoi(value);
+				auto numGraphs = string_to_int(value);
 				if (numGraphs < 1) throw ConfigReadError("The \"numGraphs\" attribute needs to be positive");
 				config.numGraphs = numGraphs;
 			}
@@ -81,6 +92,17 @@ namespace Q {
 				throw ConfigReadError(std::format("Unknown attribute \"{}\"", name));
 			}
 		}
+
+		if (config.filename == "")
+			throw ConfigReadError("No [filename] specified");
+		if (config.outfilename == "")
+			throw ConfigReadError("No [outfilename] specified");
+		if (config.connectivity == "")
+			throw ConfigReadError("No [connectivity] specified");
+		if (config.numGraphs == 0) config.numGraphs = 100;
+		if (config.maxEdgeCount == 0) config.maxEdgeCount = 1000;
+		if (config.numThreads == 0) config.numThreads = 1;
+
 		return config;
 	}
 
