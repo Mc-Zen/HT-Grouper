@@ -87,6 +87,8 @@ namespace Q {
 			auto value = trim(components[1], " \t,");
 
 			if (pauliString.size() == 0) throw ReadHamiltonianError(std::format("Empty Pauli string at line {}", lineIndex));
+			if (pauliString.size() > 64) throw ReadHamiltonianError(std::format("Paulis with more than 64 qubits are currently not supported"));
+
 			Pauli pauli{ pauliString };
 			if (hamiltonian.numQubits == 0) {
 				hamiltonian.numQubits = pauli.numQubits();
