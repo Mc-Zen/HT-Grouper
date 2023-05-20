@@ -8,6 +8,7 @@ namespace JsonFormatting {
 	struct MetaInfo {
 		long long timeInSeconds{};
 		size_t numGraphs{};
+		size_t randomSeed{};
 		Q::Graph<> connectivity;
 	};
 
@@ -58,6 +59,7 @@ namespace JsonFormatting {
 		std::format_to(out, "  \"connectivity\": [");
 		printEdgeList(out, metaInfo.connectivity.getEdges());
 		std::format_to(out, "],\n", metaInfo.numGraphs);
+		std::format_to(out, "  \"random seed\": {},\n", metaInfo.randomSeed);
 
 		//auto mat = metaInfo.connectivity.getAdjacencyMatrix();
 		//for(int i=0; i < )

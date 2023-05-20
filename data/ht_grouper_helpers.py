@@ -28,16 +28,16 @@ def read_hamiltonian_from_json(filename: str) -> Dict[str, float]:
         return json.load(file)
 
 
-def write_hamiltonian_to_json(filename: str, hamiltonian: Dict[str, float], invert_pauli_order: bool = False):
+def write_hamiltonian_to_json(filename: str, hamiltonian: Dict[str, float], reverse_paulis: bool = False):
     """
     Write a hamiltonian in form of a dictionary with Pauli strings
     as keys and real-valued coefficients as values to a JSON file. 
 
     Pauli strings should read as 
        `"XYZ"` -> X on qubit 0, Y on qubit 1, Z on qubit 2
-    If they are read in the inverse order, set `invert_pauli_order` to `True`
+    If they are read in the inverse order, set `reverse_paulis` to `True`
     """
-    if invert_pauli_order:
+    if reverse_paulis:
         hamiltonian = {key[::-1]: value for key, value in hamiltonian.items()}
     with open(filename, "w") as file:
         json.dump(hamiltonian, file, indent=2)
@@ -224,7 +224,7 @@ class HamiltonianExperiment:
         job = qiskit.execute(circuits, backend=backend_sim, shots=shots)
         return job
 
-    def evaluate(self, job: Job) -> Dict[Pauli, float]:
+    def get_expectation_values(self, job: Job) -> Dict[Pauli, float]:
         all_counts = job.result().get_counts()
         expectation_values: Dict[Pauli, float] = {}
 
@@ -238,10 +238,20 @@ class HamiltonianExperiment:
                 expectation_value = _compute_expectation_value(circuit_result, create_bitstring_from_nparray(pauli_z.z))
                 if pauli_z.phase == 2:
                     expectation_value *= -1
-                expectation_values[pauli] = expectation_value
+                expectation_values[pauli_string] = expectation_value
 
-        expectation_values[Pauli("I" * self.num_qubits)] = 1.
+        expectation_values[("I" * self.num_qubits)] = 1.
         return expectation_values
+
+    def evaluate(self, job: Job) -> float:
+        expectation_values = self.get_expectation_values(job)
+        result = 0
+        try:
+            for pauli, coefficient in self.hamiltonian.items():
+                result += coefficient * expectation_values[pauli]
+        except KeyError:
+            raise KeyError(f"The Pauli {pauli} from the Hamiltonian was not found in the grouping. Maybe the Pauli strings are reversed in the Hamiltonian?")
+        return result
 
 
 def create_bitstring_from_nparray(arr: np.ndarray) -> Bitstring:

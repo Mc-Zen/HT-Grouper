@@ -137,7 +137,7 @@ int main() {
 		std::ofstream file{ outfilename };
 		auto fileout = std::ostream_iterator<char>(file);
 
-		JsonFormatting::printPauliCollections(fileout, htGrouping, JsonFormatting::MetaInfo{ timeInSeconds, selectedGraphs.size(), connectivity });
+		JsonFormatting::printPauliCollections(fileout, htGrouping, JsonFormatting::MetaInfo{ timeInSeconds, selectedGraphs.size(), seed, connectivity });
 		println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
 	}
 	catch (ConfigReadError& e) {
