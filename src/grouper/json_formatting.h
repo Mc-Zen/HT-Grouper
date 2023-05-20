@@ -5,6 +5,11 @@
 namespace JsonFormatting {
 
 
+	struct MetaInfo {
+		long long timeInSeconds{};
+		size_t numGraphs{};
+		//Graph<> connectivity;
+	};
 
 
 	void printPauliCollection(auto out, const auto& collection) {
@@ -42,9 +47,15 @@ namespace JsonFormatting {
 	}
 
 
-	void printPauliCollections(auto out, const auto& collections, int timeInSeconds) {
+	void printPauliCollections(auto out, const auto& collections, const MetaInfo& metaInfo) {
 
-		std::format_to(out, "{{\n  \"runtime [seconds]\": {},\n", timeInSeconds);
+		std::format_to(out, "{{\n");
+		std::format_to(out, "  \"runtime [seconds]\": {},\n", metaInfo.timeInSeconds);
+		std::format_to(out, "  \"num graphs\": {},\n", metaInfo.numGraphs);
+		//std::format_to(out, "  \"adjacency matrix\": {},\n", metaInfo.numGraphs);
+
+		//auto mat = metaInfo.connectivity.getAdjacencyMatrix();
+		//for(int i=0; i < )
 
 		std::format_to(out, "  \"grouping\": [\n");
 		for (size_t i = 0; i < collections.size(); ++i) {
