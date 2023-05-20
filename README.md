@@ -48,18 +48,28 @@ A recent C++ compiler version is needed, supporting the C++20 standard. We highl
 - The grouper algorithm can be found and run from the `grouper` sub-project.
 
 
-## Code example 1
+## Workflow Example
 
-[TODO]
-
-show code that finds HT circuits for {P1, P2}, {P1,P3}, {P2,P3} but fails for {P1, P2, P3}:
-![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/aa53f136-46a7-499f-8a2b-480df6df35f4)
+We have prepared a jupyter notebook to guide you through the workflow: `data/WorkflowExample.ipynb`
 
 
-## Code example 2
+## Performance
 
-[TODO]
+Below, we showcase a benchmark of HT-Grouper carried out on a standard laptop (Windows Intel i7, 8th generation, 8 threads).
+The code was executed in release mode (fast option).
 
-show code that reconstructs the Pauli grouping in Tab IX for the Hamiltonian in Tab VII.
+The benchmarked Hamiltonians describe n-atomic hydrogen chains in STO-3G basis mapped to 2*n qubits via the Bravyi-Kitaev fermi-to-qubit mapper. 
+The readout circuits were tailored to linear connectivity.
+We applied HT-Grouper with two hyperparameter choices: 
 
-Also apply sorted-insertion-qwc and print R^_HT/R^_TPB.
+(bright green) all subgraphs --> exponential runtime 
+(dark green) 100 subgraphs --> polynomial runtime
+
+As expected, the [estimated shot reduction](https://doi.org/10.22331/q-2021-01-20-385) lies between the grouping result of [Sorted Insertion](https://doi.org/10.22331/q-2021-01-20-385) with general commutativity (red), which requires all-to-all connectivity, and Sorted Insertion with qubit-wise commutativity (blue), which only requires single-qubit Clifford gates at the readout stage.
+
+Here, we did not fully explore the tradeoff between runtime and quality:
+For example, for 20 qubits (10 hydrogen atoms), the HT-grouper with 100 random subgraphs required less than 800s to terminate. However, the resulting estimated shot reduction is 13.8 (still better than blue), which can likely be improved by re-running the HT-Grouper with an increased number of subgraphs. 
+
+![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/ea7e18b5-aa4b-4fe2-b162-7023929be444)
+
+
