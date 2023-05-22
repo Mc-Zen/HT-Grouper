@@ -1,0 +1,503 @@
+{
+  "runtime [seconds]": 343,
+  "num graphs": 1000,
+  "connectivity": [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11]],
+  "random seed": 2141877127,
+  "grouping": [
+    {
+      "operators": ["IIIIIIIIIIII","IIIIIIIIIZZZ","IIIIZZIIIIII","IIIIZIIIIIII","IIIIIIIIIIZI","IIIIIIZIIIII","ZIIIIIIIIIII","ZZIIIIIIIIII","IIIZIZZZIIII","IIIIZZIIIZZZ","ZIIIIIIIIZZZ","IIIIZZZIIIII","ZIIIIIZIIIII","IIIIZIIIIIZI","IZZZIIIIIZZZ","IIIIZZIIZZII","IIIIZIIIIZZZ","IIIIZZIIIIZI","IIIIZZIIZIII","IIZIIIIIIZZZ","ZIIIZZIIIIII","IIIIIIZIIZZZ","ZZIIIIIIIIZI","IIIZZZZZIIII","IZZZIIIIZZII","ZZIZIZZZIIII","IIIZZIZZIIII","ZZIIIIIIIZZZ","IZZZIIZIIIII","ZIIIIIIIZZII","IIIIZIIIZZII","IZZZIIIIIIZI","IIZIIIIIZIII","IIIIZIZIIIII","ZIIIIIIIIIZI","IZZZIIIIZIII","IIZIIIIIZZII","ZIIIIIIIZIII","IIZIIIZIIIII","IIIIZIIIZIII","IIZIIIIIIIZI","IZZIIZZZIIII","ZZIIIIIIZZII","ZIIZIZZZIIII","ZZIIIIZIIIII","IIZZIZZZIIII","ZZIIIIIIZIII","IIIZIZZZIZZZ","ZZIIZZIIIIII","IIIIIIIIZZZZ","IIZIZZIIIIII","ZIIIZIIIIIII","IIIIIIZIIIZI","IIIZIZZZIIZI","ZZIIZIIIIIII","IZZZZZIIIIII","IIIIIIIIZIZZ","IIIIIIZIZZII","ZZZZIIIIIIII","IIZIZIIIIIII","IIIIIIIIZIZI","ZIZZIIIIIIII","IIIZIZZZZZII","IIIIIIZIZIII","ZIZIIIIIIIII","IIIIIIIIIZII","IZIZIIIIIIII","IIIIIIIIZIII","IIZIIIIIIIII","IIIIIIIIIZIZ","IIIIIZIIIIII","IIIIIIIIZZZI","IZZZZIIIIIII","IIIIIIIIZZII","IZZZIIIIIIII","IIIZIZZZZIII","ZZZIIIIIIIII","IZIIIIIIIIII","IIIZIZIZIIII"],
+      "edges": [],
+      "cliffords": ["H","H","H","H","H","H","H","H","H","H","H","H"]
+    },
+    {
+      "operators": ["IIIIXZIIIZXZ","IIIIXIIIIIXI","IIIIXIIIIZXZ","IIIIXZIIIIXI","XIIIIIIIIIXI","XIIIIIIIIZXZ","XZIIIIIIIIXI","XZIIIIIIIZXZ","IIIIXIXIIIII","IIIIXZXIIIII","IIIZXIXZIIII","IIIZXZXZIIII","XZIZIZXZIIII","XIIIIIXIIIII","XIIZIZXZIIII","XZIIIIXIIIII","IIXIIIIIXIII","IZXZIIIIXZII","IZXZIIIIXIII","IIXIIIIIXZII","IIIIIIXIIIXI","XZIIXZIIIIII","IIIZIZXZIZXZ","XIIIXIIIIIII","IIXIIIIIIZXZ","IIXIIIIIIIXI","IIIIXZIIXZII","IZXZIIIIIIXI","IIIIXIIIXIII","IIIIXIIIXZII","IIIIXZIIXIII","IZXZIIIIIZXZ","XIIIXZIIIIII","XZIIXIIIIIII","IIIZIZXZIIXI","IIIIIIXIIZXZ","IZXIIZXZIIII","XZIIIIIIXZII","XIIIIIIIXIII","XIIIIIIIXZII","IZXZIIXIIIII","IIXZIZXZIIII","IIXIIIXIIIII","XZIIIIIIXIII","IZXZXZIIIIII","IIIIIIIIXIXI","IIIIIIIIXIXZ","IIXIXIIIIIII","XIXZIIIIIIII","IIIZIZXZXZII","IIIIIIXIXIII","XIXIIIIIIIII","IIIIIIIIXZXI","IIXIXZIIIIII","IIIIIIIIXZXZ","IZXZXIIIIIII","XZXZIIIIIIII","XZXIIIIIIIII","IIIZIZXZXIII","IIIIIIXIXZII"],
+      "edges": [],
+      "cliffords": ["I","H","I","H","I","H","I","H","I","H","I","H"]
+    },
+    {
+      "operators": ["IIIXXXIIIXXI","IIIXXXIIZYYI","IZZYYXIIIXXI","IZZYYXIIZYYI","ZYYIIIIXXXIX","IIIXXXIXXXIX","ZYYIIIIIZYYI","ZYYIIIIIIXXI","IZZYYXIXXXIX","XZIIIIIIIXXI","IIIXXXXIIIII","IZZYYXXIIIII","XZIIIIIIZYYI","XZIIIIIXXXIX","ZYYIIIXIIIII","ZXXYYXIIIIII","IIIIIIIXXIXX","XIZYYXIIIIII","IIIIIIXIIXXI","YXYIIIIIIIII","IIIIIIXXXXIX","IIIIIIIIYZYI","XZIXXXIIIIII","IIIIIIXIZYYI","XZIIIIIIYYZI","IIIIIIIXYZYX","ZYYXXXIIIIII","YYZIXIIIIIII","YXIYZXIIYYZI","XZYYZXIIIIII","IIIIIIXIYYZI","YXIYZXIXXXIX","YXIYZXIIIXXI","YXIYZXIIZYYI","YXIZYIIIIIII","IZZYYXIIYYZI","IIIXXXIIYYZI","ZYYIIIIIYYZI","ZYIYZXIIIIII","YXIYZXXIIIII","IIIIIIIXZZZX"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[8,9],[9,10]],
+      "cliffords": ["HSH","I","HSH","SH","I","I","I","I","I","H","I","I"]
+    },
+    {
+      "operators": ["IXXIIIIXXXIX","ZYYZIZZYYXIX","IXXZIZZYYXIX","IXXIIIIIIXXI","IIIIXIIIIXXI","IIIIXZIIIXXI","IIIZXIZYYXIX","IIIIXZIXXXIX","IIIIXIIXXXIX","IXXIIIIIIIXI","ZYYIIIIIIIXI","IIIZXZZYYXIX","IIIIIIIIIXII","IXXIXIIIIIII","ZYYIXZIIIIII","IIIIIIIXXXXX","XXIIIZYYZXIX","YYZZIZYYZXIX","IXXIXZIIIIII","ZYYIXIIIIIII","IIIZIZZYYXXX","YYZIIIIIIIXI","XXIZIIIIIIXI","IIIZXIYYZXIX","IIIZXZYYZXIX","YZYIIIIIIIII","YZYZIIIIIIII","IIIZIZYZYIII","IIIZIZZYYIXX","XXIZXZIIIIII","IIIZIZYYZXXX","XXIZXIIIIIII","YYZIXZIIIIII","YYZZIZZYYXIX","XXIZIIIXXXIX","IXXZIZYYZXIX","ZYYZIZYYZXIX","XXIIIZZYYXIX","YYZIIIIXXXIX","XXIZIIIIIXXI","YYZIIIIIIXXI","IIIZIZYYZIXX"],
+      "edges": [[0,1],[1,2],[6,7],[7,8]],
+      "cliffords": ["I","H","I","H","I","H","I","H","I","I","I","I"]
+    },
+    {
+      "operators": ["IXXIIIIIZYYI","IIIYXYZYYXIX","XIIIIIIIZYYI","IIIYXYXZIIII","XIIIIIIIIXXI","XIIZIZZYYXIX","IXXZIZXZIIII","IIXXXXIIIIII","IXIIIIIIIIII","IXXXXXIIIIII","IIIZIZZYXZYX","IIXIIIIIZYYI","IIXIIIIIIXXI","IIXZIZZYYXIX","XIIXXXIIIIII","IIIZIZXZZYYI","XXXIIIIIIIII","IIIIIIYXYXIX","IIIZIZXZIXXI","IIXZIZYYIZZX","XXIYYXIIIIII","IXXZIZYYIZZX","IIIYXYYYIZZX","IIIZIZYYIYYX","IIIIIIZXIZZX","XXIYXYIIIIII","XIIZIZYYIZZX"],
+      "edges": [[3,4],[4,5],[6,7],[7,8],[8,9],[9,10]],
+      "cliffords": ["I","I","I","H","I","H","I","I","I","H","I","I"]
+    },
+    {
+      "operators": ["IZZXYYZYYXIX","XYYIIIIIIXZI","YYXIIIIIIXZI","IZZYZYIIIIII","IIIIIIIIXYYI","YYXIIIZIIIII","XYYIIIZIIIII","YYXIIIIIXYYI","XYYIIIIIXYYI","XYYIIIIXZXIX","YYXIIIIXZXIX","IIIIIIZIIXZI","IIIIIIIXZIZX","IIIIIIZIXYYI","IIIIIIIIIXZI","IIIIIIZXZXIX","ZZIIIIIIIXZI","IIIIIIIXZXIX","XYYIIIIIIIII","YYXIIIIIIIII","ZZIIIIIIXYYI","ZZIIIIIXZXIX"],
+      "edges": [[0,1],[1,2],[3,4],[7,8],[8,9],[9,10]],
+      "cliffords": ["H","I","H","S","I","S","H","H","H","H","H","I"]
+    },
+    {
+      "operators": ["IIIXXXIIIIXI","IZZYYXIIIIXI","IZZXYYXZIIII","XYYZIZYYXXIX","YYXZIZYYXXIX","IIIIIIIIXXXI","IIIIZZIIYYXI","IIIZZIYYXXIX","IIIIIIIIYYXI","XYYIIIIIYYXI","YYXIIIIIYYXI","XYYIZZIIIIII","YYXIZZIIIIII","IIIZIZYYZZXX","ZZIZIZYYXXIX","XYYIIIIIZZII","YYXIIIIIZZII","IIIZIZYYXXIX","ZZIIIIIIYYXI","IIIZIZYYYYIX"],
+      "edges": [[0,1],[1,2],[3,4],[4,5],[6,7],[8,9]],
+      "cliffords": ["H","I","H","H","I","H","H","H","I","H","I","I"]
+    },
+    {
+      "operators": ["IIIXXXIIIZXZ","IZZYYXIIIZXZ","ZYYIIIIIIZXZ","IXXIIIIIIZXZ","ZYYZIZXZIIII","IIIXXXIIXZII","IZZYYXIIXIII","IZZYYXIIXZII","IIIXXXIIXIII","ZYYIIIIIXZII","IXXIIIIIXZII","IXXIIIIIXIII","ZYYIIIIIXIII","IIIZIZYYXIZX","IYYYYXIIIIII","IIIZIZYYXZZX","ZYYZIZYYIZZX","IZZXYYYYIZZX","IIIZIZYYIIYY"],
+      "edges": [[1,2],[3,4],[4,5],[6,7],[10,11]],
+      "cliffords": ["H","H","I","H","I","H","H","H","I","H","I","I"]
+    },
+    {
+      "operators": ["IIIIXZIIZYYI","IIIXZXIIIZZZ","IZXYYXIIIZZZ","IIIZIZZYZYIX","XYYIIIIIIZZZ","IZXYYXIIIIII","IZXXYYZYIYIX","IIIYZYZYIYIX","XYYZIZZYIYIX","IIIZIZZYIXZY","YYZZIZXZIIII","XXZYYXIIIIII","IIIXZXIIIIII","XYYXZXIIIIII","IIIXZXIIZIII","XYYIIIIIZIII","IIIZIZZYIYIX","IZXYYXIIZIII","ZZIZIZZYIYIX","ZIXYYXIIIIII","YYZIIIIIZYYI","ZZIXZXIIIIII"],
+      "edges": [[0,1],[1,2],[3,4],[4,5],[6,7],[9,10],[10,11]],
+      "cliffords": ["H","I","I","H","H","H","SH","H","H","SH","HSH","I"]
+    },
+    {
+      "operators": ["IIIIXIIIZYYI","IIIIIIIIZXZZ","ZXZZIIIIIIII","ZIIIIIIIIXZI","IXZIIIIIIXZI","ZXIZIIIIIXZI","ZXZIIIIIIIII","IXIZIIIIIIII","IIZIIIIIIXZI","IXZIIIIIIIII","ZXIZIIIIIIII","ZXIIIZZZIIII","IXZZIZZZIIII","IIIIIIIIZXZI","IXZIIIIIZIII","ZXIZIIIIZIII","IIIZIZZZIXZI"],
+      "edges": [[5,6],[9,10]],
+      "cliffords": ["H","I","H","H","I","I","H","H","H","H","H","H"]
+    },
+    {
+      "operators": ["IZZYIYIIIXZI","IIIXZXIIZXIZ","IZZYIYIIZXIZ","IIIXZXIIIXZI","XYYIIIIIZXIZ","IIIXZXZIIIII","IZZYIYZIIIII","IZZYIYIIYYXI","IIIXZXIIXYYI","IIIXZXIIYYXI","IZZYIYIIXYYI","XXXYIYIIIIII","IIIIIIIIYZYZ","IIIIIIZIZXIZ","IIIIIIZIYYXI","ZZYYXXIIIIII","IIIIIIIIZXIZ","IZZYIYIIIIII","YXIYXXIIIXZI","YXIYXXIIZXIZ","YXIYXXIIIIII","ZZIIIIIIZXIZ","YXIYXXIIXYYI","YXIYXXIIYYXI","IZXXYYZZIIII","XYIYXXIIIIII","YXIYXXZIIIII","ZIZYIYIIIIII"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[4,5],[8,9],[9,10]],
+      "cliffords": ["HS","I","HSH","H","HS","SH","H","H","H","H","H","H"]
+    },
+    {
+      "operators": ["XYYZIZXYYXIX","YYXZIZXYYXIX","IIIIZZIIIXZI","IIIIZZIXZXIX","ZXIZIIIXZXIX","IXZIIIIXZXIX","IIIZZIXYYXIX","IXZZIZXYYXIX","ZXIIIZXYYXIX","ZXIIIZYYXXIX","IXZZIZYYXXIX","ZXIZZZIIIIII","IXZIZZIIIIII","IIIZIZXYYIZX","IIIIZIIIIXZI","ZXIZIIIIIIZI","IXZIIIIIIIZI","IIIIZIIXZXIX","IIIZIZXYYXIX","IIIZZZYYXXIX","YYXIIIIIIIZI","IIIZZZXYYXIX","XYYIIIIIIIZI","ZXIZZIIIIIII","IIIIIIIXZXZX","IXZIZIIIIIII","IIIZIZXYYXZX","IIIZIZYYXXZX","XYYIZIIIIIII","YYXIZIIIIIII"],
+      "edges": [[0,1],[1,2],[6,7],[7,8]],
+      "cliffords": ["H","H","H","H","H","H","H","H","H","I","H","I"]
+    },
+    {
+      "operators": ["XIIIIIIXXXIX","XZIZIZZYYXIX","IZXZIIIIZYYI","IIXIIIIXXXIX","IZXZIIIXXXIX","IZXIIZZYYXIX","IIIZXZXYIYIX","IIIZXIXYIYIX","XZIZIZXYIYIX","XIIZIZXYIYIX","IIIIIIYIYZII","IIXZIZXYIYIX","IZXIIZXYIYIX","IIIZIZXYZIYX"],
+      "edges": [[6,7],[7,8],[8,9]],
+      "cliffords": ["I","H","I","H","I","H","SH","SH","S","S","S","I"]
+    },
+    {
+      "operators": ["IXXIIIXIIIII","IIIIIIIIYXYI","IZYYXXIIIZZZ","IIIIZZIIXYYI","ZXIZIIIIIZZZ","IZYYXXIIYYXI","IZYYXXIIXYYI","IZYYXXIIIIII","ZIIIIIIIYYXI","ZIIIIIIIXYYI","ZXIZIIIIYYXI","ZXIZIIIIXYYI","IIIIIIIIYXYZ","IZYYYYIIIIII","IIIIIIIIXXXZ","ZXIZIIIIZZII","IZYYXXIIZZII"],
+      "edges": [[1,2],[2,3],[4,5],[8,9],[9,10]],
+      "cliffords": ["H","I","H","H","I","H","I","H","H","I","H","H"]
+    },
+    {
+      "operators": ["IZZXIXYYXXIX","IZZXIXXYYXIX","IZYYXXIXZXIX","IZYYXXIIIXZI","IIIXZXIXZXIX","YYXXZXIIIIII","IZYZYIIIIIII","ZZXYYXIIIIII","YXZYXXIIIIII","XXIYYXIIIIZI","XXIYYXIIIXZI","XXIYYXIXZXIX","IZYYXXIIIIZI","IIIXZXIIIIZI","ZIYYXXIIIIII","YYIYYXIIIIII"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[6,7],[7,8]],
+      "cliffords": ["H","I","H","H","H","I","H","H","H","I","H","I"]
+    },
+    {
+      "operators": ["YYXIIIIIZXIZ","IIIIZZIIZXIZ","ZXIZIIIIZXIZ","IIIZIZXYZZYX","IIIZZZXYIZYX","YYXZIZXYIZYX","YYXZIZZZIIII","ZXIIIZXYIZYX","IIIZIZXYIZYX","YYXIIIIIZIII","IIIZIZXYIYXX","IIIIZIIIZXIZ","IIIIIIIIIXIZ","IIIZIZXYZYYY","IIIIIIYXIZYX","IIIZZIXYIZYX","IIIZIZZZZXIZ"],
+      "edges": [[0,1],[6,7],[9,10],[10,11]],
+      "cliffords": ["I","I","I","H","H","H","S","H","H","HSH","I","H"]
+    },
+    {
+      "operators": ["IIIYZYXYYXIX","IXZIIIIIIZZZ","IXZIIIIIXYYI","ZIIZIZXYYXIX","IIIZIZXYYYZY","ZIIXZXIIIIII","IXZXZXIIIIII","IIIXZXIIZZII","IIZZIZXYYXIX","IIIYZYZZIIII","IXZIIIIIZZII","IIZIIIIIXYYI","IIIZIZZZXYYI","IIZXZXIIIIII","IIIZIZXYXYIX"],
+      "edges": [[3,4],[4,5],[5,6],[6,7],[8,9],[9,10],[10,11]],
+      "cliffords": ["H","I","H","H","H","SH","HSH","I","H","S","HS","I"]
+    },
+    {
+      "operators": ["IIIYZYYYXXIX","IXZIIIIIYYXI","ZIIIIIIXZXIX","IIIIIIIXXZXX","ZXIYIYIIIIII","ZXIYIYIIIXZI","ZXIYIYIIYYXI","ZXIYIYIXZXIX","IIIIZIIIYYXI","IIZIIIIIYYXI","ZXIYZYIIIIII","IXIYIYIIIIII","IIZIIIIXZXIX","ZXZYIYIIIIII"],
+      "edges": [[7,8],[8,9],[9,10]],
+      "cliffords": ["H","I","H","S","H","S","S","H","HS","SH","H","I"]
+    },
+    {
+      "operators": ["IIYXYXIIIIII","IZXYYXIIYYXI","IZYYXXZIIIII","IZXYYXZIIIII","ZIIIIIIIZXIZ","IZXYYXIIZXIZ","IZYYXXIIZXIZ","IIIIIIIXZYZY","ZZIIIIIXIZZX","IIIIIIIXIZZX","IIIIIIIXYXYX","IZZZIIIIZXIZ","IZXYYXIXIZZX","IZYYXXIXIZZX","IZZZIIIIYYXI","IZZZIIIXIZZX","ZIIIIIIXIZZX"],
+      "edges": [[2,3],[3,4],[8,9],[9,10],[10,11]],
+      "cliffords": ["H","H","H","I","H","I","H","I","I","I","H","H"]
+    },
+    {
+      "operators": ["IZZYIYIIIZZZ","YYXIIIIIIZZZ","IYIXXYZYIZYX","IZYXZYZYIZYX","IZYXZYXZIIII","IYIXXYXZIIII","IXYIYIIIIIII","YXYYIYIIIIII","IZZYIYIIZZII","IZZYIYIIZIII"],
+      "edges": [[1,2],[2,3],[3,4],[6,7],[10,11]],
+      "cliffords": ["S","S","H","HS","S","S","HSH","I","H","H","S","H"]
+    },
+    {
+      "operators": ["IIIXIXIIIIII","YYZIIIIIXXIZ","IIIIXIIIXXIZ","XZIIIIIIXXIZ","IZXXIXXZIIII","YYZIIIIIXIII","IIIXXXIIXXIZ","ZYYIIIIIXXIZ","YYZXXXIIIIII"],
+      "edges": [[0,1],[1,2],[6,7]],
+      "cliffords": ["I","I","I","I","I","I","H","H","I","I","H","H"]
+    },
+    {
+      "operators": ["IIIZZIZYIYIX","IXZZIZZYIYIX","ZXIIIZZYIYIX","ZIIZIZZYIYIX","IXZIIIZIIIII","ZXIZIIZIIIII","IIIZIZZYXIYX","IIIZIZIYIYIX","IIIIZIIIXYYI","IIIZZZZYIYIX","IIZZIZZYIYIX"],
+      "edges": [],
+      "cliffords": ["H","I","H","H","H","H","H","S","I","S","S","I"]
+    },
+    {
+      "operators": ["IIIIIIIXIXIX","IZXZIIIIIXXI","IZYYZXIIIIXI","XZZYYXIIIIII","YYZIIIXIIIII","IZYYZXXIIIII","ZYXXYXIIIIII","ZXIYYXIIIIXI","ZXIYYXXIIIII","ZXIYYXIIXIII","YXXYZXIIIIII","XIYYZXIIIIII","YXYZIIIIIIII","IZYYZXIIXIII","IZYYZXIIIXXI","IZYYZXIXXXIX","ZXIYYXIIIXXI","ZXIYYXIXXXIX"],
+      "edges": [[0,1],[1,2],[2,3],[3,4]],
+      "cliffords": ["I","I","I","I","I","I","I","I","I","I","I","I"]
+    },
+    {
+      "operators": ["IZXYYXIIXYYI","IIIZIZZYYYXY","IZXYYXIIIXZI","IZXYXYIIIIII","ZZIZIZZYIIIY","IIIZIZZYIIIY","IIIZIZZYXYYY","IZXXYYZYIIIY","IIIZIZIYIIIY","IIIZZIZYIIIY","ZIIZIZZYIIIY"],
+      "edges": [[3,4],[4,5],[8,9],[9,10]],
+      "cliffords": ["H","H","I","H","I","H","H","S","H","H","H","S"]
+    },
+    {
+      "operators": ["ZXIXYYZYIZYX","YYZIIIIIYYZI","IIIIXZIIYYZI","YYZZIZZYIZYX","YYZIIIIIIZXZ","ZXIYYXIIYYZI","IIIZXIZYIZYX","ZXIYYXIIIZXZ","ZXIXYYXZIIII","IIIZIZXZYYZI","IIIZIZZYIIZY","IXXIIIIIYYZI","IXXZIZZYIZYX"],
+      "edges": [[0,1],[1,2],[3,4],[4,5],[6,7],[9,10],[10,11]],
+      "cliffords": ["H","H","I","H","H","H","SH","H","S","S","S","SH"]
+    },
+    {
+      "operators": ["ZXIYYXIXIZXX","IZXYIYIIYYZI","YYZIIIIXIZXX","IZXYIYIXIZXX","IZXYIYXIIIII","XZIIIIIXIZXX","ZXIYYXIIXZII","ZYXIYZIIIIII","XIXYIYIIIIII","IZXYIYIIXZII","YYZIIIIIXZII","IZXYIYIIZYYI","IIIIIIXXIZXX","IIIXXXIXIZXX","ZXIYYXIIZYYI"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[4,5],[8,9],[9,10]],
+      "cliffords": ["I","I","S","H","I","SH","I","I","I","I","I","I"]
+    },
+    {
+      "operators": ["IYIYXXIXIZXX","IIIIIIIXXYXY","IYIYXXIIXXIZ","IYIYXXIIYYZI","XIIIIIIIYYZI","XIIIIIIIXXIZ","IYIYXXXIIIII","XIIIIIIXIZXX","IZXZIIIXIZXX","IIIIIIXIXXIZ","IZXZIIIIYYZI","IZXZIIIIXXIZ","XYZIYZIIIIII"],
+      "edges": [[1,2],[2,3],[4,5],[8,9],[9,10],[10,11]],
+      "cliffords": ["I","S","I","S","HSH","H","I","I","H","I","I","H"]
+    },
+    {
+      "operators": ["IZYXXYZYIYIX","YYXZIZZYIYIX","IYXYXXIIIIII","YIIXYXIIIIII","IZYYXXIIZIII","IIIZIZZYIYZX"],
+      "edges": [[1,2],[3,4],[4,5]],
+      "cliffords": ["S","SH","H","H","S","H","H","S","H","S","H","I"]
+    },
+    {
+      "operators": ["IZXYYXIXZXIX","YXIYXXIIIIZI","YXIYXXIXZXIX","IZZZIIIIIXZI","IZXYYXIIIIZI","YXIYXXIIZIII","IZZZIIIXZXIX","XXXZIIIIIIII"],
+      "edges": [[0,1],[1,2],[2,3],[3,4]],
+      "cliffords": ["H","S","HS","S","H","I","H","I","H","I","H","I"]
+    },
+    {
+      "operators": ["ZIIZIZYYXXIX","IZYYZXIIYYZI","IZYXZYXYIYIX","IIYIYZIIIIII","IZYYZXIIIZXZ","IIIZIZXYIXXY","IIIYXYXYIYIX"],
+      "edges": [[3,4],[4,5],[6,7],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["H","H","S","HS","HS","H","H","S","HSH","S","I","I"]
+    },
+    {
+      "operators": ["YYZZIZXYIYIX","XXIIIZXYIYIX","XXIZIIIIYYZI","IIIIXIIIYYZI","XXIZIIIIIZXZ","XXIZIIXIIIII","IXXZIZXYIYIX","ZYYZIZXYIYIX"],
+      "edges": [[0,1],[1,2],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["I","H","I","H","I","H","I","S","HS","S","I","I"]
+    },
+    {
+      "operators": ["IZYYZXIIXXIZ","XXIZIIIIXXIZ","IIIIXZIIXXIZ","XXIZIIIXIZXX","IZYYZXIXIZXX","IIIIXZIXIZXX","IZYYZXIIZYYI","IXXIIIIIXXIZ","XXIZIIIIZYYI","IXXIIIIXIZXX","IYZYZXIIIIII"],
+      "edges": [[1,2],[2,3],[4,5],[8,9],[9,10],[10,11]],
+      "cliffords": ["I","I","H","H","I","I","H","I","S","S","HSH","H"]
+    },
+    {
+      "operators": ["IZXYIYIIXXIZ","IIIIXIIXIZXX","IIXIIIIXIZXX","IIIIIIYIIXYI","XZXYIYIIIIII","IZIYIYIIIIII","IIXIIIIIXXIZ","IZXYIYIIXIII"],
+      "edges": [[9,10],[10,11]],
+      "cliffords": ["I","H","I","S","I","S","S","I","I","I","HSH","H"]
+    },
+    {
+      "operators": ["IZYXZYYYZXIX","IZXYIYIIIIXI","IYIYXXIIIIXI","YIZYXXIIIIII","IZXYIYIIIXXI","IZXYIYIXXXIX","IYIYXXIIIXXI","IYIYXXIXXXIX"],
+      "edges": [[1,2],[2,3],[3,4],[4,5],[7,8]],
+      "cliffords": ["S","S","S","H","I","S","S","HSH","H","I","I","I"]
+    },
+    {
+      "operators": ["IZXXIXYYZXIX","IYIYZXIXIZZX","IYIYZXIIIIZI","IIIIZIIXIZZX","IYIYZXIIIIII","XYYIIIIXIZZX","IYIYIXIIIIII","IIIIIIIXIZIX"],
+      "edges": [[1,2],[2,3],[7,8],[8,9]],
+      "cliffords": ["I","S","HSH","SH","H","I","S","I","H","HS","H","I"]
+    },
+    {
+      "operators": ["IZXXIXXYIYIX","IYIYZXIIXYYI","IYIYZXIXZXIX","IZZZIIIIXYYI"],
+      "edges": [[1,2],[2,3],[7,8],[8,9]],
+      "cliffords": ["H","S","HSH","SH","H","I","I","SH","H","SH","S","I"]
+    },
+    {
+      "operators": ["YXIXZYXYIIIY","IIIZIZXYXIIY","YXIYZXIIXIII","YXIYZXIIXZII","IIIZIZXYXZIY","IXXZIZXYIIIY","ZYYZIZXYIIIY","IIIYXYXYIIIY","IIIZIZXYIIXY","YIXYZXIIIIII","YXIYZXIIIIXI"],
+      "edges": [[0,1],[1,2],[3,4],[4,5]],
+      "cliffords": ["S","H","I","HS","HS","H","I","S","I","H","I","S"]
+    },
+    {
+      "operators": ["XXIXIXXYIIIY","XXIXYYZYIIIY","YZIIYIIIIIII","IIXIIIIIYYZI"],
+      "edges": [[0,1],[5,6],[8,9]],
+      "cliffords": ["HSH","H","I","I","S","HSH","H","S","H","H","H","S"]
+    },
+    {
+      "operators": ["XXIXIXYYIZZX","IXZIIIIIZXIZ","XXIYYXIXIZZX","IIZIIIIIZXIZ","IIIIZZIXIZZX","XXIYYXZIIIII","IIIZXZYYIZZX","XXIXIXXZIIII"],
+      "edges": [[3,4],[4,5],[5,6],[6,7],[9,10],[10,11]],
+      "cliffords": ["I","I","H","HSH","I","HS","S","I","H","HSH","H","HS"]
+    },
+    {
+      "operators": ["YXIXZYYYIZZX","IIIZIZYYXYZY","XYYZIZZZIIII","YXIYZXIIXXIZ","IIIZIZZZYYXI","YXIYYYIIIIII","IIIZXIYYIZZX"],
+      "edges": [[0,1],[3,4],[4,5],[6,7],[8,9],[9,10],[10,11]],
+      "cliffords": ["HS","I","S","H","H","HS","I","H","H","I","H","H"]
+    },
+    {
+      "operators": ["IZYXXYYYXXIX","IZXXYYYYXXIX","IZZYIYIXZXIX","ZZZYIYIIIIII","IIIYZYXYIZYX","IZYXXYXYIZYX","IZXXYYXYIZYX"],
+      "edges": [[2,3],[3,4],[6,7],[7,8],[8,9],[9,10]],
+      "cliffords": ["H","H","H","HSH","HS","S","H","SH","HS","H","HS","I"]
+    },
+    {
+      "operators": ["IZYXXYXYYXIX","XXIXYYYYIZXX","XXIXYYZZIIII","XXIXYYXYYXIX","IIIYZYYYIZXX","IZYXXYYYIZXX","IZYXXYZZIIII"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[6,7],[7,8],[8,9]],
+      "cliffords": ["H","I","I","HSH","HS","S","H","I","SH","HS","I","I"]
+    },
+    {
+      "operators": ["IZXXYYXYYXIX","ZXIYIYIXIZZX","ZYZXIYIIIIII","ZXIYIYIIIIZI","ZXIYIYIIZZII","YZYYIYIIIIII"],
+      "edges": [[0,1],[1,2],[2,3],[7,8],[8,9]],
+      "cliffords": ["S","I","HS","S","S","S","I","I","I","H","H","I"]
+    },
+    {
+      "operators": ["IZZXIXZYIYIX","IYIYXXIIIZXZ","IYIYXXIIZYYI","IZZXYYXYIYIX"],
+      "edges": [[1,2],[2,3],[4,5],[5,6],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["H","S","H","SH","I","H","H","SH","I","S","HSH","I"]
+    },
+    {
+      "operators": ["IZXYIYIIIZXZ","YXIYXXIXIZZX","IIIXZXIXIZZX","IXZIIIIXIZZX","YXIYXXIIZZII"],
+      "edges": [[1,2],[2,3],[3,4],[4,5],[10,11]],
+      "cliffords": ["S","HSH","I","H","HS","SH","H","I","H","H","H","H"]
+    },
+    {
+      "operators": ["YXIXXYXYIZYX","YXIXXYZZIIII","YXIXXYYYXXIX","IXZZIZXYIZYX","IIZZIZYYXXIX","IIZZIZXYIZYX","YIIIYZIIIIII"],
+      "edges": [[3,4],[4,5],[6,7],[7,8],[8,9],[9,10]],
+      "cliffords": ["S","I","H","H","HSH","HS","H","S","S","H","HS","I"]
+    },
+    {
+      "operators": ["XXIXYYXYIZYX","ZZIZIZXYIZYX","XXIYYXIIZIII","XXIYYXIIZZII","XXIYYXIIIZZZ"],
+      "edges": [[0,1],[3,4],[4,5],[6,7],[10,11]],
+      "cliffords": ["H","I","H","HS","S","H","I","HS","H","H","S","H"]
+    },
+    {
+      "operators": ["YXIXXYYYIZXX","ZZIZIZYYIZXX","YXIXXYXYYXIX","XYYZIZYYIZXX","ZZIZIZXYYXIX","IIIZIZYYIZXX","IIIZIZYZZYXI","IIIZZIYYIZXX"],
+      "edges": [[0,1],[3,4],[4,5],[6,7],[7,8],[8,9],[9,10]],
+      "cliffords": ["S","H","S","H","I","HS","HS","SH","H","H","H","I"]
+    },
+    {
+      "operators": ["IYIXZYZYIIIY","IIIZIZZYZZIY","XYYZIZZYIIIY","IYIYZXIIYYXI","IYIYZXIIZZII","IYIYZXZIIIII"],
+      "edges": [[3,4],[4,5],[8,9],[9,10]],
+      "cliffords": ["I","S","S","HS","H","H","H","S","H","I","H","S"]
+    },
+    {
+      "operators": ["ZXIXIXZYIIIY","IIIZZZZYIIIY","ZXIXYYXYIIIY","IIIZXIXYIIIY"],
+      "edges": [[3,4],[4,5],[5,6],[9,10]],
+      "cliffords": ["H","I","H","I","HSH","HS","HSH","S","H","H","H","S"]
+    },
+    {
+      "operators": ["IYIXXYXYIYIX","IYIXXYYYZXIX","XIIZIZYYZXIX","IIIZIZYYZYXY","IIXZIZYYZXIX"],
+      "edges": [[3,4],[4,5],[6,7],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["I","S","I","H","I","HS","H","S","H","S","I","I"]
+    },
+    {
+      "operators": ["ZXIXYYXYIYIX","ZXIXYYYYZXIX","XZIZIZYYZXIX","IIIYXYYYZXIX"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[4,5],[6,7],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["S","HSH","H","HS","I","HS","H","SH","H","S","H","I"]
+    },
+    {
+      "operators": ["XXIIIZZYIZYX","XXIIIZXZIIII","IIIZXZZYIZYX","XIIZIZZYIZYX","IIXZIZZYIZYX","XXIZIIIIXIII","XXIZIIIIXZII"],
+      "edges": [[5,6],[6,7],[10,11]],
+      "cliffords": ["I","I","I","H","I","I","HS","HSH","I","H","H","HS"]
+    },
+    {
+      "operators": ["IZXXIXZYIZYX","IYIYXXIIXIII","IYIYXXIIXZII","IZYYZXIIXZII","XYZXYXIIIIII"],
+      "edges": [[1,2],[2,3],[3,4],[6,7]],
+      "cliffords": ["I","SH","S","H","S","I","SH","H","I","H","S","I"]
+    },
+    {
+      "operators": ["ZXIYYXIIXXIZ","XZIZIZZYIZYX","IIIZIZXZXXIZ","IIIYXYZYIZYX"],
+      "edges": [[0,1],[3,4],[4,5],[6,7],[9,10],[10,11]],
+      "cliffords": ["H","H","H","H","I","H","SH","H","I","HSH","SH","HS"]
+    },
+    {
+      "operators": ["IYIXZYXYIZYX","IYIXZYZZIIII","XYYZIZXYIZYX","IYIYZXIIZXIZ","IYIYZXIIIXZI","IYIYZXIIZIII"],
+      "edges": [[3,4],[4,5],[5,6],[6,7],[9,10],[10,11]],
+      "cliffords": ["I","S","S","HS","H","SH","HS","HSH","H","I","S","H"]
+    },
+    {
+      "operators": ["IYIXZYYYIZXX","IIIZZZYYIZXX","IZZXIXYYIZXX","IIIIIIYIIZYZ"],
+      "edges": [[1,2],[2,3],[3,4],[4,5],[10,11]],
+      "cliffords": ["H","SH","H","S","H","I","S","S","H","H","HSH","H"]
+    },
+    {
+      "operators": ["ZXIXIXXYIZYX","ZXIXIXZZIIII","ZXIXIXYYXXIX","IZXYYXIIZZII"],
+      "edges": [[0,1],[1,2],[2,3],[6,7],[7,8],[8,9]],
+      "cliffords": ["I","I","I","HSH","S","I","H","S","S","H","S","I"]
+    },
+    {
+      "operators": ["ZXIXIXYYIZXX","IZXXYYYYIZXX","IIIIIIYIYXIZ"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[4,5],[6,7],[7,8],[9,10],[10,11]],
+      "cliffords": ["I","I","S","I","SH","I","S","HS","S","HSH","I","HS"]
+    },
+    {
+      "operators": ["YXIXXYZYIIIY","IIIYZYZYIIIY","IXZZIZZYIIIY","IIZZIZZYIIIY","IIIZIZZYZIIY"],
+      "edges": [[3,4],[4,5],[5,6],[9,10]],
+      "cliffords": ["S","I","H","H","HS","H","I","S","H","H","H","S"]
+    },
+    {
+      "operators": ["IIXZIZXYIIIY","IZXIIZXYIIIY","IIIZIZYZXYZI","IIIZXZXYIIIY","XIIZIZXYIIIY","XZIZIZXYIIIY"],
+      "edges": [[6,7],[9,10]],
+      "cliffords": ["I","H","I","H","I","H","S","I","I","H","SH","S"]
+    },
+    {
+      "operators": ["IZXIIZYYIZZX","YYZZIZYYIZZX","XZIZIZYYIZZX"],
+      "edges": [[0,1],[1,2],[6,7]],
+      "cliffords": ["I","I","I","H","H","H","H","H","H","H","H","I"]
+    },
+    {
+      "operators": ["XXIYIYIIXIII","XXIYIYIIXZII","XXIYIYIXIZXX","XYXXIYIIIIII","IZZYYXIXIZXX","XXIYIYIIIIXI","XXIYIYXIIIII"],
+      "edges": [[1,2],[2,3],[3,4],[4,5]],
+      "cliffords": ["I","I","HSH","S","SH","S","I","I","I","H","I","I"]
+    },
+    {
+      "operators": ["IYIXXYYYIZZX","IZYXZYYYIZZX","IZZYIYIIIIZI"],
+      "edges": [[1,2],[2,3],[3,4],[6,7]],
+      "cliffords": ["H","S","H","HSH","SH","S","H","H","H","H","H","I"]
+    },
+    {
+      "operators": ["YXIXZYZYIZYX","YXIXZYYYZXIX","IZZXYYZYIZYX","IZZXYYYYZXIX","YXIXZYXZIIII"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[6,7],[7,8],[8,9]],
+      "cliffords": ["HSH","I","HSH","I","I","S","I","S","H","HS","S","I"]
+    },
+    {
+      "operators": ["YXIYZXIXIZXX","IZXXIXZYYXIX","ZYYIIIIXIZXX"],
+      "edges": [[0,1],[1,2],[2,3],[7,8],[8,9]],
+      "cliffords": ["I","S","HS","S","H","I","H","I","SH","HS","I","I"]
+    },
+    {
+      "operators": ["XXIXIXZYIZYX","XXIXIXYYZXIX"],
+      "edges": [[6,7],[7,8],[8,9]],
+      "cliffords": ["I","I","H","I","H","I","I","SH","H","HS","S","I"]
+    },
+    {
+      "operators": ["ZXIXYYYYIZZX","IZXXIXYYIZZX","ZXIYIYZIIIII"],
+      "edges": [[1,2],[2,3],[3,4],[4,5],[5,6],[10,11]],
+      "cliffords": ["H","HSH","I","S","S","S","I","S","H","H","H","H"]
+    },
+    {
+      "operators": ["IYIXXYXYIIIY","YYZZIZXYIIIY","IIIZIZYZIIYI"],
+      "edges": [[3,4],[4,5],[6,7],[8,9]],
+      "cliffords": ["S","S","H","H","I","HS","HS","H","H","H","S","S"]
+    },
+    {
+      "operators": ["IZXIIZZYIZYX","IZXIIZYYZXIX","ZYYZIZZYIZYX"],
+      "edges": [[0,1],[1,2],[6,7],[7,8],[8,9]],
+      "cliffords": ["I","I","I","H","H","H","I","SH","H","HS","S","I"]
+    },
+    {
+      "operators": ["XXIXYYYYXXIX","YYXIIIIXIZZX","IZZYIYIXIZZX"],
+      "edges": [[0,1],[1,2],[2,3],[7,8],[8,9]],
+      "cliffords": ["H","I","SH","I","S","S","S","HSH","I","H","H","I"]
+    },
+    {
+      "operators": ["YYXZIZYYIZXX","XXIYYXIIZXIZ","IXZZIZYYIZXX","XXIYYXIIXYYI"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[4,5],[6,7],[8,9],[9,10],[10,11]],
+      "cliffords": ["I","SH","HSH","HSH","SH","H","H","H","SH","S","HSH","H"]
+    },
+    {
+      "operators": ["ZXIXIXXYYXIX","IIZIIIIXIZZX","ZXIXYYZYYXIX"],
+      "edges": [[4,5],[5,6],[7,8],[8,9]],
+      "cliffords": ["H","I","H","I","HSH","SH","I","HSH","S","H","H","I"]
+    },
+    {
+      "operators": ["IYIXZYYYXXIX","IYIXZYZYIYIX","IYIYZXIIIZZZ"],
+      "edges": [[3,4],[4,5],[6,7],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["H","S","H","HS","H","H","I","S","I","S","H","I"]
+    },
+    {
+      "operators": ["YYXZIZZYIIIY","IZZIIZZYIIIY"],
+      "edges": [[1,2]],
+      "cliffords": ["S","S","H","H","H","H","H","S","H","H","H","S"]
+    },
+    {
+      "operators": ["IYIXZYXYYXIX","IIZZIZYYIZXX","ZIIZIZYYIZXX"],
+      "edges": [[3,4],[4,5],[6,7],[7,8],[8,9],[9,10]],
+      "cliffords": ["H","S","H","H","H","HS","HS","S","H","H","H","I"]
+    },
+    {
+      "operators": ["ZXIYIYIIZXIZ","ZXIYIYIIZIII"],
+      "edges": [],
+      "cliffords": ["H","I","H","S","H","S","H","H","H","I","H","H"]
+    },
+    {
+      "operators": ["IZZXIXZYIIIY","IZZXYYXYIIIY"],
+      "edges": [[5,6],[9,10]],
+      "cliffords": ["H","H","H","I","S","SH","H","S","H","H","H","S"]
+    },
+    {
+      "operators": ["IZZXIXXYIZYX","IZZXIXZZIIII","YXIYXXIIIZZZ"],
+      "edges": [[1,2],[2,3],[3,4],[6,7],[10,11]],
+      "cliffords": ["S","I","H","SH","H","I","S","H","H","H","S","H"]
+    },
+    {
+      "operators": ["XXIXIXXYIYIX","XXIXIXZYYXIX","IZYXZYZYYXIX"],
+      "edges": [[0,1],[1,2],[2,3],[3,4],[4,5],[6,7],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["H","I","H","I","H","I","S","H","SH","S","H","I"]
+    },
+    {
+      "operators": ["XXIIIZXYIIIY"],
+      "edges": [],
+      "cliffords": ["I","I","H","H","H","H","I","S","H","H","H","S"]
+    },
+    {
+      "operators": ["YXIXZYXYIYIX","YXIXZYZYYXIX","YXIYZXIIIZXZ"],
+      "edges": [[3,4],[4,5],[6,7],[7,8],[8,9],[9,10],[10,11]],
+      "cliffords": ["S","I","H","HS","H","H","S","H","SH","S","I","I"]
+    },
+    {
+      "operators": ["XXIIIZYYIZZX"],
+      "edges": [],
+      "cliffords": ["I","I","H","H","H","H","S","S","H","H","H","I"]
+    },
+    {
+      "operators": ["XXIYIYIIXXIZ","XXIYIYIIYYZI","XXIYIYIIZYYI","XXIYIYIIIXXI","IZZYYXIIXXIZ"],
+      "edges": [[1,2],[2,3],[3,4],[4,5],[8,9],[9,10]],
+      "cliffords": ["I","HSH","H","S","S","S","H","H","I","H","I","H"]
+    },
+    {
+      "operators": ["IZYXZYXYIIIY","IZYXXYZYIIIY","XXIYYXIIYYXI"],
+      "edges": [[1,2],[2,3],[4,5],[5,6],[8,9]],
+      "cliffords": ["I","HSH","SH","S","SH","SH","S","S","H","H","I","S"]
+    },
+    {
+      "operators": ["IZXXIXXYIIIY"],
+      "edges": [],
+      "cliffords": ["H","H","I","I","H","I","I","S","H","H","H","S"]
+    },
+    {
+      "operators": ["YXIXXYZYIYIX"],
+      "edges": [],
+      "cliffords": ["S","I","H","I","I","S","H","S","H","S","H","I"]
+    },
+    {
+      "operators": ["XXIXYYZYIYIX"],
+      "edges": [],
+      "cliffords": ["I","I","H","I","S","S","H","S","H","S","H","I"]
+    },
+    {
+      "operators": ["ZXIIIZYYIZXX"],
+      "edges": [],
+      "cliffords": ["H","I","H","H","H","H","S","S","H","H","I","I"]
+    },
+    {
+      "operators": ["IIIZIZYYYIIY"],
+      "edges": [],
+      "cliffords": ["H","H","H","H","H","H","S","S","S","H","H","S"]
+    },
+    {
+      "operators": ["XXIYIYIXXXIX","XXIYIYIIIZXZ"],
+      "edges": [[9,10],[10,11]],
+      "cliffords": ["I","I","H","S","H","S","H","I","I","I","I","I"]
+    },
+    {
+      "operators": ["ZXIYIYIIXYYI","ZXIYIYIIIZZZ"],
+      "edges": [[9,10],[10,11]],
+      "cliffords": ["H","I","H","S","H","S","H","H","I","S","HS","I"]
+    },
+    {
+      "operators": ["ZXIZIIIXIZZX"],
+      "edges": [],
+      "cliffords": ["H","I","H","H","H","H","H","I","H","H","H","I"]
+    },
+    {
+      "operators": ["ZXIIIZZYIIIY"],
+      "edges": [],
+      "cliffords": ["H","I","H","H","H","H","H","S","H","H","H","S"]
+    },
+    {
+      "operators": ["ZXIXIXZYIYIX"],
+      "edges": [],
+      "cliffords": ["H","I","H","I","H","I","H","S","H","S","H","I"]
+    },
+    {
+      "operators": ["IZZIIZYYXXIX","IZZIIZXYIZYX","ZIIZIZXYIZYX"],
+      "edges": [[1,2],[6,7],[7,8],[8,9],[9,10]],
+      "cliffords": ["H","I","H","H","H","H","H","S","S","H","HSH","I"]
+    },
+    {
+      "operators": ["IZZIIZXYYXIX","IZZIIZZYIYIX"],
+      "edges": [[6,7],[7,8],[8,9]],
+      "cliffords": ["H","H","H","H","H","H","SH","I","SH","S","H","I"]
+    },
+    {
+      "operators": ["IZZIIZYYIZXX"],
+      "edges": [],
+      "cliffords": ["H","H","H","H","H","H","S","S","H","H","I","I"]
+    },
+    {
+      "operators": ["IYIXXYZYYXIX"],
+      "edges": [],
+      "cliffords": ["H","S","H","I","I","S","H","S","S","I","H","I"]
+    }
+  ]
+}
