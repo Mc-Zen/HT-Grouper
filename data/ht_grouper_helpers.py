@@ -14,6 +14,23 @@ from qiskit.circuit.library import HGate
 h_gate_canceller = PassManager([InverseCancellation([HGate()])])
 
 
+def reverse_paulis(hamiltonian: Dict[str, float]) -> Dict[str, float]:
+    """Reverse the qubit order of Paulis in a dictionary where Paulis are the keys. """
+    return {key[::-1]: value for key, value in hamiltonian.items()}
+
+
+def write_hamiltonian_to_json(filename: str, hamiltonian: Dict[str, float]):
+    """
+    Write a hamiltonian in form of a dictionary with Pauli strings
+    as keys and real-valued coefficients as values to a JSON file. 
+
+    Pauli strings should read as 
+       `"XYZ"` -> X on qubit 0, Y on qubit 1, Z on qubit 2
+    """
+    with open(filename, "w") as file:
+        json.dump(hamiltonian, file, indent=2)
+
+
 def read_hamiltonian_from_json(filename: str) -> Dict[str, float]:
     """
     Read a hamiltonian from a JSON file containing Pauli strings
@@ -26,21 +43,6 @@ def read_hamiltonian_from_json(filename: str) -> Dict[str, float]:
     """
     with open(filename) as file:
         return json.load(file)
-
-
-def write_hamiltonian_to_json(filename: str, hamiltonian: Dict[str, float], reverse_paulis: bool = False):
-    """
-    Write a hamiltonian in form of a dictionary with Pauli strings
-    as keys and real-valued coefficients as values to a JSON file. 
-
-    Pauli strings should read as 
-       `"XYZ"` -> X on qubit 0, Y on qubit 1, Z on qubit 2
-    If they are read in the inverse order, set `reverse_paulis` to `True`
-    """
-    if reverse_paulis:
-        hamiltonian = {key[::-1]: value for key, value in hamiltonian.items()}
-    with open(filename, "w") as file:
-        json.dump(hamiltonian, file, indent=2)
 
 
 def read_grouping_from_json(filename: str) -> List[dict]:
@@ -77,12 +79,12 @@ def read_grouping_from_json(filename: str) -> List[dict]:
     Parameters
     ----------
     filename : str
-        _description_
+        Input file path
 
     Returns
     -------
     List[dict]
-        _description_
+        Grouping as a list of dictionaries similar to the form shown above. 
     """
     with open(filename) as file:
         result = json.load(file)
@@ -195,20 +197,42 @@ class CircuitResult:
 
 
 class HamiltonianExperiment:
+    """
+    Hamiltonian measurement workflow that
+     - generates circuits,
+     - can run them on a backend,
+     - and evaluates the final results by computing expectation values of 
+           - individual Paulis and (`.get_expectation_values()`)
+           - the energy (`.evaluate_energy()`).
+    """
 
     def __init__(self, preparation_circuit: QuantumCircuit, grouping: List[dict], hamiltonian: Dict[str, float]):
+        """Initialize a `HamiltonianExperiment` with a preparation circuit preparing the 
+        desired quantum state. 
+
+        Parameters
+        ----------
+        preparation_circuit : QuantumCircuit
+            Circuit preparing the quantum state.
+        grouping : List[dict]
+            Grouping as produced by `read_grouping_from_json()`.
+        hamiltonian : Dict[str, float]
+            Corresponding Hamiltonian (necessary for the coefficients).
+        """
         self.preparation_circuit = preparation_circuit
         self.grouping = grouping
         self.hamiltonian = hamiltonian
         self.num_qubits = len(grouping[0]["operators"][0])
         assert self.num_qubits == preparation_circuit.num_qubits, "Number of qubits do not match for preparation circuit and hamiltonian"
 
-    def get_readout_circuits(self) -> List[QuantumCircuit]:
-        if not hasattr(self, "readout_circuits"):
-            self.readout_circuits = generate_readout_circuits(self.grouping)
-        return self.readout_circuits
-
     def get_circuits(self) -> List[QuantumCircuit]:
+        """Obtain the circuits to be run (including the preparation circuit).
+
+        Returns
+        -------
+        List[QuantumCircuit]
+            _description_
+        """
         if not hasattr(self, "circuits"):
             readout_circuits = self.get_readout_circuits()
             self.circuits = []
@@ -218,15 +242,50 @@ class HamiltonianExperiment:
                 self.circuits.append(qc)
         return self.circuits
 
-    def simulate(self, shots):
+    def get_readout_circuits(self) -> List[QuantumCircuit]:
+        """
+        Get list of readout circuits for measuring the Hamiltonian.
+        Note: the preparation circuit is not part of these circuits. 
+        Call `get_circuits()` instead. 
+        """
+        if not hasattr(self, "readout_circuits"):
+            self.readout_circuits = generate_readout_circuits(self.grouping)
+        return self.readout_circuits
+
+    def simulate(self, shots) -> Job:
+        """Simulate the experiment using IBM's `qasm_simulator`. """
         circuits = self.get_circuits()
         backend_sim = qiskit.Aer.get_backend("qasm_simulator")
         job = qiskit.execute(circuits, backend=backend_sim, shots=shots)
         return job
 
-    def get_expectation_values(self, job: Job) -> Dict[Pauli, float]:
+    def run(self, backend, shots, **kwargs) -> Job:
+        """
+        Run experiment on given backend. Additional keyword arguments are
+        passed to the backend. 
+        """
+        job = backend.run(self.get_circuits(), shots=shots, **kwargs)
+        return job
+
+    def get_expectation_values(self, job: Job) -> Dict[str, float]:
+        """
+        Compute expectation values for individual Pauli operators in the Hamiltonian
+        from a finished qiskit ``Job``. 
+
+        Parameters
+        ----------
+        job : Job
+            Qiskit Job instance
+
+        Returns
+        -------
+        Dict[str, float]
+            Dictionary containing each Pauli in the Hamiltonian with its computed
+            expectation value. The Paulis are written in textbook order, e.g., "XYZ"
+            means X on the first qubit. 
+        """
         all_counts = job.result().get_counts()
-        expectation_values: Dict[Pauli, float] = {}
+        expectation_values: Dict[str, float] = {}
 
         for group, readout_circuit, counts in zip(self.grouping, self.get_readout_circuits(), all_counts):
             circuit_result = CircuitResult(counts)
@@ -235,7 +294,7 @@ class HamiltonianExperiment:
                 pauli_z = pauli.evolve(readout_circuit, frame="s")
                 assert (pauli_z.phase == 2 or pauli_z.phase == 0) and not pauli_z.x.any()
 
-                expectation_value = _compute_expectation_value(circuit_result, create_bitstring_from_nparray(pauli_z.z))
+                expectation_value = _compute_expectation_value(circuit_result, _create_bitstring_from_nparray(pauli_z.z))
                 if pauli_z.phase == 2:
                     expectation_value *= -1
                 expectation_values[pauli_string] = expectation_value
@@ -243,7 +302,27 @@ class HamiltonianExperiment:
         expectation_values[("I" * self.num_qubits)] = 1.
         return expectation_values
 
-    def evaluate(self, job: Job) -> float:
+    def evaluate_energy(self, job: Job) -> float:
+        """
+        Evaluate the energy of a Hamiltonian from a finsished qiskit `Job` instance
+        by summing up the expectation values of the Hamiltonian weighted with its 
+        coefficients as in Eq. (1) in https://arxiv.org/abs/2203.03646v2
+
+        Parameters
+        ----------
+        job : Job
+            Qiskit Job instance
+
+        Returns
+        -------
+        float
+            Energy (estimated observable expectation value)
+
+        Raises
+        ------
+        KeyError
+            If a Pauli from the Hamiltonian could not be found in the grouping. 
+        """
         expectation_values = self.get_expectation_values(job)
         result = 0
         try:
@@ -254,7 +333,7 @@ class HamiltonianExperiment:
         return result
 
 
-def create_bitstring_from_nparray(arr: np.ndarray) -> Bitstring:
+def _create_bitstring_from_nparray(arr: np.ndarray) -> Bitstring:
     bitstring = Bitstring(0)
     for i in range(len(arr)):
         if arr[i]:
