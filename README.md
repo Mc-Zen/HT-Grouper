@@ -4,8 +4,7 @@ This repository is maintained by Kyano Levi and Daniel Miller [(AG Eisert, FU Be
 
 ## Grouping Pauli operators into commuting sets that admit hardware-tailored readout circuits
 
-In the preprint [Hardware-Tailored Diagonalization Circuits](https://doi.org/10.48550/arXiv.2203.03646) by Daniel Miller _et al._, 
-a theoretical framework for the construction of hardware-tailored readout circuits was developed.
+In the preprint [Hardware-Tailored Diagonalization Circuits](https://doi.org/10.48550/arXiv.2203.03646), Daniel Miller _et al._ developed a theoretical framework for the construction of hardware-tailored readout circuits.
 The original implementation of the accompanying algorithms is not publically available.
 However, the working principle of the grouping algorithms are precisely described in [Sec. II](https://doi.org/10.48550/arXiv.2203.03646)  of the supplementary material.
 This enabled us to reimplement an open-source version of one of the algorithms. 
@@ -70,4 +69,5 @@ As expected, the [estimated shot reduction](https://doi.org/10.22331/q-2021-01-2
 Here, we did not fully explore the tradeoff between runtime and quality:
 For example, for 24 qubits (10 hydrogen atoms), the HT-grouper with 100 random subgraphs required less than 35 minutes to terminate. However, the resulting estimated shot reduction is 12.4 (still better than blue), which can likely be improved by re-running the HT-Grouper with an increased number of subgraphs. 
 
-![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/4a1fd706-836e-4a7c-972c-aa4fd0e3dcd2)
+![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/a6d250b0-eee0-4d8a-b2ca-21095a33c6a3)
+
