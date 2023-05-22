@@ -59,9 +59,10 @@ The code was executed in release mode (fast option).
 
 The benchmarked Hamiltonians describe $n$-atomic hydrogen chains in STO-3G basis mapped to $2n$ qubits via the Bravyi-Kitaev fermi-to-qubit mapper. 
 The readout circuits were tailored to linear connectivity.
-We applied HT-Grouper with two hyperparameter choices: 
+We applied HT-Grouper with three hyperparameter choices: 
 
 - (bright green) all subgraphs --> exponential runtime 
+- (medium green) 1000 subgraphs --> polynomial runtime
 - (dark green) 100 subgraphs --> polynomial runtime
 
 As expected, the [estimated shot reduction](https://doi.org/10.22331/q-2021-01-20-385) lies between the grouping result of [Sorted Insertion](https://doi.org/10.22331/q-2021-01-20-385) with general commutativity (red), which requires all-to-all connectivity, and Sorted Insertion with qubit-wise commutativity (blue), which only requires single-qubit Clifford gates at the readout stage.
