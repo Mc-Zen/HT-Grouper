@@ -326,17 +326,45 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread(const Hamilton
 
 
 
-std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads, bool verbose) {
+std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(
+	const Hamiltonian& hamiltonian,
+	const std::vector<Graph<>>& graphs,
+	int numThreads,
+	bool extractComputationalBasis,
+	bool verbose
+) {
 	const auto numGraphsPerThread = static_cast<size_t>(std::ceil(static_cast<float>(graphs.size()) / static_cast<float>(numThreads)));
 	std::vector<HTCircuitFinder> finders;
 	for (int i = 0; i < numThreads; ++i) finders.emplace_back(hamiltonian.numQubits);
 
 	auto paulis = hamiltonian.operators;
-	// Sort by magnitude in descending order 
-	std::ranges::sort(paulis, [](const auto& a, const auto& b) {return std::abs(a.second) > std::abs(b.second); });
 
 	std::vector<CollectionWithGraph> collections;
 	std::vector<GraphRepr> graphReprs;
+
+
+	auto printStatus = [&](bool deletePreviousLine) {
+		if (!verbose) return;
+		if (deletePreviousLine) println("\33[2K\r");
+		println("{} of {} remaining ({} group{}): {} -> {}\n",
+			paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
+			collections.back().paulis, collections.back().graph.getEdges());
+	};
+	if (extractComputationalBasis) {
+		CollectionWithGraph computationalBasis{ {}, Graph<>{ hamiltonian.numQubits } };
+		std::erase_if(paulis, [&](const auto& pauli) {
+			if (pauli.first.getXString() == 0ULL) {
+				computationalBasis.paulis.push_back(pauli.first);
+				return true;
+			}
+			return false;
+			});
+		collections.push_back(computationalBasis);
+		printStatus(false);
+	}
+	// Sort by magnitude in descending order 
+	std::ranges::sort(paulis, [](const auto& a, const auto& b) {return std::abs(a.second) > std::abs(b.second); });
+
 
 	for (const auto& graph : graphs) graphReprs.emplace_back(graph);
 
@@ -377,7 +405,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 					//}
 
 					collection.paulis.push_back(pauli);
-					if (!is_ht_measurable(collection.paulis,graphRepr, finder)) {
+					if (!is_ht_measurable(collection.paulis, graphRepr, finder)) {
 						collection.paulis.pop_back();
 					}
 				}
@@ -419,9 +447,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(const Hamilto
 		for (const auto& pauli : bestCollection->paulis) {
 			std::erase_if(paulis, [&pauli](auto& val) { return val.first == pauli; });
 		}
-		if (verbose) println("\33[2K\r{} of {} remaining ({} group{}): {} -> {}\n",
-			paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
-			collections.back().paulis, collections.back().graph.getEdges());
+		printStatus(true);
 	}
 	computeSingleQubitLayer(collections);
 	return collections;

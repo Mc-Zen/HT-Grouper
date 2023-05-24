@@ -94,6 +94,5 @@ namespace Q {
 	/// @param verbose       If set to true, will print current status to stdout console output
 	/// @return Sets of commuting operators
 	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
-	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread2(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
-	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread3(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
+	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread2(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool extractComputationalBasis = true, bool verbose = true);
 }
