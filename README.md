@@ -62,7 +62,8 @@ The readout circuits were tailored to linear connectivity.
 We applied HT-Grouper with three hyperparameter choices: 
 
 - (bright green) all subgraphs --> exponential runtime 
-- (medium green) 1000 subgraphs --> polynomial runtime
+- (medium bright green) 10k subgraphs --> polynomial runtime
+- (medium dark green) 1k subgraphs --> polynomial runtime
 - (dark green) 100 subgraphs --> polynomial runtime
 
 As expected, the [estimated shot reduction](https://doi.org/10.22331/q-2021-01-20-385) lies between the grouping result of [Sorted Insertion](https://doi.org/10.22331/q-2021-01-20-385) with general commutativity (red), which requires all-to-all connectivity, and Sorted Insertion with qubit-wise commutativity (blue), which only requires single-qubit Clifford gates at the readout stage.
@@ -70,5 +71,6 @@ As expected, the [estimated shot reduction](https://doi.org/10.22331/q-2021-01-2
 Here, we did not fully explore the tradeoff between runtime and quality:
 For example, for 24 qubits (10 hydrogen atoms), the HT-grouper with 100 random subgraphs required less than 35 minutes to terminate. However, the resulting estimated shot reduction is 12.4 (still better than blue), which can likely be improved by re-running the HT-Grouper with an increased number of subgraphs. 
 
-![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/a6d250b0-eee0-4d8a-b2ca-21095a33c6a3)
+![grafik](https://github.com/Mc-Zen/HT-Grouper/assets/129524538/ab8ce32a-1227-40c5-94d4-7bbe5ab2d1b9)
+
 
