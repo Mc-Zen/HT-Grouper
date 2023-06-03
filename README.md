@@ -29,8 +29,9 @@ If you want to support work like this, please cite our paper:
 
 ## Dependencies
 
-- Gurobi 10.0.0 (or more recent)
-- Qiskit 
+- Gurobi >= 10.0.0
+- Qiskit >= 0.36.0
+- Numpy >= 1.22
 
  The code has only been tested on Windows. 
 
