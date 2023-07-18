@@ -143,7 +143,7 @@ namespace Q {
 
 	constexpr void Pauli::setX(int qubit, int value) { r ^= (-value ^ r) & (1ULL << qubit); }
 
-	constexpr void Pauli::setZ(int qubit, int value) { s ^= (-value ^ r) & (1ULL << qubit); }
+	constexpr void Pauli::setZ(int qubit, int value) { s ^= (-value ^ s) & (1ULL << qubit); }
 
 	/// @brief Get phase of the operator like when XZ is represented as -iY
 
@@ -206,6 +206,81 @@ namespace Q {
 	//	}
 	//	return commutesLocally(p1, p2, support);
 	//}
+
+
+
+
+
+
+	namespace Clifford {
+		constexpr void x(Pauli& pauli, int qubit) {
+			pauli.increasePhase(2 * pauli.z(qubit));
+		}
+
+		constexpr void y(Pauli& pauli, int qubit) {
+			pauli.increasePhase(2 * (pauli.x(qubit) + pauli.z(qubit)));
+		}
+
+		constexpr void z(Pauli& pauli, int qubit) {
+			pauli.increasePhase(2 * pauli.x(qubit));
+		}
+
+		constexpr void h(Pauli& pauli, int qubit) {
+			auto x = pauli.x(qubit);
+			auto z = pauli.z(qubit);
+			pauli.setX(qubit, z);
+			pauli.setZ(qubit, x);
+			pauli.increasePhase(2 * (pauli.x(qubit) * pauli.z(qubit)));
+		}
+
+		constexpr void s(Pauli& pauli, int qubit) {
+			pauli.setZ(qubit, pauli.z(qubit) ^ pauli.x(qubit));
+			pauli.increasePhase(pauli.x(qubit));
+		}
+
+		constexpr void sdg(Pauli& pauli, int qubit) {
+			pauli.setZ(qubit, pauli.z(qubit) ^ pauli.x(qubit));
+			pauli.decreasePhase(pauli.x(qubit));
+		}
+
+		constexpr void hs(Pauli& pauli, int qubit) {
+			s(pauli, qubit);
+			h(pauli, qubit);
+		}
+
+		constexpr void sh(Pauli& pauli, int qubit) {
+			h(pauli, qubit);
+			s(pauli, qubit);
+		}
+
+		constexpr void hsh(Pauli& pauli, int qubit) {
+			h(pauli, qubit);
+			s(pauli, qubit);
+			h(pauli, qubit);
+		}
+
+		constexpr void cx(Pauli& pauli, int control, int target) {
+			pauli.setX(target, pauli.x(target) ^ pauli.x(control));
+			pauli.setZ(control, pauli.z(control) ^ pauli.z(target));
+		}
+
+		constexpr void cz(Pauli& pauli, int qubit1, int qubit2) {
+			pauli.setZ(qubit2, pauli.z(qubit2) ^ pauli.x(qubit1));
+			pauli.setZ(qubit1, pauli.z(qubit1) ^ pauli.x(qubit2));
+			pauli.increasePhase(2 * (pauli.x(qubit1) * pauli.x(qubit2))); // if both operators have X component: phase flip
+		}
+
+		constexpr void swap(Pauli& pauli, int qubit1, int qubit2) {
+			auto x1 = pauli.x(qubit1);
+			auto z1 = pauli.z(qubit1);
+			auto x2 = pauli.x(qubit2);
+			auto z2 = pauli.z(qubit2);
+			pauli.setX(qubit1, x2);
+			pauli.setZ(qubit1, z2);
+			pauli.setX(qubit2, x1);
+			pauli.setZ(qubit2, z1);
+		}
+	}
 }
 
 

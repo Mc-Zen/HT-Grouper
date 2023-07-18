@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <array>
-#include "binary_pauli.h"
 #include "string_utility.h"
 
 
@@ -10,9 +9,10 @@ namespace Q {
 
 
 	/// @brief  Class for quantum Clifford circuits. 
-	template<int numQubits>
 	class QuantumCircuit {
 	public:
+
+		explicit QuantumCircuit(int numQubits) : numQubits(numQubits) {}
 
 		enum class GateType {
 			I, X, Y, Z,
@@ -28,6 +28,7 @@ namespace Q {
 			constexpr friend bool operator==(const Gate& g1, const Gate& g2) = default;
 		};
 
+		int numQubits{};
 		std::vector<Gate> gates;
 
 		void i(int qubit) { gates.emplace_back(GateType::I, qubit); }
@@ -49,51 +50,18 @@ namespace Q {
 			std::ranges::copy(other.gates, std::back_inserter(gates));
 		}
 
-
-		auto transformPauli(const BinaryPauliOperator<numQubits>& input) const {
-			BinaryPauliOperator<numQubits> result{ input };
-			for (const auto& gate : gates) {
-				const auto target = gate.target;
-				const auto control = gate.control;
-				switch (gate.type) {
-					using enum GateType;
-				case I: break;
-				case X: Clifford::x(result, target); break;
-				case Y: Clifford::y(result, target); break;
-				case Z: Clifford::z(result, target); break;
-				case H: Clifford::h(result, target); break;
-				case S: Clifford::s(result, target); break;
-				case SDG: Clifford::sdg(result, target); break;
-				case CX: Clifford::cx(result, control, target); break;
-				case CZ: Clifford::cz(result, control, target); break;
-				case SWAP: Clifford::swap(result, control, target); break;
-				default:break;
-				}
-
-			}
-			return result;
-		}
-
 		void invert() {
-			std::ranges::reverse(gates);
+			std::ranges::reverse(this->gates);
 			std::ranges::for_each(gates, [](auto& gate) {
 				if (gate.type == GateType::S) gate.type = GateType::SDG;
 				else if (gate.type == GateType::SDG) gate.type = GateType::S;
 				});
 		}
-		
+
 		auto inverse() const {
 			auto copy = *this;
 			copy.invert();
 			return copy;
-		}
-
-		BinaryOperatorSet<numQubits, numQubits> getStabilizer() const {
-			BinaryOperatorSet<numQubits, numQubits> stabilizer;
-			for (size_t i = 0; i < numQubits; ++i) {
-				stabilizer[i] = transformPauli(BinaryPauliOperator<numQubits>::SingleZ(i));
-			}
-			return stabilizer;
 		}
 
 		std::string serialize() const {
@@ -163,9 +131,7 @@ namespace Q {
 
 		friend bool operator==(const QuantumCircuit& qc1, const QuantumCircuit& qc2) = default;
 
-
-
-		std::string toString() const {
+		std::string draw() const {
 			auto getGateSymbol = [](const Gate& gate) {
 				switch (gate.type) {
 					using enum GateType;
@@ -188,7 +154,7 @@ namespace Q {
 			};
 
 			std::vector<std::vector<char>> matrix(numQubits);
-			for (const auto&gate : gates) {
+			for (const auto& gate : gates) {
 				if (gate.numQubits() == 1) {
 					matrix[gate.target].emplace_back(getGateSymbol(gate));
 				}
@@ -202,7 +168,7 @@ namespace Q {
 					int secondQubit = std::max(gate.target, gate.control);
 					while (true) {
 						for (int i = firstQubit + 1; i < secondQubit; ++i) {
-							if (matrix[i].size() >= stack1.size()+1) {
+							if (matrix[i].size() >= stack1.size() + 1) {
 								auto c = matrix[i][stack1.size()];
 								if (c != '-') {
 									stack1.emplace_back('-');
@@ -243,7 +209,7 @@ namespace Q {
 				}
 			}
 			std::vector<std::string> strings(numQubits);
-			std::vector<std::string> strings2(numQubits -1);
+			std::vector<std::string> strings2(numQubits - 1);
 			for (int i = 0; i < maxSize; ++i) {
 				for (auto& s : strings) s += "--";
 				for (auto& s : strings2) s += "  ";
@@ -259,8 +225,8 @@ namespace Q {
 					if (j == numQubits - 1) continue;
 					if (twoGate) {
 						strings2[j] += '|';
-						if(!hasTwoGate)
-						strings[j][strings[j].size() - 1] = '|';
+						if (!hasTwoGate)
+							strings[j][strings[j].size() - 1] = '|';
 					}
 					else {
 						strings2[j] += ' ';
