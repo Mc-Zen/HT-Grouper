@@ -117,9 +117,12 @@ int main() {
 			std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
 		}
 
-		println("Running pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
+		println("Running HT Pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
 		println("Random seed: {}\n", seed);
-		auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads);
+		auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
+		
+		
+		println("\n\n\n---------------\nRunning TPB grouping", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
 		auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
 
 		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);

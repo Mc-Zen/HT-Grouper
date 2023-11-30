@@ -12,11 +12,10 @@ namespace Q {
 	///           00 -> I,    01 -> X,    10 -> Z,    11 -> Y
 	///        Nice feature: taking them as indices, this allows a dense representation of the 
 	///        n-qubit Pauli group. 
-	template<int numQubits>
 	struct PauliIndex {
 		constexpr PauliIndex() = default;
 
-		explicit constexpr PauliIndex(uint64_t index) : index(index) {}
+		explicit constexpr PauliIndex(int numQubits, uint64_t index) : numQubits(numQubits), index(index) {}
 
 		explicit constexpr PauliIndex(const std::string_view& str) {
 			assert(str.size() == numQubits);
@@ -31,12 +30,13 @@ namespace Q {
 			}
 		}
 
-		explicit constexpr PauliIndex(const BinaryPauliOperator<numQubits>& binaryPauliOperator) {
+		explicit constexpr PauliIndex(const Pauli& pauli) {
+			assert(pauli.numQubits() == numQubits);
 			for (int i = 0; i < numQubits; ++i) {
 				index <<= 1;
-				index |= binaryPauliOperator[i][1];
+				index |= pauli.z(i);
 				index <<= 1;
-				index |= binaryPauliOperator[i][0];
+				index |= pauli.x(i);
 			}
 		}
 
@@ -48,11 +48,14 @@ namespace Q {
 			}
 			return result;
 		}
+
+
+		int numQubits{};
 		uint64_t index{};
 	};
 
 
-	template<class T, int numQubits>
+	template<class T>
 	class PauliOperatorMap {
 	public:
 
@@ -64,14 +67,15 @@ namespace Q {
 			using iterator_category = std::random_access_iterator_tag;
 			using difference_type = std::ptrdiff_t;
 			using size_type = size_t;
-			using value_type = std::pair<PauliIndex<numQubits>, std::remove_const_t<U>>;
+			using value_type = std::pair<PauliIndex, std::remove_const_t<U>>;
 			using pointer = U*;
-			using reference = std::pair<PauliIndex<numQubits>, U&>;
+			using reference = std::pair<PauliIndex, U&>;
 
 			constexpr PauliIndexIterator() noexcept = default;
-			constexpr explicit PauliIndexIterator(pointer ptr, size_type offset = 0) noexcept : ptr(ptr + offset), index(offset) {}
+			constexpr explicit PauliIndexIterator(int numQubits, pointer ptr, size_type offset = 0) noexcept
+				: numQubits(numQubits), ptr(ptr + offset), index(offset) {}
 
-			constexpr reference operator*() const noexcept { return { PauliIndex<numQubits>{ index }, *ptr }; }
+			constexpr reference operator*() const noexcept { return { PauliIndex{ numQubits, index }, *ptr }; }
 			//constexpr pointer operator->() const noexcept { return ptr; }
 			constexpr PauliIndexIterator& operator++() noexcept { ++ptr; ++index; return *this; }
 			constexpr PauliIndexIterator operator++(int) noexcept { PauliIndexIterator tmp = *this; ++ptr; ++index; return tmp; }
@@ -88,6 +92,7 @@ namespace Q {
 			constexpr friend PauliIndexIterator operator+(const difference_type offset, const PauliIndexIterator a) noexcept { return a += offset; }
 
 		private:
+			int numQubits{};
 			pointer ptr{};
 			size_type index{};
 		};
@@ -114,13 +119,19 @@ namespace Q {
 		using const_reverse_iterator = typename std::vector<value_type>::const_reverse_iterator;
 
 
-		constexpr PauliOperatorMap() : map(pow4(numQubits)) {}
-		explicit constexpr PauliOperatorMap(const T& value) : map(pow4(numQubits), value) {}
+		explicit constexpr PauliOperatorMap(int numQubits) : numQubits(numQubits), map(pow4(numQubits)) {}
+		explicit constexpr PauliOperatorMap(int numQubits, const T& value) : numQubits(numQubits), map(pow4(numQubits), value) {}
 
 		constexpr T& operator[](const std::string_view& s) { return map[toIndex(s)]; }
 		constexpr const T& operator[](const std::string_view& s) const { return map[toIndex(s)]; }
-		constexpr T& operator[](const PauliIndex<numQubits>& s) { return map[s.index]; }
-		constexpr const T& operator[](const PauliIndex<numQubits>& s) const { return map[s.index]; }
+		constexpr T& operator[](const PauliIndex& s) {
+			assert(s == numQubits);
+			return map[s.index];
+		}
+		constexpr const T& operator[](const PauliIndex& s) const {
+			assert(s == numQubits);
+			return map[s.index];
+		}
 
 		constexpr iterator begin() { return map.begin(); }
 		constexpr iterator end() { return map.end(); }
@@ -147,10 +158,11 @@ namespace Q {
 	private:
 		size_t toIndex(const std::string_view& s) const {
 			assert(s.size() == numQubits);
-			return PauliIndex<numQubits>{ s }.index;
+			return PauliIndex{ numQubits, s }.index;
 		}
 
 		std::vector<T> map;
+		int numQubits{};
 	};
 
 }

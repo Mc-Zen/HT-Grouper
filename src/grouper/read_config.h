@@ -19,6 +19,7 @@ namespace Q {
 		int64_t maxEdgeCount{};
 		int64_t numGraphs{};
 		bool sortGraphsByEdgeCount{ true };
+		bool extractComputationalBasis{ true };
 		unsigned int seed{};
 	};
 
@@ -94,6 +95,13 @@ namespace Q {
 				else if (value == "false") sortGraphsByEdgeCount = false;
 				else throw ConfigReadError("The \"sortGraphsByEdgeCount\" attribute can only be true or false");
 				config.sortGraphsByEdgeCount = sortGraphsByEdgeCount;
+			}
+			else if (name == "extractComputationalBasis") {
+				bool extractComputationalBasis;
+				if (value == "true") extractComputationalBasis = true;
+				else if (value == "false") extractComputationalBasis = false;
+				else throw ConfigReadError("The \"extractComputationalBasis\" attribute can only be true or false");
+				config.extractComputationalBasis = extractComputationalBasis;
 			}
 			else {
 				throw ConfigReadError(std::format("Unknown attribute \"{}\"", name));

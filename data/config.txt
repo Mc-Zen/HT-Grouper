@@ -3,12 +3,20 @@
 # The filenames may be absolute: e.g., C:\Users\me\Desktop\myhamiltonian.txt)
 # or relative to the data/ directory in the repository: e.g., ../myfolder/myhamiltonian.txt
 
+
+
+
 filename = hamiltonians/examples/H4_bk.json                # where to read the hamiltonian data from 
-outfilename = grouping_result/examples/H4_bk_example.json    # where to output the grouping
-connectivity = connectivities/default_connectivity.txt    # which connectivity file to use
+outfilename = grouping_result/examples/H4_bk_example.json  # where to output the grouping
+connectivity = connectivities/default_connectivity.txt     # which connectivity file to use
 
-numGraphs = 100000000         # Hyperparameter: Maximum number of random subgraphs
-maxEdgeCount = 1000           # Hyperparameter: Maximum number of edges for subgraphs
-sortGraphsByEdgeCount = true  # Sort possible subgraphs by edge count so graphs with lower edge count are preferred
 
-numThreads = 8                # option for multithreading
+
+numGraphs = 100000000            # Hyperparameter: Maximum number of random subgraphs
+maxEdgeCount = 1000              # Hyperparameter: Maximum number of edges for subgraphs
+sortGraphsByEdgeCount = true     # Sort possible subgraphs by edge count so graphs with lower edge count are preferred
+extractComputationalBasis = true # Pre-eliminate Paulis in the computational basis like IIZ, ZIZ, ZZZ, ...
+
+
+
+numThreads = 8                   # option for multithreading

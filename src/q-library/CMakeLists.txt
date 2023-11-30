@@ -5,6 +5,7 @@ add_library(${target}
 	binary_pauli.h
 	binary_phase.h
 	efficient_mub.h
+	evolve_pauli.h
 	find_ht_circuit.h
 	formatting.h
 	graph.h

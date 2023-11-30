@@ -30,7 +30,7 @@ namespace Q {
 
 
 		auto toQuantumCircuit() const {
-			QuantumCircuit<numQubits> qc;
+			QuantumCircuit qc{ numQubits };
 			size_t k = 0;
 			for (const auto& gate : singleQubitLayer) {
 				if (gate == BinaryCliffordGates::H) qc.h(k);
