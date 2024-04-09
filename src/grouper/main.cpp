@@ -7,6 +7,7 @@
 #include "read_config.h"
 #include <random>
 #include <chrono>
+#include <filesystem>
 
 using namespace Q;
 
@@ -136,8 +137,10 @@ int main() {
 
 		println("Found grouping into {} subsets, run time: {}s", htGrouping.size(), timeInSeconds);
 
-
-		std::ofstream file{ outfilename };
+		
+		auto outPath = std::filesystem::path(outfilename);
+		std::filesystem::create_directories(outPath.parent_path());
+		std::ofstream file{ outPath };
 		auto fileout = std::ostream_iterator<char>(file);
 
 		JsonFormatting::printPauliCollections(fileout, htGrouping, JsonFormatting::MetaInfo{ timeInSeconds, selectedGraphs.size(), seed, connectivity });
