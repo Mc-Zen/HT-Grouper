@@ -51,6 +51,9 @@ namespace Q {
 		constexpr static auto fullyConnected() requires (!is_dynamic) { return Graph{}.fullyConnect(); }
 		constexpr static auto fullyConnected(int n) requires (is_dynamic) { return Graph{ n }.fullyConnect(); }
 
+		constexpr static auto squareLattice() requires (!is_dynamic) { return Graph{}.makeSquareLattice(); }
+		constexpr static auto squareLattice(int n) requires (is_dynamic) { return Graph{ n }.makeSquareLattice(); }
+
 		constexpr static auto star(int center = 0) requires (!is_dynamic) { return Graph{}.makeStar(center); }
 		constexpr static auto star(int n, int center = 0) requires (is_dynamic) { return Graph{ n }.makeStar(center); }
 
@@ -313,6 +316,27 @@ namespace Q {
 			}
 			for (size_t i = 4; i < numVertices(); ++i) {
 				addEdge(3, i);
+			}
+			return *this;
+		}
+
+
+		constexpr Graph& makeSquareLattice() {
+			auto r = numVertices();
+			auto rows = static_cast<int>(std::floor(std::sqrt(r)));
+			auto cols = static_cast<int>(std::ceil(r / static_cast<float>(rows)));
+			auto getVertex = [&](int i, int j) {return j + i * cols; };
+			for (int i = 0; i < rows; ++i) {
+				for (int j = 0; j < cols; ++j) {
+					auto vertex = getVertex(i, j);
+					if (vertex >= r) { break; }
+					if (j != 0) {
+						addEdge(vertex, getVertex(i, j - 1));
+					}
+					if (i != 0) {
+						addEdge(vertex, getVertex(i - 1, j));
+					}
+				}
 			}
 			return *this;
 		}
