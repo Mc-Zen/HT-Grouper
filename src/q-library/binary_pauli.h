@@ -22,10 +22,10 @@ namespace Q {
 
 
 	namespace BinaryPauli {
-		inline constexpr auto I = BinaryPauliOperatorPrimitive{ 0, 0 };
-		inline constexpr auto X = BinaryPauliOperatorPrimitive{ 1, 0 };
-		inline constexpr auto Y = BinaryPauliOperatorPrimitive{ 1, 1 };
-		inline constexpr auto Z = BinaryPauliOperatorPrimitive{ 0, 1 };
+		inline constexpr auto I = BinaryPauliOperatorPrimitive{ {0, 0} };
+		inline constexpr auto X = BinaryPauliOperatorPrimitive{ {1, 0} };
+		inline constexpr auto Y = BinaryPauliOperatorPrimitive{ {1, 1} };
+		inline constexpr auto Z = BinaryPauliOperatorPrimitive{ {0, 1} };
 	}
 
 	namespace BinaryCliffordGates {

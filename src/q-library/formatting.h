@@ -1,13 +1,15 @@
 ﻿
 #pragma once
 #include "binary.h"
+#include "binary_phase.h"
 #include <type_traits>
 #include <format>
 #include <complex>
 #include <iostream>
 #include <numeric>
 #include <vector>
-
+#include <iterator>
+#include <cstdint>
 
 template<class ...Args>
 void print(std::string_view formatString, Args&&... args) {
@@ -77,7 +79,7 @@ struct std::formatter<Math::Matrix<T, m, n>, CharT> : std::formatter<T, CharT> {
 	}
 
 	template<class FormatContext>
-	auto format(const Math::Matrix<T, m, n>& m, FormatContext& fc) const {
+	auto format(const Math::Matrix<T, m, n>& mat, FormatContext& fc) const {
 		//std::array<size_t, n> colWidths;
 		//for (size_t j = 0; j < m.cols(); ++j) {
 		//	colWidths[j] = std::accumulate(m.col_begin(j), m.col_end(j), 0ULL,
@@ -92,9 +94,9 @@ struct std::formatter<Math::Matrix<T, m, n>, CharT> : std::formatter<T, CharT> {
 		//	std::format_to(fc.out(), "|\n");
 		//}
 		std::string s;
-		std::vector<size_t> colWidths(m.cols());
-		for (size_t j = 0; j < m.cols(); ++j) {
-			colWidths[j] = std::accumulate(m.col_begin(j), m.col_end(j), 0ULL,
+		std::vector<size_t> colWidths(mat.cols());
+		for (size_t j = 0; j < mat.cols(); ++j) {
+			colWidths[j] = std::accumulate(mat.col_begin(j), mat.col_end(j), size_t{ 0 },
 				[&](const auto& max, const auto& el) {
 					s.clear();
 					std::vformat_to(std::back_inserter(s), formatString, std::make_format_args(el));
@@ -102,11 +104,11 @@ struct std::formatter<Math::Matrix<T, m, n>, CharT> : std::formatter<T, CharT> {
 				});
 		}
 
-		for (size_t i = 0; i < m.rows(); ++i) {
+		for (size_t i = 0; i < mat.rows(); ++i) {
 			std::format_to(fc.out(), "| ");
-			for (size_t j = 0; j < m.cols(); ++j) {
+			for (size_t j = 0; j < mat.cols(); ++j) {
 				s.clear();
-				std::vformat_to(std::back_inserter(s), formatString, std::make_format_args(m(i, j)));
+				std::vformat_to(std::back_inserter(s), formatString, std::make_format_args(mat(i, j)));
 				std::format_to(fc.out(), "{:{}} ", s, colWidths[j]);
 			}
 			std::format_to(fc.out(), "|\n");

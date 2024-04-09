@@ -1,3 +1,7 @@
+if (MSVC)
+else()
+    add_compile_options(-fpermissive)
+endif()
 
 set(target grouper)
 add_executable(${target} 
