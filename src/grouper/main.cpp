@@ -89,7 +89,7 @@ int main() {
 
 
 		// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
-		auto subgraphs = generateSubgraphs(connectivity, 0, config.maxEdgeCount);
+		//auto subgraphs = generateSubgraphs(connectivity, 0, config.maxEdgeCount);
 
 		//for (int starSize = 3; starSize < 8; ++starSize) {
 		//	for (int start = 0; start <= numQubits - starSize; ++start) {
