@@ -346,8 +346,9 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(
 	auto printStatus = [&](bool deletePreviousLine) {
 		if (!verbose) return;
 		if (deletePreviousLine) println("\33[2K\r");
-		println("{} of {} remaining ({} group{}): {} -> {}\n",
+		println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
 			paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
+			static_cast<int>(100* (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size()))),
 			collections.back().paulis, collections.back().graph.getEdges());
 	};
 	if (extractComputationalBasis) {
