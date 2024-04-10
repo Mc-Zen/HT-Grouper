@@ -1,15 +1,1 @@
-# The connectivity may be either a type or an adjacency matrix
-
-# Allowed types are: linear, cycle, star. 
-# For these, the correct number of qubits is inferred from the input data
-
-# The adjacency matrix is specified by zeros and ones, e.g.
-#
-# 0 1 0 0 0
-# 1 0 1 0 0
-# 0 1 0 1 0
-# 0 0 1 0 1
-# 0 0 0 1 0
-#
-
 square-lattice

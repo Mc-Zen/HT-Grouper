@@ -35,7 +35,6 @@ namespace Q {
 
 	bool is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& graph);
 
-	bool is_ht_measurable(const std::vector<Pauli>& collection, const Graph<>& graph, HTCircuitFinder& finder);
 
 
 	/// @brief Check if given set of Paulis is measurable with a hardware tailored circuit using one
