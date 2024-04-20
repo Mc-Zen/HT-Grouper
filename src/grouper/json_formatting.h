@@ -10,6 +10,8 @@ namespace JsonFormatting {
 		size_t numGraphs{};
 		size_t randomSeed{};
 		Q::Graph<> connectivity;
+		double Rhat_HT{};
+		double Rhat_TPB{};
 	};
 
 	void printEdgeList(auto out, const std::vector<std::pair<int, int>>& edges) {
@@ -60,6 +62,8 @@ namespace JsonFormatting {
 		printEdgeList(out, metaInfo.connectivity.getEdges());
 		std::format_to(out, "],\n", metaInfo.numGraphs);
 		std::format_to(out, "  \"random seed\": {},\n", metaInfo.randomSeed);
+		std::format_to(out, "  \"R_hat_HT\": {},\n", metaInfo.Rhat_HT);
+		std::format_to(out, "  \"R_hat_TPB\": {},\n", metaInfo.Rhat_TPB);
 
 		//auto mat = metaInfo.connectivity.getAdjacencyMatrix();
 		//for(int i=0; i < )

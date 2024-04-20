@@ -132,12 +132,12 @@ int main() {
 			auto collection = grouper.groupOne();
 			if (config.intermediateFileFrequency != 0 && count % config.intermediateFileFrequency == 0) {
 
-				std::ofstream file{ outPath.parent_path().native() + L"/" + outPath.stem().native() + L"_savingpoint_" + std::to_wstring(count) + outPath.extension().native()};
+				std::ofstream file{ outPath.parent_path().native() + L"/" + outPath.stem().native() + L"_savingpoint_" + std::to_wstring(count) + outPath.extension().native() };
 				auto fileout = std::ostream_iterator<char>(file);
 
 				const auto tTemp2 = clock::now();
 				const auto timeInSeconds = std::chrono::duration_cast<std::chrono::seconds>(tTemp2 - t0).count();
-				JsonFormatting::printPauliCollections(fileout, grouper.getCollections(), JsonFormatting::MetaInfo{timeInSeconds, selectedGraphs.size(), seed, connectivity});
+				JsonFormatting::printPauliCollections(fileout, grouper.getCollections(), JsonFormatting::MetaInfo{ timeInSeconds, selectedGraphs.size(), seed, connectivity });
 			}
 		}
 
@@ -163,7 +163,14 @@ int main() {
 		std::ofstream file{ outPath };
 		auto fileout = std::ostream_iterator<char>(file);
 
-		JsonFormatting::printPauliCollections(fileout, htGrouping, JsonFormatting::MetaInfo{ timeInSeconds, selectedGraphs.size(), seed, connectivity });
+		JsonFormatting::printPauliCollections(fileout, htGrouping, JsonFormatting::MetaInfo{
+			.timeInSeconds = timeInSeconds,
+			.numGraphs = selectedGraphs.size(),
+			.randomSeed = seed,
+			.connectivity = connectivity,
+			.Rhat_HT = R_hat_HT,
+			.Rhat_TPB = R_hat_tpb,
+			});
 		println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
 	}
 	catch (ConfigReadError& e) {
