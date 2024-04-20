@@ -64,6 +64,7 @@ namespace JsonFormatting {
 		std::format_to(out, "  \"random seed\": {},\n", metaInfo.randomSeed);
 		std::format_to(out, "  \"R_hat_HT\": {},\n", metaInfo.Rhat_HT);
 		std::format_to(out, "  \"R_hat_TPB\": {},\n", metaInfo.Rhat_TPB);
+		std::format_to(out, "  \"num_groups\": {},\n", collections.size());
 
 		//auto mat = metaInfo.connectivity.getAdjacencyMatrix();
 		//for(int i=0; i < )
