@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <format>
+#include "formatting.h"
 #include "graph.h"
 
 namespace JsonFormatting {

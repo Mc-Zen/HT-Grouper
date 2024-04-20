@@ -1,5 +1,6 @@
 
 set(target grouper)
+add_compile_options(-fpermissive)
 add_executable(${target} 
 	main.cpp
 	pauli_grouper.cpp
