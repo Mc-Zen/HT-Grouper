@@ -3,6 +3,7 @@
 #include "graph.h"
 #include "hamiltonian.h"
 #include "ht_circuits.h"
+#include "find_ht_circuit.h"
 
 
 namespace Q {
@@ -93,5 +94,65 @@ namespace Q {
 	/// @param verbose       If set to true, will print current status to stdout console output
 	/// @return Sets of commuting operators
 	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool verbose = true);
-	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread2(const Hamiltonian& hamiltonian, const std::vector<Graph<>>& graphs, int numThreads = 1, bool extractComputationalBasis = true, bool verbose = true);
+	std::vector<CollectionWithGraph> applyPauliGrouper2Multithread2(
+		const Hamiltonian& hamiltonian,
+		const std::vector<Graph<>>& graphs,
+		int numThreads = 1,
+		bool extractComputationalBasis = true,
+		bool verbose = true//,
+		//int intermediateFileFrequency = 0
+	);
+
+
+
+	struct GraphRepr {
+		explicit GraphRepr(const Graph<>& graph) : graph(graph), connectedComponents(graph.connectedComponents(true)) {
+			for (const auto& component : connectedComponents) {
+				uint64_t supportVector{};
+				for (auto vertex : component) {
+					supportVector |= (1ULL << vertex);
+				}
+				connectedComponentSupportVectors.push_back(supportVector);
+			}
+		}
+
+		Graph<> graph;
+		std::vector<std::vector<int>> connectedComponents;
+		// Support vector for each connected component (a bitstring with 1 
+		// for each vertex in the connected component and zeros elsewhere). 
+		std::vector<uint64_t> connectedComponentSupportVectors;
+	};
+
+
+	class PauliGrouper {
+	public:
+		PauliGrouper(
+			const Hamiltonian& hamiltonian,
+			const std::vector<Graph<>>& graphs,
+			int numThreads = 1,
+			bool extractComputationalBasis = true
+		);
+
+		explicit operator bool() const { return !paulis.empty(); };
+		CollectionWithGraph groupOne();
+		std::vector<CollectionWithGraph> groupAll();
+
+		const auto& getCollections() const { return collections; }
+
+
+	private:
+		void printStatus(bool deletePreviousLine, bool verbose);
+
+		const Hamiltonian& hamiltonian;
+		const std::vector<Graph<>>& graphs;
+		size_t numGraphsPerThread{};
+		int numThreads{};
+		bool extractComputationalBasis{};
+
+		std::vector<std::pair<Pauli, double>> paulis;
+		std::vector<GraphRepr> graphReprs;
+
+		std::vector<CollectionWithGraph> collections;
+		std::vector<HTCircuitFinder> finders;
+	};
 }

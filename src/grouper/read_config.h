@@ -18,6 +18,7 @@ namespace Q {
 		int64_t numThreads{};
 		int64_t maxEdgeCount{};
 		int64_t numGraphs{};
+		int64_t intermediateFileFrequency{};
 		bool sortGraphsByEdgeCount{ true };
 		bool extractComputationalBasis{ true };
 		unsigned int seed{};
@@ -102,6 +103,12 @@ namespace Q {
 				else if (value == "false") extractComputationalBasis = false;
 				else throw ConfigReadError("The \"extractComputationalBasis\" attribute can only be true or false");
 				config.extractComputationalBasis = extractComputationalBasis;
+			}
+			else if (name == "intermediateFileFrequency") {
+				if (config.intermediateFileFrequency != 0) throw ConfigReadError("Duplicate attribute \"intermediateFileFrequency\"");
+				auto intermediateFileFrequency = string_to_int(value);
+				if (intermediateFileFrequency < 0) throw ConfigReadError("The \"intermediateFileFrequency\" attribute needs to be positive or zero");
+				config.intermediateFileFrequency = intermediateFileFrequency;
 			}
 			else {
 				throw ConfigReadError(std::format("Unknown attribute \"{}\"", name));

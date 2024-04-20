@@ -33,7 +33,7 @@ auto getRandomSubgraphs(const Graph<>& graph, int64_t num, int maxEdgeCount, RNG
 			auto edges = graph.getEdges();
 			auto edgeMask = (1ULL << edgeCount) - 1;
 			std::vector<Graph<>> subgraphs;
-			while(subgraphs.size() < num) {
+			while (subgraphs.size() < num) {
 				uint64_t randomInt = rng() & edgeMask;
 				if (const auto ec = std::popcount(randomInt); ec > maxEdgeCount) continue;
 
@@ -88,6 +88,10 @@ int main() {
 		println("Adjacency matrix:\n{}", connectivity.getAdjacencyMatrix());
 
 
+
+		auto outPath = std::filesystem::path(outfilename);
+		std::filesystem::create_directories(outPath.parent_path());
+
 		// Generate all subgraphs of given graph with a maximum of [maxEdgeCount]edges
 		//auto subgraphs = generateSubgraphs(connectivity, 0, config.maxEdgeCount);
 
@@ -106,7 +110,7 @@ int main() {
 		//	println("{}", subgraphs[i-128].getAdjacencyMatrix());
 		//}
 
-		
+
 
 		const auto seed = config.seed == 0 ? std::random_device{}() : config.seed;
 		std::mt19937_64 randomGenerator{ seed };
@@ -120,9 +124,27 @@ int main() {
 
 		println("Running HT Pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
 		println("Random seed: {}\n", seed);
-		auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
-		
-		
+
+		PauliGrouper grouper(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
+		int count{};
+		while (grouper) {
+			++count;
+			auto collection = grouper.groupOne();
+			if (config.intermediateFileFrequency != 0 && count % config.intermediateFileFrequency == 0) {
+
+				std::ofstream file{ outPath.parent_path().native() + L"/" + outPath.stem().native() + L"_savingpoint_" + std::to_wstring(count) + outPath.extension().native()};
+				auto fileout = std::ostream_iterator<char>(file);
+
+				const auto tTemp2 = clock::now();
+				const auto timeInSeconds = std::chrono::duration_cast<std::chrono::seconds>(tTemp2 - t0).count();
+				JsonFormatting::printPauliCollections(fileout, grouper.getCollections(), JsonFormatting::MetaInfo{timeInSeconds, selectedGraphs.size(), seed, connectivity});
+			}
+		}
+
+		const auto& htGrouping = grouper.getCollections();
+		//auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
+
+
 		println("\n\n\n---------------\nRunning TPB grouping", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
 		auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
 
@@ -137,9 +159,7 @@ int main() {
 
 		println("Found grouping into {} subsets, run time: {}s", htGrouping.size(), timeInSeconds);
 
-		
-		auto outPath = std::filesystem::path(outfilename);
-		std::filesystem::create_directories(outPath.parent_path());
+
 		std::ofstream file{ outPath };
 		auto fileout = std::ostream_iterator<char>(file);
 

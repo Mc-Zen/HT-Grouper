@@ -9,25 +9,6 @@
 using namespace Q;
 
 
-
-struct GraphRepr {
-	explicit GraphRepr(const Graph<>& graph) : graph(graph), connectedComponents(graph.connectedComponents(true)) {
-		for (const auto& component : connectedComponents) {
-			uint64_t supportVector{};
-			for (auto vertex : component) {
-				supportVector |= (1ULL << vertex);
-			}
-			connectedComponentSupportVectors.push_back(supportVector);
-		}
-	}
-
-	Graph<> graph;
-	std::vector<std::vector<int>> connectedComponents;
-	// Support vector for each connected component (a bitstring with 1 
-	// for each vertex in the connected component and zeros elsewhere). 
-	std::vector<uint64_t> connectedComponentSupportVectors;
-};
-
 void Q::computeSingleQubitLayer(CollectionWithGraph& collection, HTCircuitFinder& finder) {
 	auto repr = GraphRepr(collection.graph);
 	std::vector<BinaryCliffordGate> fullLayer(collection.graph.numVertices());
@@ -348,7 +329,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(
 #endif
 		println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
 			paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
-			static_cast<int>(100* (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size()))),
+			static_cast<int>(100 * (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size()))),
 			collections.back().paulis, collections.back().graph.getEdges());
 	};
 	if (extractComputationalBasis) {
@@ -452,4 +433,158 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(
 	}
 	computeSingleQubitLayer(collections);
 	return collections;
+}
+
+
+
+PauliGrouper::PauliGrouper(
+	const Hamiltonian& hamiltonian,
+	const std::vector<Graph<>>& graphs,
+	int numThreads,
+	bool extractComputationalBasis
+) :
+	hamiltonian(hamiltonian),
+	graphs(graphs),
+	numThreads(numThreads),
+	extractComputationalBasis(extractComputationalBasis)
+{
+	numGraphsPerThread = static_cast<size_t>(std::ceil(static_cast<float>(graphs.size()) / static_cast<float>(numThreads)));
+	for (int i = 0; i < numThreads; ++i) finders.emplace_back(hamiltonian.numQubits);
+
+	paulis = hamiltonian.operators;
+
+
+	// Sort by magnitude in descending order 
+	std::ranges::sort(paulis, [](const auto& a, const auto& b) {return std::abs(a.second) > std::abs(b.second); });
+
+
+	for (const auto& graph : graphs) {
+		graphReprs.emplace_back(graph);
+	}
+}
+
+CollectionWithGraph Q::PauliGrouper::groupOne() {
+	bool verbose = true;
+	if (paulis.empty()) { throw std::exception(); }
+
+	if (extractComputationalBasis) {
+		CollectionWithGraph computationalBasis{ {}, Graph<>{ hamiltonian.numQubits } };
+		std::erase_if(paulis, [&](const auto& pauli) {
+			if (pauli.first.getXString() == 0ULL) {
+				computationalBasis.paulis.push_back(pauli.first);
+				return true;
+			}
+			return false;
+			});
+		extractComputationalBasis = false;
+		collections.push_back(computationalBasis);
+		printStatus(false, true);
+		return computationalBasis;
+	}
+
+
+
+
+	const auto& mainPauli = paulis.front().first;
+
+	CollectionWithGraph tpbCollection{ { mainPauli }, Graph<>{ hamiltonian.numQubits } };
+
+	for (const auto& [pauli, _] : paulis | std::ranges::views::drop(1)) {
+		if (qubitwiseCommutesWithAll(tpbCollection.paulis, pauli)) {
+			tpbCollection.paulis.push_back(pauli);
+		}
+	}
+
+	std::atomic_int visitedGraphs{};
+	std::atomic_int finishedThreads{};
+
+	auto work = [&](size_t first, size_t last, std::vector<CollectionWithGraph>& partialSolution, HTCircuitFinder& finder) {
+		for (auto i = first; i < last; ++i) {
+			++visitedGraphs;
+			const auto& graphRepr = this->graphReprs[i];
+			const auto& graph = graphRepr.graph;
+			CollectionWithGraph collection{ { mainPauli }, graph };
+			if (!is_ht_measurable(collection.paulis, graphRepr, finder)) continue;
+
+			for (const auto& [pauli, _] : paulis | std::ranges::views::drop(1)) {
+				if (!commutesWithAll(collection.paulis, pauli)) continue;
+
+				bool ouch{};
+				if (!std::ranges::all_of(graphRepr.connectedComponentSupportVectors, [&](auto supportVector) {
+					return locallyCommutesWithAll(collection.paulis, pauli, supportVector); })) {
+					continue;
+				}
+
+				//if (graphRepr.connectedComponents.back().size() <= 2) {
+				//	collection.paulis.push_back(pauli);
+				//	continue;
+				//}
+
+				collection.paulis.push_back(pauli);
+				if (!is_ht_measurable(collection.paulis, graphRepr, finder)) {
+					collection.paulis.pop_back();
+				}
+			}
+			partialSolution.push_back(collection);
+		}
+		++finishedThreads;
+	};
+
+	std::vector<std::vector<CollectionWithGraph>> partialSolutions(numThreads);
+
+	{
+		std::vector<std::jthread> workers;
+		for (int i = 0; i < numThreads; ++i) {
+			const auto firstGraphIndex = numGraphsPerThread * i;
+			const auto lastGraphIndex = numGraphsPerThread * (i + 1);
+			workers.emplace_back(work, firstGraphIndex, std::min(lastGraphIndex, graphs.size()), std::ref(partialSolutions[i]), std::ref(finders[i]));
+		}
+
+		if (verbose) {
+			int previousVisitedGraphs = -1;
+			while (finishedThreads < numThreads) {
+				if (int currentlyVisitedGraphs = visitedGraphs.load(); currentlyVisitedGraphs != previousVisitedGraphs) {
+					print("\33[2K\rGraph {:>4} of {:>4}", visitedGraphs.load(), graphs.size());
+					previousVisitedGraphs = currentlyVisitedGraphs;
+				}
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(10ms);
+			}
+		}
+	}
+
+	const auto* bestCollection = &tpbCollection;
+	for (const auto& partialSolution : partialSolutions) {
+		for (const auto& collection : partialSolution) {
+			if (collection.size() > bestCollection->size()) bestCollection = &collection;
+		}
+	}
+	for (const auto& pauli : bestCollection->paulis) {
+		std::erase_if(paulis, [&pauli](auto& val) { return val.first == pauli; });
+	}
+	collections.push_back(*bestCollection);
+	printStatus(true, verbose);
+
+	return *bestCollection;
+}
+
+std::vector<CollectionWithGraph> Q::PauliGrouper::groupAll() {
+	std::vector<CollectionWithGraph> collections;
+	while (*this) {
+		collections.push_back(groupOne());
+	}
+	return collections;
+}
+
+void Q::PauliGrouper::printStatus(bool deletePreviousLine, bool verbose) {
+	if (!verbose) return;
+#if _WINDOWS
+	if (deletePreviousLine) println("\33[2K\r");
+#else
+	if (deletePreviousLine) println("\r");
+#endif
+	println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
+		paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
+		static_cast<int>(100 * (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size()))),
+		collections.back().paulis, collections.back().graph.getEdges());
 }
