@@ -193,7 +193,7 @@ namespace Q {
 
 		inline auto toLatex(const BinaryCliffordGate& gate, int spaceBuffer = 4) {
 			const auto gateName = toString(gate);
-			return "\\gate{" + gateName + "}" + std::string(std::max(0ULL, spaceBuffer - gateName.size()), ' ');
+			return "\\gate{" + gateName + "}" + std::string(std::max(size_t{0}, spaceBuffer - gateName.size()), ' ');
 		}
 
 		template<int n>

@@ -9,6 +9,7 @@
 #include <string_view>
 #include <fstream>
 #include <chrono>
+#include <memory>
 #include "formatting.h"
 
 namespace Q {
@@ -148,8 +149,8 @@ namespace Q {
 				std::vector<BinaryCliffordGate> singleQubitLayer(numQubits);
 				for (int i = 0; i < numQubits; ++i) {
 					singleQubitLayer[i] = { axxVars[i].get(GRB_DoubleAttr_X) ,axzVars[i].get(GRB_DoubleAttr_X) ,azxVars[i].get(GRB_DoubleAttr_X) ,azzVars[i].get(GRB_DoubleAttr_X) };
-					if (verbose)
-						std::cout << "U_" << i << "\n" << singleQubitLayer[i];
+					//if (verbose)
+						//std::cout << "U_" << i << "\n" << singleQubitLayer[i];
 				}
 				return singleQubitLayer;
 			}

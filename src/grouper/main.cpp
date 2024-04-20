@@ -132,7 +132,10 @@ int main() {
 			auto collection = grouper.groupOne();
 			if (config.intermediateFileFrequency != 0 && count % config.intermediateFileFrequency == 0) {
 
-				std::ofstream file{ outPath.parent_path().native() + L"/" + outPath.stem().native() + L"_savingpoint_" + std::to_wstring(count) + outPath.extension().native() };
+				std::string parentPath = outPath.parent_path();
+				std::string stem = outPath.stem();
+				std::string ext = outPath.extension().native();
+				std::ofstream file{ parentPath + "/" + stem + "_savingpoint_" + std::to_string(count) + ext };
 				auto fileout = std::ostream_iterator<char>(file);
 
 				const auto tTemp2 = clock::now();

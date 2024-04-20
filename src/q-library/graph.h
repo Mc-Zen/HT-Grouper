@@ -32,7 +32,7 @@ namespace Q {
 		AdjacencyMatrix adjacencyMatrix;
 
 
-		constexpr Graph() requires !is_dynamic = default;
+		constexpr Graph() requires (!is_dynamic) = default;
 
 		explicit constexpr Graph(GraphSize<!is_dynamic> graphSize) : graphSize(graphSize) {
 			if constexpr (is_dynamic) {
@@ -49,22 +49,22 @@ namespace Q {
 		}
 
 		constexpr static auto fullyConnected() requires (!is_dynamic) { return Graph{}.fullyConnect(); }
-		constexpr static auto fullyConnected(int n) requires (is_dynamic) { return Graph{ n }.fullyConnect(); }
+		constexpr static auto fullyConnected(int n_) requires (is_dynamic) { return Graph{ n_ }.fullyConnect(); }
 
 		constexpr static auto squareLattice() requires (!is_dynamic) { return Graph{}.makeSquareLattice(); }
-		constexpr static auto squareLattice(int n) requires (is_dynamic) { return Graph{ n }.makeSquareLattice(); }
+		constexpr static auto squareLattice(int n_) requires (is_dynamic) { return Graph{ n_ }.makeSquareLattice(); }
 
 		constexpr static auto star(int center = 0) requires (!is_dynamic) { return Graph{}.makeStar(center); }
-		constexpr static auto star(int n, int center = 0) requires (is_dynamic) { return Graph{ n }.makeStar(center); }
+		constexpr static auto star(int n_, int center = 0) requires (is_dynamic) { return Graph{ n_ }.makeStar(center); }
 
 		constexpr static auto linear() requires (!is_dynamic) { return Graph{}.makeLinear(); }
-		constexpr static auto linear(int n) requires (is_dynamic) { return Graph{ n }.makeLinear(); }
+		constexpr static auto linear(int n_) requires (is_dynamic) { return Graph{ n_ }.makeLinear(); }
 
 		constexpr static auto cycle() requires (!is_dynamic) { return Graph{}.makeCycle(); }
-		constexpr static auto cycle(int n) requires (is_dynamic) { return Graph{ n }.makeCycle(); }
+		constexpr static auto cycle(int n_) requires (is_dynamic) { return Graph{ n_ }.makeCycle(); }
 
 		constexpr static auto pusteblume() requires (!is_dynamic) { return Graph{}.makePusteblume(); }
-		constexpr static auto pusteblume(int n) requires (is_dynamic) { return Graph{ n }.makePusteblume(); }
+		constexpr static auto pusteblume(int n_) requires (is_dynamic) { return Graph{ n_ }.makePusteblume(); }
 
 		constexpr const AdjacencyMatrix& getAdjacencyMatrix() const { return adjacencyMatrix; }
 
@@ -455,7 +455,7 @@ namespace Q {
 
 
 	/// @brief Generate all subgraphs of given graph that have at least [minEdges] edges and at most [maxEdges] edges
-	template<int n>
+	template<size_t n>
 	std::vector<Graph<n>> generateSubgraphs(const Graph<n>& graph, int minEdges, int maxEdges) {
 		std::vector<std::pair<size_t, size_t>> edges;
 		std::vector<Graph<n>> subgraphs;
@@ -481,7 +481,7 @@ namespace Q {
 		return subgraphs;
 	}
 
-	template<int n>
+	template<size_t n>
 	auto generateSubgraphs(const Graph<n>& graph, int maxEdges = std::numeric_limits<int>::max()) {
 		return generateSubgraphs(graph, 0, maxEdges);
 	}
