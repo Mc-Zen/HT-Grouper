@@ -1,6 +1,7 @@
 ﻿
 #pragma once
 #include "binary.h"
+#include "binary_phase.h"
 #include <type_traits>
 #include <complex>
 #include <iostream>
@@ -148,8 +149,6 @@ namespace Q {
 	class BinaryPauliOperator;
 	
 	class Pauli;
-
-	class BinaryPhase;
 }
 
 template<int n, class CharT>
