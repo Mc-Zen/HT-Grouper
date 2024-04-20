@@ -27,7 +27,7 @@ add_library(${target}
 	quantum_circuit.h
 )
 target_include_directories(${target} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_link_libraries(${target} PUBLIC utilities)
+target_link_libraries(${target} PUBLIC utilities fmt)
 
 add_unit_test(${target}_unit_tests
 	SOURCES 

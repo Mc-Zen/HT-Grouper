@@ -13,13 +13,13 @@ void Q::computeSingleQubitLayer(CollectionWithGraph& collection, HTCircuitFinder
 	auto repr = GraphRepr(collection.graph);
 	std::vector<BinaryCliffordGate> fullLayer(collection.graph.numVertices());
 	auto result = finder.findHTCircuit(collection.graph, collection.paulis);
-	if (!result) throw std::runtime_error(std::format("The collection {} could not be diagonalized", collection.paulis));
+	if (!result) throw std::runtime_error(fmt::format("The collection {} could not be diagonalized", collection.paulis));
 	collection.singleQubitLayer = *result;
 	return;
 
 	for (const auto& component : repr.connectedComponents) {
 		auto result = finder.findHTCircuit(collection.graph, collection.paulis, component);
-		if (!result) throw std::runtime_error(std::format("The collection {} could not be diagonalized", collection.paulis));
+		if (!result) throw std::runtime_error(fmt::format("The collection {} could not be diagonalized", collection.paulis));
 
 		int index{};
 		for (int qubit : component) {

@@ -283,14 +283,15 @@ namespace Q {
 	}
 }
 
+#include "fmt/format.h"
 
 template<class CharT>
-struct std::formatter<Q::Pauli, CharT> : std::formatter<std::string_view, CharT> {
+struct fmt::formatter<Q::Pauli, CharT> : fmt::formatter<std::string_view, CharT> {
 	template<class FormatContext>
 	auto format(const Q::Pauli& op, FormatContext& fc) const {
 		if (const auto phase = op.getPhase(); phase != Q::BinaryPhase{ 0 }) {
-			std::format_to(fc.out(), "{}", phase.toString());
+			fmt::format_to(fc.out(), "{}", phase.toString());
 		}
-		return std::format_to(fc.out(), "{}", op.toString());
+		return fmt::format_to(fc.out(), "{}", op.toString());
 	}
 };

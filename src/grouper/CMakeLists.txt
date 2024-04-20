@@ -12,4 +12,4 @@ add_executable(${target}
 	estimated_shot_reduction.h
 	read_config.h
 )
-target_link_libraries(${target} PUBLIC q-library gurobi_c++ data)
+target_link_libraries(${target} PUBLIC q-library gurobi_c++ data fmt)
