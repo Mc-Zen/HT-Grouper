@@ -16,7 +16,7 @@ namespace Q {
 	std::vector<Hamiltonian> readHamiltonians(const std::string& filename) {
 
 		std::ifstream file{ filename };
-		if (!file) throw std::runtime_error(std::format("Error, could not open file {}", filename));
+		if (!file) throw std::runtime_error(fmt::format("Error, could not open file {}", filename));
 
 		std::vector<Hamiltonian> hamiltonians;
 
@@ -68,7 +68,7 @@ namespace Q {
 	Hamiltonian readHamiltonianFromJson(const std::string& filename) {
 
 		std::ifstream file{ filename };
-		if (!file) throw ReadHamiltonianError(std::format("Error, could not open file {}", filename));
+		if (!file) throw ReadHamiltonianError(fmt::format("Error, could not open file {}", filename));
 
 		Hamiltonian hamiltonian;
 
@@ -81,20 +81,20 @@ namespace Q {
 			if (line.empty()) continue;
 
 			auto components = split(line, ':');
-			if (components.size() != 2) throw ReadHamiltonianError(std::format("Invalid format for \"{}\" at line {}", line, lineIndex));
+			if (components.size() != 2) throw ReadHamiltonianError(fmt::format("Invalid format for \"{}\" at line {}", line, lineIndex));
 
 			auto pauliString = trim(components[0], " \t\"\'");
 			auto value = trim(components[1], " \t,");
 
-			if (pauliString.size() == 0) throw ReadHamiltonianError(std::format("Empty Pauli string at line {}", lineIndex));
-			if (pauliString.size() > 64) throw ReadHamiltonianError(std::format("Paulis with more than 64 qubits are currently not supported"));
+			if (pauliString.size() == 0) throw ReadHamiltonianError(fmt::format("Empty Pauli string at line {}", lineIndex));
+			if (pauliString.size() > 64) throw ReadHamiltonianError(fmt::format("Paulis with more than 64 qubits are currently not supported"));
 
 			Pauli pauli{ pauliString };
 			if (hamiltonian.numQubits == 0) {
 				hamiltonian.numQubits = pauli.numQubits();
 			}
 			else if (hamiltonian.numQubits != pauli.numQubits()) {
-				throw ReadHamiltonianError(std::format("The Pauli {} at line {} does not have the same number of qubits as the preceding Paulis", pauliString, lineIndex));
+				throw ReadHamiltonianError(fmt::format("The Pauli {} at line {} does not have the same number of qubits as the preceding Paulis", pauliString, lineIndex));
 			}
 
 			try {
@@ -102,10 +102,10 @@ namespace Q {
 				hamiltonian.operators.emplace_back(pauli, coefficient);
 			}
 			catch (std::invalid_argument&) {
-				throw ReadHamiltonianError(std::format("Invalid coefficient {} at line {}", value, lineIndex));
+				throw ReadHamiltonianError(fmt::format("Invalid coefficient {} at line {}", value, lineIndex));
 			}
 			catch (std::out_of_range&) {
-				throw ReadHamiltonianError(std::format("Out of range coefficient {} at line {}", value, lineIndex));
+				throw ReadHamiltonianError(fmt::format("Out of range coefficient {} at line {}", value, lineIndex));
 			}
 		}
 		return hamiltonian;
@@ -123,7 +123,7 @@ namespace Q {
 	std::vector<std::vector<Pauli>> readPauliGroups(const std::string& filename) {
 
 		std::ifstream file{ filename };
-		if (!file) throw std::runtime_error(std::format("Error, could not open file {}", filename));
+		if (!file) throw std::runtime_error(fmt::format("Error, could not open file {}", filename));
 
 		std::vector<std::vector<Pauli>> groups;
 

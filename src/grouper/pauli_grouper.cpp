@@ -323,11 +323,11 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(
 	auto printStatus = [&](bool deletePreviousLine) {
 		if (!verbose) return;
 #if _WINDOWS
-		if (deletePreviousLine) println("\33[2K\r");
+		if (deletePreviousLine) fmt::println("\33[2K\r");
 #else
-		if (deletePreviousLine) println("\r");
+		if (deletePreviousLine) fmt::println("\r");
 #endif
-		println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
+		fmt::println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
 			paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
 			static_cast<int>(100 * (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size()))),
 			collections.back().paulis, collections.back().graph.getEdges());
@@ -410,7 +410,7 @@ std::vector<CollectionWithGraph> Q::applyPauliGrouper2Multithread2(
 				int previousVisitedGraphs = -1;
 				while (finishedThreads < numThreads) {
 					if (int currentlyVisitedGraphs = visitedGraphs.load(); currentlyVisitedGraphs != previousVisitedGraphs) {
-						print("\33[2K\rGraph {:>4} of {:>4}", visitedGraphs.load(), graphs.size());
+						fmt::print("\33[2K\rGraph {:>4} of {:>4}", visitedGraphs.load(), graphs.size());
 						previousVisitedGraphs = currentlyVisitedGraphs;
 					}
 					using namespace std::chrono_literals;
@@ -544,7 +544,7 @@ CollectionWithGraph Q::PauliGrouper::groupOne() {
 			int previousVisitedGraphs = -1;
 			while (finishedThreads < numThreads) {
 				if (int currentlyVisitedGraphs = visitedGraphs.load(); currentlyVisitedGraphs != previousVisitedGraphs) {
-					print("\33[2K\rGraph {:>4} of {:>4}", visitedGraphs.load(), graphs.size());
+					fmt::print("\33[2K\rGraph {:>4} of {:>4}", visitedGraphs.load(), graphs.size());
 					previousVisitedGraphs = currentlyVisitedGraphs;
 				}
 				using namespace std::chrono_literals;
@@ -579,11 +579,11 @@ std::vector<CollectionWithGraph> Q::PauliGrouper::groupAll() {
 void Q::PauliGrouper::printStatus(bool deletePreviousLine, bool verbose) {
 	if (!verbose) return;
 #if _WINDOWS
-	if (deletePreviousLine) println("\33[2K\r");
+	if (deletePreviousLine) fmt::println("\33[2K\r");
 #else
-	if (deletePreviousLine) println("\r");
+	if (deletePreviousLine) fmt::println("\r");
 #endif
-	println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
+	fmt::println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
 		paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
 		static_cast<int>(100 * (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size()))),
 		collections.back().paulis, collections.back().graph.getEdges());

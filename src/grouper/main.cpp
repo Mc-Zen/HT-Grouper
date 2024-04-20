@@ -58,7 +58,7 @@ int main() {
 	try {
 
 		Configuration config = readConfig(DATA_PATH "config.txt");
-		println(R"(Configuration:
+		fmt::println(R"(Configuration:
   filename = {}
   outfilename = {}
   connectivity = {}
@@ -85,7 +85,7 @@ int main() {
 
 		Connectivity connectivitySpec = readConnectivity(connectivityFile);
 		const auto connectivity = connectivitySpec.getGraph(numQubits);
-		println("Adjacency matrix:\n{}", connectivity.getAdjacencyMatrix());
+		fmt::println("Adjacency matrix:\n{}", connectivity.getAdjacencyMatrix());
 
 
 
@@ -107,7 +107,7 @@ int main() {
 
 		//std::ranges::rotate(subgraphs, subgraphs.begin() + 128);
 		//for (int i = 128; i < subgraphs.size(); ++i) {
-		//	println("{}", subgraphs[i-128].getAdjacencyMatrix());
+		//	fmt::println("{}", subgraphs[i-128].getAdjacencyMatrix());
 		//}
 
 
@@ -122,8 +122,8 @@ int main() {
 			std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
 		}
 
-		println("Running HT Pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
-		println("Random seed: {}\n", seed);
+		fmt::println("Running HT Pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
+		fmt::println("Random seed: {}\n", seed);
 
 		PauliGrouper grouper(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
 		int count{};
@@ -132,10 +132,10 @@ int main() {
 			auto collection = grouper.groupOne();
 			if (config.intermediateFileFrequency != 0 && count % config.intermediateFileFrequency == 0) {
 
-				std::string parentPath = outPath.parent_path();
-				std::string stem = outPath.stem();
-				std::string ext = outPath.extension().native();
-				std::ofstream file{ parentPath + "/" + stem + "_savingpoint_" + std::to_string(count) + ext };
+				std::wstring parentPath = outPath.parent_path();
+				std::wstring stem = outPath.stem();
+				std::wstring ext = outPath.extension().native();
+				std::ofstream file{ parentPath + L"/" + stem + L"_savingpoint_" + std::to_wstring(count) + ext };
 				auto fileout = std::ostream_iterator<char>(file);
 
 				const auto tTemp2 = clock::now();
@@ -148,7 +148,7 @@ int main() {
 		//auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
 
 
-		println("\n\n\n---------------\nRunning TPB grouping", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
+		fmt::println("\n\n\n---------------\nRunning TPB grouping", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
 		auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
 
 		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);
@@ -160,7 +160,7 @@ int main() {
 		const auto t1 = clock::now();
 		const auto timeInSeconds = std::chrono::duration_cast<std::chrono::seconds>(t1 - t0).count();
 
-		println("Found grouping into {} subsets, run time: {}s", htGrouping.size(), timeInSeconds);
+		fmt::println("Found grouping into {} subsets, run time: {}s", htGrouping.size(), timeInSeconds);
 
 
 		std::ofstream file{ outPath };
@@ -174,16 +174,16 @@ int main() {
 			.Rhat_HT = R_hat_HT,
 			.Rhat_TPB = R_hat_tpb,
 			});
-		println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
+		fmt::println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
 	}
 	catch (ConfigReadError& e) {
-		println("ConfigReadError: {}", e.what());
+		fmt::println("ConfigReadError: {}", e.what());
 	}
 	catch (ConnectivityError& e) {
-		println("ConnectivityError: {}", e.what());
+		fmt::println("ConnectivityError: {}", e.what());
 	}
 	catch (std::exception& e) {
-		println("{}", e.what());
+		fmt::println("{}", e.what());
 	}
 	return 0;
 }

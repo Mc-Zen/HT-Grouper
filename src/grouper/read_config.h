@@ -30,14 +30,14 @@ namespace Q {
 			return std::stoll(str);
 		}
 		catch (std::out_of_range& e) {
-			throw ConfigReadError(std::format("Integer out of range: \"{}\"", str));
+			throw ConfigReadError(fmt::format("Integer out of range: \"{}\"", str));
 		}
 	}
 
 	Configuration readConfig(const std::string& filename) {
 
 		std::ifstream file{ filename };
-		if (!file) throw ConfigReadError(std::format("Could not open file \"{}\"", filename));
+		if (!file) throw ConfigReadError(fmt::format("Could not open file \"{}\"", filename));
 
 		Configuration config;
 
@@ -47,7 +47,7 @@ namespace Q {
 			line = trim(split(line, '#')[0], " \t"); // strip comments and whitespace
 			if (line.empty()) continue;
 			auto components = splitOnce(line, '=');
-			if (components.size() != 2) throw ConfigReadError(std::format("Invalid attribute format for attribute \"{}\". Name and value need to be seperated by a \"=\" sign. ", line));
+			if (components.size() != 2) throw ConfigReadError(fmt::format("Invalid attribute format for attribute \"{}\". Name and value need to be seperated by a \"=\" sign. ", line));
 
 			auto name = trim(components[0], " \t");
 			auto value = trim(components[1], " \t");
@@ -111,7 +111,7 @@ namespace Q {
 				config.intermediateFileFrequency = intermediateFileFrequency;
 			}
 			else {
-				throw ConfigReadError(std::format("Unknown attribute \"{}\"", name));
+				throw ConfigReadError(fmt::format("Unknown attribute \"{}\"", name));
 			}
 		}
 
@@ -154,7 +154,7 @@ namespace Q {
 			case All: return Graph<>::fullyConnected(numQubits);
 			case SquareLattice: return Graph<>::squareLattice(numQubits);
 			}
-			if (numQubits != adjacencyMatrix.rows()) throw ConnectivityError(std::format("The adjacency matrix has {} qubits while {} were specified", adjacencyMatrix.rows(), numQubits));
+			if (numQubits != adjacencyMatrix.rows()) throw ConnectivityError(fmt::format("The adjacency matrix has {} qubits while {} were specified", adjacencyMatrix.rows(), numQubits));
 			auto graph = Graph<>(numQubits);
 			graph.adjacencyMatrix = adjacencyMatrix;
 			return graph;
@@ -169,7 +169,7 @@ namespace Q {
 	Connectivity readConnectivity(const std::string& filename) {
 
 		std::ifstream file{ filename };
-		if (!file) throw ConnectivityError(std::format("Could not open file \"{}\"", filename));
+		if (!file) throw ConnectivityError(fmt::format("Could not open file \"{}\"", filename));
 
 
 		std::string line;
@@ -196,7 +196,7 @@ namespace Q {
 				matrix.resize(numQubits, numQubits);
 			}
 			else if (matrix.rows() != numQubits) {
-				throw ConnectivityError(std::format("Each row of the matrix needs to have the same number of entries, row \"{}\"", line));
+				throw ConnectivityError(fmt::format("Each row of the matrix needs to have the same number of entries, row \"{}\"", line));
 			}
 
 			for (int i = 0; i < numQubits; ++i) {
