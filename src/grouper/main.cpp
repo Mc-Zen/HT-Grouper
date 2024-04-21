@@ -149,14 +149,18 @@ int main() {
 		//auto htGrouping = applyPauliGrouper2Multithread2(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
 
 
-		fmt::println("\n\n\n---------------\nRunning TPB grouping", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
-		auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
+		auto R_hat_HT = estimated_shot_reduction(hamiltonian, htGrouping);
+
+		double R_hat_tpb = 0;
+		if (config.generateTPBs) {
+			fmt::println("\n\n\n---------------\nRunning TPB grouping", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
+			auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
+			R_hat_tpb = estimated_shot_reduction(hamiltonian, tpbGrouping);
+		}
 
 		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);
 		//tpbGrouping.erase(tpbGrouping.begin(), tpbGrouping.begin() + 2);
 
-		auto R_hat_HT = estimated_shot_reduction(hamiltonian, htGrouping);
-		auto R_hat_tpb = estimated_shot_reduction(hamiltonian, tpbGrouping);
 
 		const auto t1 = clock::now();
 		const auto timeInSeconds = std::chrono::duration_cast<std::chrono::seconds>(t1 - t0).count();

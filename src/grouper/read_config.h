@@ -20,6 +20,7 @@ namespace Q {
 		int64_t numGraphs{};
 		int64_t intermediateFileFrequency{};
 		bool sortGraphsByEdgeCount{ true };
+		bool generateTPBs{ true };
 		bool extractComputationalBasis{ true };
 		unsigned int seed{};
 	};
@@ -96,6 +97,13 @@ namespace Q {
 				else if (value == "false") sortGraphsByEdgeCount = false;
 				else throw ConfigReadError("The \"sortGraphsByEdgeCount\" attribute can only be true or false");
 				config.sortGraphsByEdgeCount = sortGraphsByEdgeCount;
+			}
+			else if (name == "generateTPBs") {
+				bool generateTPBs;
+				if (value == "true") generateTPBs = true;
+				else if (value == "false") generateTPBs = false;
+				else throw ConfigReadError("The \"generateTPBs\" attribute can only be true or false");
+				config.generateTPBs = generateTPBs;
 			}
 			else if (name == "extractComputationalBasis") {
 				bool extractComputationalBasis;
