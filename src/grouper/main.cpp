@@ -13,7 +13,7 @@ using namespace Q;
 
 
 std::string toAbsolutePath(const std::string& filename) {
-	if (filename.starts_with("C:"))
+	if (filename.starts_with("C:") || filename.starts_with("/"))
 		return filename;
 	return DATA_PATH + filename;
 }
@@ -56,7 +56,7 @@ auto getRandomSubgraphs(const Graph<>& graph, int64_t num, int maxEdgeCount, RNG
 
 int main(int argc, char**argv) {
 	try {
-		std::string configPath = DATA_PATH "config.txt";
+		std::string configPath = DATA_PATH "config water.txt";
 		if (argc == 2) {
 			configPath = argv[1];
 		}
