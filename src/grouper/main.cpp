@@ -54,10 +54,13 @@ auto getRandomSubgraphs(const Graph<>& graph, int64_t num, int maxEdgeCount, RNG
 }
 
 
-int main() {
+int main(int argc, char**argv) {
 	try {
-
-		Configuration config = readConfig(DATA_PATH "config.txt");
+		std::string configPath = DATA_PATH "config.txt";
+		if (argc == 2) {
+			configPath = argv[1];
+		}
+		Configuration config = readConfig(configPath);
 		fmt::println(R"(Configuration:
   filename = {}
   outfilename = {}
