@@ -60,7 +60,7 @@ namespace JsonFormatting {
 		fmt::format_to(out, "  \"runtime [seconds]\": {},\n", metaInfo.timeInSeconds);
 		fmt::format_to(out, "  \"num graphs\": {},\n", metaInfo.numGraphs);
 		fmt::format_to(out, "  \"num paulis\": {},\n", numPaulis);
-		fmt::format_to(out, "  \"num groups\": {},\n", collections.size()l);
+		fmt::format_to(out, "  \"num groups\": {},\n", collections.size());
 		fmt::format_to(out, "  \"connectivity\": [");
 		printEdgeList(out, metaInfo.connectivity.getEdges());
 		fmt::format_to(out, "],\n", metaInfo.numGraphs);
