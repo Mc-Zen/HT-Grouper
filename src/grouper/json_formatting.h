@@ -55,13 +55,18 @@ namespace JsonFormatting {
 
 	void printPauliCollections(auto out, const auto& collections, const MetaInfo& metaInfo) {
 
+		size_t numPaulis = std::accumulate(collections.begin(), collections.end(), size_t{ 0 }, [](size_t c, const auto& col) { return c + col.size(); });
 		fmt::format_to(out, "{{\n");
 		fmt::format_to(out, "  \"runtime [seconds]\": {},\n", metaInfo.timeInSeconds);
 		fmt::format_to(out, "  \"num graphs\": {},\n", metaInfo.numGraphs);
+		fmt::format_to(out, "  \"num paulis\": {},\n", numPaulis);
+		fmt::format_to(out, "  \"num groups\": {},\n", collections.size()l);
 		fmt::format_to(out, "  \"connectivity\": [");
 		printEdgeList(out, metaInfo.connectivity.getEdges());
 		fmt::format_to(out, "],\n", metaInfo.numGraphs);
 		fmt::format_to(out, "  \"random seed\": {},\n", metaInfo.randomSeed);
+		fmt::format_to(out, "  \"R_hat_HT\": {},\n", metaInfo.Rhat_HT);
+		fmt::format_to(out, "  \"R_hat_TPB\": {},\n", metaInfo.Rhat_TPB);
 
 		//auto mat = metaInfo.connectivity.getAdjacencyMatrix();
 		//for(int i=0; i < )
