@@ -23,6 +23,7 @@ namespace Q {
 		bool generateTPBs{ true };
 		bool extractComputationalBasis{ true };
 		unsigned int seed{};
+		bool verboseLog{ true };
 	};
 
 
@@ -104,6 +105,13 @@ namespace Q {
 				else if (value == "false") generateTPBs = false;
 				else throw ConfigReadError("The \"generateTPBs\" attribute can only be true or false");
 				config.generateTPBs = generateTPBs;
+			}
+			else if (name == "verboseLog") {
+				bool verboseLog;
+				if (value == "true") verboseLog = true;
+				else if (value == "false") verboseLog = false;
+				else throw ConfigReadError("The \"verboseLog\" attribute can only be true or false");
+				config.verboseLog = verboseLog;
 			}
 			else if (name == "extractComputationalBasis") {
 				bool extractComputationalBasis;

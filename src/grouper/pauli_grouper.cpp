@@ -441,12 +441,14 @@ PauliGrouper::PauliGrouper(
 	const Hamiltonian& hamiltonian,
 	const std::vector<Graph<>>& graphs,
 	int numThreads,
-	bool extractComputationalBasis
+	bool extractComputationalBasis,
+	bool verboseLog
 ) :
 	hamiltonian(hamiltonian),
 	graphs(graphs),
 	numThreads(numThreads),
-	extractComputationalBasis(extractComputationalBasis)
+	extractComputationalBasis(extractComputationalBasis),
+	verboseLog(verboseLog)
 {
 	numGraphsPerThread = static_cast<size_t>(std::ceil(static_cast<float>(graphs.size()) / static_cast<float>(numThreads)));
 	for (int i = 0; i < numThreads; ++i) finders.emplace_back(hamiltonian.numQubits);
@@ -464,7 +466,6 @@ PauliGrouper::PauliGrouper(
 }
 
 CollectionWithGraph Q::PauliGrouper::groupOne() {
-	bool verbose = true;
 	if (paulis.empty()) { throw std::exception(); }
 
 	if (extractComputationalBasis) {
@@ -478,7 +479,7 @@ CollectionWithGraph Q::PauliGrouper::groupOne() {
 			});
 		extractComputationalBasis = false;
 		collections.push_back(computationalBasis);
-		printStatus(false, true);
+		printStatus(false, verboseLog);
 		return computationalBasis;
 	}
 
@@ -540,7 +541,7 @@ CollectionWithGraph Q::PauliGrouper::groupOne() {
 			workers.emplace_back(work, firstGraphIndex, std::min(lastGraphIndex, graphs.size()), std::ref(partialSolutions[i]), std::ref(finders[i]));
 		}
 
-		if (verbose) {
+		if (verboseLog) {
 			int previousVisitedGraphs = -1;
 			while (finishedThreads < numThreads) {
 				if (int currentlyVisitedGraphs = visitedGraphs.load(); currentlyVisitedGraphs != previousVisitedGraphs) {
@@ -563,7 +564,7 @@ CollectionWithGraph Q::PauliGrouper::groupOne() {
 		std::erase_if(paulis, [&pauli](auto& val) { return val.first == pauli; });
 	}
 	collections.push_back(*bestCollection);
-	printStatus(true, verbose);
+	printStatus(true, verboseLog);
 
 	return *bestCollection;
 }
@@ -577,7 +578,12 @@ std::vector<CollectionWithGraph> Q::PauliGrouper::groupAll() {
 }
 
 void Q::PauliGrouper::printStatus(bool deletePreviousLine, bool verbose) {
-	if (!verbose) return;
+	auto percentageDone = static_cast<int>(100 * (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size())));
+	if (!verbose) {
+		fmt::println("{} of {} remaining ({} group{}), {}% done\n", paulis.size(), hamiltonian.operators.size(),
+			collections.size(), collections.size() == 1 ? "" : "s", percentageDone);
+		return;
+	}
 #if _WINDOWS
 	if (deletePreviousLine) fmt::println("\33[2K\r");
 #else
@@ -585,6 +591,6 @@ void Q::PauliGrouper::printStatus(bool deletePreviousLine, bool verbose) {
 #endif
 	fmt::println("{} of {} remaining ({} group{}), {}% done: {} -> {}\n",
 		paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
-		static_cast<int>(100 * (1 - static_cast<float>(paulis.size()) / static_cast<float>(hamiltonian.operators.size()))),
+		percentageDone,
 		collections.back().paulis, collections.back().graph.getEdges());
-}
+	}

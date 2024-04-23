@@ -130,7 +130,8 @@ namespace Q {
 			const Hamiltonian& hamiltonian,
 			const std::vector<Graph<>>& graphs,
 			int numThreads = 1,
-			bool extractComputationalBasis = true
+			bool extractComputationalBasis = true,
+			bool verboseLog = false
 		);
 
 		explicit operator bool() const { return !paulis.empty(); };
@@ -148,6 +149,7 @@ namespace Q {
 		size_t numGraphsPerThread{};
 		int numThreads{};
 		bool extractComputationalBasis{};
+		bool verboseLog{};
 
 		std::vector<std::pair<Pauli, double>> paulis;
 		std::vector<GraphRepr> graphReprs;

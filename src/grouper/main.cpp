@@ -54,7 +54,7 @@ auto getRandomSubgraphs(const Graph<>& graph, int64_t num, int maxEdgeCount, RNG
 }
 
 
-int main(int argc, char**argv) {
+int main(int argc, char** argv) {
 	try {
 		std::string configPath = DATA_PATH "config.txt";
 		if (argc == 2) {
@@ -69,7 +69,10 @@ int main(int argc, char**argv) {
   maxEdgeCount = {}
   numGraphs = {}
   sortGraphsByEdgeCount = {}
-)", config.filename, config.outfilename, config.connectivity, config.numThreads, config.maxEdgeCount, config.numGraphs, config.sortGraphsByEdgeCount);
+  extractComputationalBasis = {}
+	generateTPBs = {}
+)", config.filename, config.outfilename, config.connectivity, config.numThreads, config.maxEdgeCount, config.numGraphs, config.sortGraphsByEdgeCount,
+config.extractComputationalBasis, config.generateTPBs);
 
 
 		using clock = std::chrono::high_resolution_clock;
@@ -128,7 +131,7 @@ int main(int argc, char**argv) {
 		fmt::println("Running HT Pauli grouper with {} Paulis and {} Graphs on {} qubits", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
 		fmt::println("Random seed: {}\n", seed);
 
-		PauliGrouper grouper(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis);
+		PauliGrouper grouper(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis, config.verboseLog);
 		int count{};
 		while (grouper) {
 			++count;
@@ -156,9 +159,10 @@ int main(int argc, char**argv) {
 
 		double R_hat_tpb = 0;
 		if (config.generateTPBs) {
-			fmt::println("\n\n\n---------------\nRunning TPB grouping", hamiltonian.operators.size(), selectedGraphs.size(), numQubits);
-			auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, false);
+			fmt::println("\n\n\n---------------\nRunning TPB grouping");
+			auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, true, config.verboseLog);
 			R_hat_tpb = estimated_shot_reduction(hamiltonian, tpbGrouping);
+			fmt::println("\n\n\n---------------\n");
 		}
 
 		//htGrouping.erase(htGrouping.begin(), htGrouping.begin() + 2);
