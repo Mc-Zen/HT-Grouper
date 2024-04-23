@@ -77,14 +77,14 @@ namespace Q {
 		while (std::getline(file, line)) {
 			++lineIndex;
 			if (line.empty()) continue;
-			line = trim(line, " \t{}");
+			line = trim(line, " \t\r{}");
 			if (line.empty()) continue;
 
 			auto components = split(line, ':');
 			if (components.size() != 2) throw ReadHamiltonianError(fmt::format("Invalid format for \"{}\" at line {}", line, lineIndex));
 
-			auto pauliString = trim(components[0], " \t\"\'");
-			auto value = trim(components[1], " \t,");
+			auto pauliString = trim(components[0], " \t\r\"\'");
+			auto value = trim(components[1], " \t\r,");
 
 			if (pauliString.size() == 0) throw ReadHamiltonianError(fmt::format("Empty Pauli string at line {}", lineIndex));
 			if (pauliString.size() > 64) throw ReadHamiltonianError(fmt::format("Paulis with more than 64 qubits are currently not supported"));
