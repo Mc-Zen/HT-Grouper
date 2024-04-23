@@ -147,7 +147,7 @@ namespace Q {
 
 	class Connectivity {
 	public:
-		enum class Type { Linear, Cycle, Star, Matrix, All, SquareLattice };
+		enum class Type { Linear, Cycle, Star, Matrix, All, SquareLattice, Empty };
 		using AdjacencyMatrix = Math::Matrix<Q::Binary>;
 
 		Connectivity(Type type) : type(type) {}
@@ -161,6 +161,7 @@ namespace Q {
 			case Star: return Graph<>::star(numQubits);
 			case All: return Graph<>::fullyConnected(numQubits);
 			case SquareLattice: return Graph<>::squareLattice(numQubits);
+			case Empty: return Graph<>(numQubits);
 			}
 			if (numQubits != adjacencyMatrix.rows()) throw ConnectivityError(fmt::format("The adjacency matrix has {} qubits while {} were specified", adjacencyMatrix.rows(), numQubits));
 			auto graph = Graph<>(numQubits);
@@ -197,6 +198,8 @@ namespace Q {
 				return Connectivity{ Connectivity::Type::All };
 			if (line == "square-lattice")
 				return Connectivity{ Connectivity::Type::SquareLattice };
+			if (line == "empty")
+				return Connectivity{ Connectivity::Type::Empty };
 
 			auto entries = split(line, ' ');
 			int numQubits = entries.size();
