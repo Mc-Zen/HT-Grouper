@@ -139,7 +139,7 @@ int main(int argc, char**argv) {
 				auto stem = outPath.stem().string();
 				auto ext = outPath.extension().string();
 
-				std::ofstream file{ parentPath + "/" + stem + "_savingpoint_" + std::to_string(count) + ext };
+				std::ofstream file{ parentPath + "/" + stem + "_savingpoint" + ext };
 				auto fileout = std::ostream_iterator<char>(file);
 
 				const auto tTemp2 = clock::now();
