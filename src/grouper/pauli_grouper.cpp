@@ -582,6 +582,7 @@ void Q::PauliGrouper::printStatus(bool deletePreviousLine, bool verbose) {
 	if (!verbose) {
 		fmt::println("{} of {} remaining ({} group{}), {}% done\n", paulis.size(), hamiltonian.operators.size(),
 			collections.size(), collections.size() == 1 ? "" : "s", percentageDone);
+		std::cout << std::endl;
 		return;
 	}
 #if _WINDOWS
@@ -593,4 +594,5 @@ void Q::PauliGrouper::printStatus(bool deletePreviousLine, bool verbose) {
 		paulis.size(), hamiltonian.operators.size(), collections.size(), collections.size() == 1 ? "" : "s",
 		percentageDone,
 		collections.back().paulis, collections.back().graph.getEdges());
-	}
+	std::cout << std::endl;
+}

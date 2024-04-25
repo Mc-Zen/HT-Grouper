@@ -8,6 +8,7 @@
 #include <random>
 #include <chrono>
 #include <filesystem>
+#include <iostream>
 
 using namespace Q;
 
@@ -93,7 +94,7 @@ config.extractComputationalBasis, config.generateTPBs);
 		const auto connectivity = connectivitySpec.getGraph(numQubits);
 		fmt::println("Adjacency matrix:\n{}", connectivity.getAdjacencyMatrix());
 
-
+		std::cout << std::endl;
 
 		auto outPath = std::filesystem::path(outfilename);
 		std::filesystem::create_directories(outPath.parent_path());
@@ -187,6 +188,7 @@ config.extractComputationalBasis, config.generateTPBs);
 			.Rhat_TPB = R_hat_tpb,
 			});
 		fmt::println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
+		std::cout << std::endl;
 	}
 	catch (ConfigReadError& e) {
 		fmt::println("ConfigReadError: {}", e.what());
