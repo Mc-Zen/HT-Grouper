@@ -478,6 +478,7 @@ CollectionWithGraph Q::PauliGrouper::groupOne() {
 			return false;
 			});
 		extractComputationalBasis = false;
+		computeSingleQubitLayer(computationalBasis, finders[0]);
 		collections.push_back(computationalBasis);
 		printStatus(false, verboseLog);
 		return computationalBasis;
@@ -554,17 +555,18 @@ CollectionWithGraph Q::PauliGrouper::groupOne() {
 		}
 	}
 
-	const auto* bestCollection = &tpbCollection;
-	for (const auto& partialSolution : partialSolutions) {
-		for (const auto& collection : partialSolution) {
+	auto* bestCollection = &tpbCollection;
+	for (auto& partialSolution : partialSolutions) {
+		for (auto& collection : partialSolution) {
 			if (collection.size() > bestCollection->size()) bestCollection = &collection;
 		}
 	}
 	for (const auto& pauli : bestCollection->paulis) {
 		std::erase_if(paulis, [&pauli](auto& val) { return val.first == pauli; });
 	}
-	collections.push_back(*bestCollection);
+	computeSingleQubitLayer(*bestCollection, finders[0]);
 	printStatus(true, verboseLog);
+	collections.push_back(*bestCollection);
 
 	return *bestCollection;
 }
