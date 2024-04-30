@@ -4,7 +4,7 @@
 #include "hamiltonian.h"
 #include "ht_circuits.h"
 #include "find_ht_circuit.h"
-
+#include <random>
 
 namespace Q {
 
@@ -134,14 +134,16 @@ namespace Q {
 			bool verboseLog = false
 		);
 
+		virtual ~PauliGrouper() = default;
+
 		explicit operator bool() const { return !paulis.empty(); };
-		CollectionWithGraph groupOne();
+		virtual CollectionWithGraph groupOne();
 		std::vector<CollectionWithGraph> groupAll();
 
 		const auto& getCollections() const { return collections; }
 
 
-	private:
+	protected:
 		void printStatus(bool deletePreviousLine, bool verbose);
 
 		const Hamiltonian& hamiltonian;
@@ -156,5 +158,26 @@ namespace Q {
 
 		std::vector<CollectionWithGraph> collections;
 		std::vector<HTCircuitFinder> finders;
+	};
+
+	class PauliGrouper2 : public PauliGrouper {
+	public:
+		PauliGrouper2(
+			const Hamiltonian& hamiltonian,
+			const Graph<>& graph,
+			int numThreads = 1,
+			bool extractComputationalBasis = true,
+			bool verboseLog = false,
+			unsigned int seed = 0,
+			int maxSubgraphs = 1000
+		);
+
+		CollectionWithGraph groupOne() override;
+
+	private:
+		std::mt19937_64 randomGenerator;
+		std::vector<Graph<>> getSubgraphsOnSupport(const Graph<>& graph, const Pauli& pauli);
+		int maxSubgraphs{};
+		Graph<> graph;
 	};
 }

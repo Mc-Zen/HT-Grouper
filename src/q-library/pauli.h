@@ -63,6 +63,8 @@ namespace Q {
 		/// @brief Get the Z components of the Pauli as binary string, e.g. XYZI -> 0110
 		constexpr Bitstring getZString() const;
 
+		constexpr Bitstring getSupport() const;
+
 		/// @brief Get a binary string with 1 for each identity, e.g. XYZI -> 0001
 		constexpr Bitstring getIdentityString() const;
 
@@ -151,6 +153,7 @@ namespace Q {
 
 	constexpr int Pauli::identityCount() const { return n - pauliWeight(); }
 
+	constexpr Pauli::Bitstring Pauli::getSupport() const { return (r | s); }
 	constexpr Pauli::Bitstring Pauli::getIdentityString() const { return ~(r | s); }
 
 	constexpr Pauli::Bitstring Pauli::getXString() const { return r; }

@@ -5,6 +5,7 @@ add_executable(${target}
 	main.cpp
 	pauli_grouper.cpp
 	read_hamiltonians.h
+	random_subgraphs.h
 	pauli_grouper.h
 	hamiltonian.h
 	python_formatting.h

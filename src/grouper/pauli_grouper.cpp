@@ -1,6 +1,7 @@
 
 #include "pauli_grouper.h"
 #include "find_ht_circuit.h"
+#include "random_subgraphs.h"
 #include <ranges>
 #include <thread>
 #include <algorithm>
@@ -597,4 +598,202 @@ void Q::PauliGrouper::printStatus(bool deletePreviousLine, bool verbose) {
 		percentageDone,
 		collections.back().paulis, collections.back().graph.getEdges());
 	std::cout << std::endl;
+}
+
+
+
+PauliGrouper2::PauliGrouper2(
+	const Hamiltonian& hamiltonian,
+	const Graph<>& graph,
+	int numThreads,
+	bool extractComputationalBasis,
+	bool verboseLog,
+	unsigned int seed,
+	int maxSubgraphs
+) :
+	PauliGrouper(hamiltonian, {}, numThreads, extractComputationalBasis, verboseLog),
+	randomGenerator(seed),
+	maxSubgraphs(maxSubgraphs),
+	graph(graph)
+{}
+
+CollectionWithGraph Q::PauliGrouper2::groupOne() {
+	if (paulis.empty()) { throw std::exception(); }
+
+	if (extractComputationalBasis) {
+		CollectionWithGraph computationalBasis{ {}, Graph<>{ hamiltonian.numQubits } };
+		std::erase_if(paulis, [&](const auto& pauli) {
+			if (pauli.first.getXString() == 0ULL) {
+				computationalBasis.paulis.push_back(pauli.first);
+				return true;
+			}
+			return false;
+			});
+		extractComputationalBasis = false;
+		computeSingleQubitLayer(computationalBasis, finders[0]);
+		collections.push_back(computationalBasis);
+		printStatus(false, verboseLog);
+		return computationalBasis;
+	}
+
+	using WeightedPauli = std::pair<Pauli, double>;
+
+
+	const auto& mainPauli = paulis.front().first;
+	Pauli::Bitstring support = mainPauli.getSupport();
+	Pauli::Bitstring supportComplement = ~support;
+
+	auto subgraphs = getSubgraphsOnSupport(graph, mainPauli);
+	//for (const auto &graph : subgraphs) {
+	//	//fmt::println("{}", graph.getAdjacencyMatrix());
+	//}
+	graphReprs.clear();
+	for (const auto& subgraph : subgraphs) {
+		graphReprs.emplace_back(subgraph);
+	}
+	std::vector<WeightedPauli> selectedPaulis;
+	std::copy_if(paulis.begin(), paulis.end(), std::back_inserter(selectedPaulis), [&](const WeightedPauli& pauliAndValue) {
+		return commutator(pauliAndValue.first, mainPauli) == 0;
+		});
+	std::vector<Pauli::Bitstring> selections(mainPauli.numQubits());
+	Pauli::Bitstring templateX{};
+	Pauli::Bitstring templateZ{};
+	for (int qubit = 0; qubit < mainPauli.numQubits(); ++qubit) {
+		if (support & (1ULL << qubit)) { continue; }
+		int x{};
+		int y{};
+		int z{};
+		for (const auto& [pauli, _] : selectedPaulis) {
+			auto r = pauli.x(qubit);
+			auto s = pauli.z(qubit);
+			if (r && s) { y += 1; }
+			else if (r) { x += 1; }
+			else if (s) { x += 1; }
+		}
+		if (x > y && x > z) {
+			selections[qubit] = 0b01;
+			templateX |= (1ULL << qubit);
+		}
+		else if (y > x && y > z) {
+			selections[qubit] = 0b11;
+			templateX |= (1ULL << qubit);
+			templateZ |= (1ULL << qubit);
+		}
+		else {
+			selections[qubit] = 0b10;
+			templateZ |= (1ULL << qubit);
+		}
+
+	}
+	std::vector<WeightedPauli> selectedPaulis2;
+	std::copy_if(selectedPaulis.begin(), selectedPaulis.end(), std::back_inserter(selectedPaulis2), [&](const WeightedPauli& pauli) {
+		auto x = pauli.first.getXString();
+		auto z = pauli.first.getZString();
+
+		//(x == tx) && (z == tz) || (x == 0 && z == 0)
+		// supportComplement & ((x ^ tx) | (z ^ tz)) &  (x | z)
+		return (supportComplement & ((x ^ templateX) | (z ^ templateZ)) & (x | z)) == 0;
+		//return commutator(pauli, mainPauli) == 0;
+		});
+	fmt::println("P_main={}, |sel_1|={}, |sel_2|={}", mainPauli, selectedPaulis.size(), selectedPaulis2.size());
+
+	CollectionWithGraph tpbCollection{ { mainPauli }, Graph<>{ hamiltonian.numQubits } };
+
+	for (const auto& [pauli, _] : selectedPaulis2 | std::ranges::views::drop(1)) {
+		if (qubitwiseCommutesWithAll(tpbCollection.paulis, pauli)) {
+			tpbCollection.paulis.push_back(pauli);
+		}
+	}
+
+	std::atomic_int visitedGraphs{};
+	std::atomic_int finishedThreads{};
+
+	auto work = [&](size_t first, size_t last, std::vector<CollectionWithGraph>& partialSolution, HTCircuitFinder& finder) {
+		for (auto i = first; i < last; ++i) {
+			++visitedGraphs;
+			const auto& graphRepr = this->graphReprs[i];
+			const auto& graph = graphRepr.graph;
+			CollectionWithGraph collection{ { mainPauli }, graph };
+			if (!is_ht_measurable(collection.paulis, graphRepr, finder)) continue;
+
+			for (const auto& [pauli, _] : selectedPaulis2 | std::ranges::views::drop(1)) {
+				if (!commutesWithAll(collection.paulis, pauli)) continue;
+
+				bool ouch{};
+				if (!std::ranges::all_of(graphRepr.connectedComponentSupportVectors, [&](auto supportVector) {
+					return locallyCommutesWithAll(collection.paulis, pauli, supportVector); })) {
+					continue;
+				}
+
+				//if (graphRepr.connectedComponents.back().size() <= 2) {
+				//	collection.paulis.push_back(pauli);
+				//	continue;
+				//}
+
+				collection.paulis.push_back(pauli);
+				if (!is_ht_measurable(collection.paulis, graphRepr, finder)) {
+					collection.paulis.pop_back();
+				}
+			}
+			partialSolution.push_back(collection);
+		}
+		++finishedThreads;
+	};
+
+	std::vector<std::vector<CollectionWithGraph>> partialSolutions(numThreads);
+
+	{
+
+		const auto numGraphsPerThread = static_cast<size_t>(std::ceil(static_cast<float>(graphReprs.size()) / static_cast<float>(numThreads)));
+
+		std::vector<std::jthread> workers;
+		for (int i = 0; i < numThreads; ++i) {
+			const auto firstGraphIndex = numGraphsPerThread * i;
+			const auto lastGraphIndex = numGraphsPerThread * (i + 1);
+			workers.emplace_back(work, firstGraphIndex, std::min(lastGraphIndex, graphReprs.size()), std::ref(partialSolutions[i]), std::ref(finders[i]));
+		}
+
+		if (verboseLog) {
+			int previousVisitedGraphs = -1;
+			while (finishedThreads < numThreads) {
+				if (int currentlyVisitedGraphs = visitedGraphs.load(); currentlyVisitedGraphs != previousVisitedGraphs) {
+					fmt::print("\33[2K\rGraph {:>4} of {:>4}", visitedGraphs.load(), graphReprs.size());
+					previousVisitedGraphs = currentlyVisitedGraphs;
+				}
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(10ms);
+			}
+		}
+	}
+
+	auto* bestCollection = &tpbCollection;
+	for (auto& partialSolution : partialSolutions) {
+		for (auto& collection : partialSolution) {
+			if (collection.size() > bestCollection->size()) bestCollection = &collection;
+		}
+	}
+	for (const auto& pauli : bestCollection->paulis) {
+		std::erase_if(paulis, [&pauli](auto& val) { return val.first == pauli; });
+	}
+	computeSingleQubitLayer(*bestCollection, finders[0]);
+	printStatus(true, verboseLog);
+	collections.push_back(*bestCollection);
+
+	return *bestCollection;
+}
+
+
+std::vector<Graph<>> PauliGrouper2::getSubgraphsOnSupport(const Graph<>& graph, const Pauli& pauli) {
+	Pauli::Bitstring support = pauli.getSupport();
+	Graph<> restrictedGraph{ graph.numVertices() };
+	uint64_t edgeCount = 0;
+	for (const auto [v1, v2] : graph.getEdges()) {
+		auto edgeQubits = (1ULL << v1) | (1ULL << v2);
+		if ((support & edgeQubits) == edgeQubits) {
+			restrictedGraph.addEdge(v1, v2);
+			++edgeCount;
+		}
+	}
+
+	return getRandomSubgraphs(restrictedGraph, maxSubgraphs, 1000, randomGenerator);
 }

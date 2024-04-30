@@ -24,6 +24,7 @@ namespace Q {
 		bool extractComputationalBasis{ true };
 		unsigned int seed{};
 		bool verboseLog{ true };
+		int64_t grouperType{ 1 };
 	};
 
 
@@ -72,6 +73,12 @@ namespace Q {
 				auto numThreads = string_to_int(value);
 				if (numThreads < 1 || numThreads > 255) throw ConfigReadError("The \"numThreads\" attribute can only take values between 1 and 255");
 				config.numThreads = numThreads;
+			}
+			else if (name == "grouperType") {
+				if (config.grouperType != 1) throw ConfigReadError("Duplicate attribute \"grouperType\"");
+				auto grouperType = string_to_int(value);
+				if (grouperType < 1 || grouperType > 2) throw ConfigReadError("The \"grouperType\" attribute can only take values 1 and 2");
+				config.grouperType = grouperType;
 			}
 			else if (name == "maxEdgeCount") {
 				if (config.maxEdgeCount != 0) throw ConfigReadError("Duplicate attribute \"maxEdgeCount\"");
