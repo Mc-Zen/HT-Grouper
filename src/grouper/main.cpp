@@ -62,6 +62,7 @@ config.extractComputationalBasis, config.generateTPBs);
 		const auto connectivity = connectivitySpec.getGraph(numQubits);
 		fmt::println("Adjacency matrix:\n{}", connectivity.getAdjacencyMatrix());
 
+
 		std::cout << std::endl;
 
 		auto outPath = std::filesystem::path(outfilename);
@@ -89,6 +90,14 @@ config.extractComputationalBasis, config.generateTPBs);
 
 		const auto seed = config.seed == 0 ? std::random_device{}() : config.seed;
 		std::mt19937_64 randomGenerator{ seed };
+
+		JsonFormatting::MetaInfo metaInfo{
+			.randomSeed = seed,
+			.connectivity = connectivity,
+			.inputFilename = std::filesystem::path(config.filename).filename().string(),
+			.grouperType = config.grouperType
+		};
+
 		//decltype(subgraphs) selectedGraphs;
 		//std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), config.numGraphs, randomGenerator);
 		auto selectedGraphs = getRandomSubgraphs(connectivity, config.numGraphs, config.maxEdgeCount, randomGenerator);
@@ -126,7 +135,10 @@ config.extractComputationalBasis, config.generateTPBs);
 
 				const auto tTemp2 = clock::now();
 				const auto timeInSeconds = std::chrono::duration_cast<std::chrono::seconds>(tTemp2 - t0).count();
-				JsonFormatting::printPauliCollections(fileout, grouper->getCollections(), JsonFormatting::MetaInfo{ timeInSeconds, selectedGraphs.size(), seed, connectivity });
+				auto tempMetaInfo = metaInfo;
+				tempMetaInfo.timeInSeconds = timeInSeconds;
+				tempMetaInfo.numGraphs = selectedGraphs.size();
+				JsonFormatting::printPauliCollections(fileout, grouper->getCollections(), tempMetaInfo);
 			}
 		}
 
@@ -157,14 +169,11 @@ config.extractComputationalBasis, config.generateTPBs);
 		std::ofstream file{ outPath };
 		auto fileout = std::ostream_iterator<char>(file);
 
-		JsonFormatting::printPauliCollections(fileout, htGrouping, JsonFormatting::MetaInfo{
-			.timeInSeconds = timeInSeconds,
-			.numGraphs = selectedGraphs.size(),
-			.randomSeed = seed,
-			.connectivity = connectivity,
-			.Rhat_HT = R_hat_HT,
-			.Rhat_TPB = R_hat_tpb,
-			});
+		metaInfo.timeInSeconds = timeInSeconds;
+		metaInfo.numGraphs = selectedGraphs.size();
+		metaInfo.Rhat_HT = R_hat_HT;
+		metaInfo.Rhat_TPB = R_hat_tpb;
+		JsonFormatting::printPauliCollections(fileout, htGrouping, metaInfo);
 		fmt::println("Estimated shot reduction\n R_hat_HT = {}\n R_hat_TPB = {}\n R_hat_HT/R_hat_TPB = {}", R_hat_HT, R_hat_tpb, R_hat_HT / R_hat_tpb);
 		std::cout << std::endl;
 	}

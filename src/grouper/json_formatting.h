@@ -12,6 +12,8 @@ namespace JsonFormatting {
 		Q::Graph<> connectivity;
 		double Rhat_HT{};
 		double Rhat_TPB{};
+		std::string inputFilename;
+		int64_t grouperType{};
 	};
 
 	void printEdgeList(auto out, const std::vector<std::pair<int, int>>& edges) {
@@ -58,9 +60,11 @@ namespace JsonFormatting {
 		size_t numPaulis = std::accumulate(collections.begin(), collections.end(), size_t{ 0 }, [](size_t c, const auto& col) { return c + col.size(); });
 		fmt::format_to(out, "{{\n");
 		fmt::format_to(out, "  \"runtime [seconds]\": {},\n", metaInfo.timeInSeconds);
+		fmt::format_to(out, "  \"input filename\": \"{}\",\n", metaInfo.inputFilename);
 		fmt::format_to(out, "  \"num graphs\": {},\n", metaInfo.numGraphs);
 		fmt::format_to(out, "  \"num paulis\": {},\n", numPaulis);
 		fmt::format_to(out, "  \"num groups\": {},\n", collections.size());
+		fmt::format_to(out, "  \"grouper type\": {},\n", metaInfo.grouperType);
 		fmt::format_to(out, "  \"connectivity\": [");
 		printEdgeList(out, metaInfo.connectivity.getEdges());
 		fmt::format_to(out, "],\n", metaInfo.numGraphs);
