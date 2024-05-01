@@ -114,7 +114,7 @@ config.extractComputationalBasis, config.generateTPBs);
 			grouper = std::make_unique<PauliGrouper>(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis, config.verboseLog);
 		}
 		else if (config.grouperType == 2) {
-			grouper = std::make_unique<PauliGrouper2>(hamiltonian, connectivity, config.numThreads, config.extractComputationalBasis, config.verboseLog, seed);
+			grouper = std::make_unique<PauliGrouper2>(hamiltonian, connectivity, config.numThreads, config.extractComputationalBasis, config.verboseLog, seed, config.numGraphs);
 			//PauliGrouper grouper(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis, config.verboseLog);
 		}
 		else {
