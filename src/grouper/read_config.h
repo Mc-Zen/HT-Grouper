@@ -142,25 +142,15 @@ namespace Q {
 		template<class T>
 		T get(std::string_view name);
 
-		template<>
-		int64_t get<int64_t>(std::string_view name) { return getAttribute(name).value<IntValue>().value; }
-
-		template<>
-		std::string get<std::string>(std::string_view name) { return getAttribute(name).value<StringValue>().value; }
-
-		template<>
-		bool get<bool>(std::string_view name) { return getAttribute(name).value<BoolValue>().value; }
-
-
 		Attribute& getAttribute(std::string_view name) {
 			auto attr = std::find_if(attributes.begin(), attributes.end(), [&name](const auto& attribute) { return attribute.name() == name; });
-			if (attr == attributes.end()) { throw ConfigReadError(std::format("Unknown attribute '{}'", name)); }
+			if (attr == attributes.end()) { throw ConfigReadError(fmt::format("Unknown attribute '{}'", name)); }
 			return *attr;
 		}
 
 		const Attribute& getAttribute(std::string_view name) const {
 			auto attr = std::find_if(attributes.begin(), attributes.end(), [&name](const auto& attribute) { return attribute.name() == name; });
-			if (attr == attributes.end()) { throw ConfigReadError(std::format("Unknown attribute '{}'", name)); }
+			if (attr == attributes.end()) { throw ConfigReadError(fmt::format("Unknown attribute '{}'", name)); }
 			return *attr;
 		}
 
@@ -182,6 +172,16 @@ namespace Q {
 			MakeAttribute<bool>{.name = "verboseLog", .initial = true },
 		};
 	};
+
+	template<>
+	int64_t Config::get<int64_t>(std::string_view name) { return getAttribute(name).value<IntValue>().value; }
+
+	template<>
+	std::string Config::get<std::string>(std::string_view name) { return getAttribute(name).value<StringValue>().value; }
+
+	template<>
+	bool Config::get<bool>(std::string_view name) { return getAttribute(name).value<BoolValue>().value; }
+
 
 	void fillConfigFromFile(const std::string& filename, Config& config) {
 		std::ifstream file{ filename };
