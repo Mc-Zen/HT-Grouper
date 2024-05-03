@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <fstream>
 #include <string>
+#include <charconv>
+#include <variant>
 #include "string_utility.h"
 
 namespace Q {
@@ -27,6 +29,177 @@ namespace Q {
 		int64_t grouperType{ 1 };
 	};
 
+	struct IntValue {
+		IntValue() = default;
+		IntValue(int64_t initial, int64_t min, int64_t max) : value(initial), min(min), max(max) {}
+		void read(std::string_view input) {
+			auto result = std::from_chars(input.data(), input.data() + input.size(), value);
+			if (result.ec == std::errc::invalid_argument) { throw ConfigReadError(fmt::format("Integer out of range: \"{}\"", input)); }
+			if (value < min || value > max) { throw ConfigReadError(fmt::format("Integer needs to be in range [{}, {}] (was {})", min, max, value)); }
+		}
+
+		auto write() const { return std::to_string(value); }
+
+		int64_t value{ 0 };
+		int64_t min{ std::numeric_limits<int64_t>::min() };
+		int64_t max{ std::numeric_limits<int64_t>::max() };
+	};
+
+	struct StringValue {
+		explicit StringValue(std::string_view initial = "") : value(initial) {};
+		void read(std::string_view input) { value = input; }
+		std::string write() const { return '"' + value + '"'; }
+
+		std::string value;
+	};
+
+	struct BoolValue {
+		explicit BoolValue(bool initial = false) : value(initial) {};
+		void read(std::string_view input) {
+			if (toLower(input) == "true") { value = true; }
+			else if (toLower(input) == "false") { value = false; }
+			else { throw ConfigReadError(fmt::format("Expected bool value, got {}", input)); }
+		}
+		std::string write() const { return value ? "true" : "false"; }
+		bool value;
+	};
+
+
+	class Attribute {
+	public:
+
+		template<class K>
+		Attribute(std::string_view name, K value) : name_(name), value_(value) {}
+
+		void read(std::string_view input) {
+			if (std::holds_alternative<IntValue>(value_)) { value<IntValue>().read(input); }
+			else if (std::holds_alternative<BoolValue>(value_)) { value<BoolValue>().read(input); }
+			else if (std::holds_alternative<StringValue>(value_)) { value<StringValue>().read(input); }
+		}
+
+		std::string write() const {
+			if (std::holds_alternative<IntValue>(value_)) { return value<IntValue>().write(); }
+			if (std::holds_alternative<BoolValue>(value_)) { return value<BoolValue>().write(); }
+			if (std::holds_alternative<StringValue>(value_)) { return value<StringValue>().write(); }
+			return {};
+		}
+
+
+		std::string_view name() const { return name_; }
+
+		template<class T>
+		const T& value() const { return std::get<T>(value_); }
+		template<class T>
+		T& value() { return std::get<T>(value_); }
+
+	private:
+		std::string name_;
+		std::variant<IntValue, StringValue, BoolValue> value_;
+	};
+
+
+	//template<class T>
+	//struct MakeAttributeBase {
+	//	std::string_view name;
+	//	T initial{ 0 };
+	//};
+
+	template<class T>
+	struct MakeAttribute {
+	};
+
+	template<>
+	struct MakeAttribute<int64_t> {
+		operator Attribute() const { return Attribute(this->name, IntValue{ this->initial, min, max }); }
+		std::string_view name;
+		int64_t initial{ 0 };
+		int64_t min{ std::numeric_limits<int64_t>::min() };
+		int64_t max{ std::numeric_limits<int64_t>::max() };
+	};
+
+	template<>
+	struct MakeAttribute<bool> {
+		operator Attribute() const { return Attribute(this->name, BoolValue{this->initial}); }
+		std::string_view name;
+		bool initial{};
+	};
+
+	template<>
+	struct MakeAttribute<std::string> {
+		operator Attribute() const { return Attribute(this->name, StringValue{this->initial}); }
+		std::string_view name;
+		std::string_view initial{};
+	};
+
+
+
+	struct Config {
+
+		void readAttribute(std::string_view name, std::string_view value) {
+			getAttribute(name).read(value);
+		}
+
+		template<class T>
+		T get(std::string_view name);
+
+		template<>
+		int64_t get<int64_t>(std::string_view name) { return getAttribute(name).value<IntValue>().value; }
+
+		template<>
+		std::string get<std::string>(std::string_view name) { return getAttribute(name).value<StringValue>().value; }
+
+		template<>
+		bool get<bool>(std::string_view name) { return getAttribute(name).value<BoolValue>().value; }
+
+
+		Attribute& getAttribute(std::string_view name) {
+			auto attr = std::find_if(attributes.begin(), attributes.end(), [&name](const auto& attribute) { return attribute.name() == name; });
+			if (attr == attributes.end()) { throw ConfigReadError(std::format("Unknown attribute '{}'", name)); }
+			return *attr;
+		}
+
+		const Attribute& getAttribute(std::string_view name) const {
+			auto attr = std::find_if(attributes.begin(), attributes.end(), [&name](const auto& attribute) { return attribute.name() == name; });
+			if (attr == attributes.end()) { throw ConfigReadError(std::format("Unknown attribute '{}'", name)); }
+			return *attr;
+		}
+
+
+		std::vector<Attribute> attributes{
+			MakeAttribute<std::string>{.name = "config" },
+			MakeAttribute<std::string>{.name = "filename" },
+			MakeAttribute<std::string>{.name = "outfilename" },
+			MakeAttribute<std::string>{.name = "connectivity" },
+			MakeAttribute<int64_t>{.name = "numThreads", .initial = 1, .min = 1, .max = 10000},
+			MakeAttribute<int64_t>{.name = "numGraphs", .initial = 100, .min = 1 },
+			MakeAttribute<int64_t>{.name = "maxEdgeCount", .initial = 1000, .min = 0,},
+			MakeAttribute<int64_t>{.name = "intermediateFileFrequency", .initial = 0, .min = 0 },
+			MakeAttribute<int64_t>{.name = "grouperType", .initial = 1, .min = 1, .max = 2 },
+			MakeAttribute<int64_t>{.name = "seed", .initial = 0 },
+			MakeAttribute<bool>{.name = "sortGraphsByEdgeCount", .initial = true },
+			MakeAttribute<bool>{.name = "generateTPBs", .initial = true },
+			MakeAttribute<bool>{.name = "extractComputationalBasis", .initial = true },
+			MakeAttribute<bool>{.name = "verboseLog", .initial = true },
+		};
+	};
+
+	void fillConfigFromFile(const std::string& filename, Config& config) {
+		std::ifstream file{ filename };
+		if (!file) throw ConfigReadError(fmt::format("Could not open file \"{}\"", filename));
+
+		std::string line;
+		while (std::getline(file, line)) {
+			if (line.empty()) continue;
+			line = trim(split(line, '#')[0], " \t"); // strip comments and whitespace
+			if (line.empty()) continue;
+			auto components = splitOnce(line, '=');
+			if (components.size() != 2) throw ConfigReadError(fmt::format("Invalid attribute format for attribute \"{}\". Name and value need to be seperated by a \"=\" sign. ", line));
+
+			auto name = trim(components[0], " \t");
+			auto value = trim(components[1], " \t");
+			config.readAttribute(name, value);
+		}
+	}
 
 	int64_t string_to_int(const std::string& str) {
 		try {
@@ -36,6 +209,7 @@ namespace Q {
 			throw ConfigReadError(fmt::format("Integer out of range: \"{}\"", str));
 		}
 	}
+
 
 	Configuration readConfig(const std::string& filename) {
 

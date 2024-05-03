@@ -6,6 +6,7 @@
 #include "data_path.h"
 #include "read_config.h"
 #include "random_subgraphs.h"
+#include "cli.h"
 #include <random>
 #include <chrono>
 #include <filesystem>
@@ -25,23 +26,44 @@ std::string toAbsolutePath(const std::string& filename) {
 
 int main(int argc, char** argv) {
 	try {
+		auto cli_args = parse_cli_arguments(argc, argv);
+
 		std::string configPath = DATA_PATH "config.txt";
-		if (argc == 2) {
-			configPath = argv[1];
+
+		if (cli_args.options.contains("config")) {
+			configPath = cli_args.options["config"];
 		}
-		Configuration config = readConfig(configPath);
-		fmt::println(R"(Configuration:
-  filename = {}
-  outfilename = {}
-  connectivity = {}
-  numThreads = {}
-  maxEdgeCount = {}
-  numGraphs = {}
-  sortGraphsByEdgeCount = {}
-  extractComputationalBasis = {}
-	generateTPBs = {}
-)", config.filename, config.outfilename, config.connectivity, config.numThreads, config.maxEdgeCount, config.numGraphs, config.sortGraphsByEdgeCount,
-config.extractComputationalBasis, config.generateTPBs);
+		Config conf;
+		fillConfigFromFile(configPath, conf);
+
+		for (const auto& [key, val] : cli_args.options) {
+			conf.readAttribute(key, val);
+		}
+		for (const auto& attr : conf.attributes) {
+			fmt::println("{}: {}", attr.name(), attr.write());
+		}
+
+
+
+
+
+
+		//if (argc == 2) {
+		//	configPath = argv[1];
+		//}
+		//Configuration config = readConfig(configPath);
+//		fmt::println(R"(Configuration:
+//  filename = {}
+//  outfilename = {}
+//  connectivity = {}
+//  numThreads = {}
+//  maxEdgeCount = {}
+//  numGraphs = {}
+//  sortGraphsByEdgeCount = {}
+//  extractComputationalBasis = {}
+//	generateTPBs = {}
+//)", config.filename, config.outfilename, config.connectivity, config.numThreads, config.maxEdgeCount, config.numGraphs, config.sortGraphsByEdgeCount,
+//config.extractComputationalBasis, config.generateTPBs);
 
 
 		using clock = std::chrono::high_resolution_clock;
@@ -51,9 +73,9 @@ config.extractComputationalBasis, config.generateTPBs);
 		// and find a grouping into simultaneously measurable sets respecting
 		// a given hardware connectivity. 
 
-		auto filename = toAbsolutePath(config.filename);
-		auto outfilename = toAbsolutePath(config.outfilename);
-		auto connectivityFile = toAbsolutePath(config.connectivity);
+		auto filename = toAbsolutePath(conf.get<std::string>("filename"));
+		auto outfilename = toAbsolutePath(conf.get<std::string>("outfilename"));
+		auto connectivityFile = toAbsolutePath(conf.get<std::string>("connectivity"));
 
 		const auto hamiltonian = readHamiltonianFromJson(filename);
 		const auto numQubits = hamiltonian.numQubits;
@@ -87,22 +109,32 @@ config.extractComputationalBasis, config.generateTPBs);
 		//}
 
 
+		const auto confSeed = conf.get<int64_t>("seed");
+		const auto numThreads = conf.get<int64_t>("numThreads");
+		const auto maxEdgeCount = conf.get<int64_t>("maxEdgeCount");
+		const auto intermediateFileFrequency = conf.get<int64_t>("intermediateFileFrequency");
+		const auto numGraphs = conf.get<int64_t>("numGraphs");
+		const auto grouperType = conf.get<int64_t>("grouperType");
+		const auto verboseLog = conf.get<bool>("verboseLog");
+		const auto generateTPBs = conf.get<bool>("generateTPBs");
+		const auto extractComputationalBasis = conf.get<bool>("extractComputationalBasis");
+		const auto sortGraphsByEdgeCount = conf.get<bool>("sortGraphsByEdgeCount");
 
-		const auto seed = config.seed == 0 ? std::random_device{}() : config.seed;
-		std::mt19937_64 randomGenerator{ seed };
+		const auto seed = confSeed == 0 ? std::random_device{}() : confSeed;
+		std::mt19937_64 randomGenerator{ static_cast<uint64_t>(seed) };
 
 		JsonFormatting::MetaInfo metaInfo{
 			.randomSeed = seed,
 			.connectivity = connectivity,
-			.inputFilename = std::filesystem::path(config.filename).filename().string(),
-			.grouperType = config.grouperType
+			.inputFilename = std::filesystem::path(conf.get<std::string>("filename")).filename().string(),
+			.grouperType = grouperType
 		};
 
 		//decltype(subgraphs) selectedGraphs;
 		//std::sample(subgraphs.begin(), subgraphs.end(), std::back_inserter(selectedGraphs), config.numGraphs, randomGenerator);
-		auto selectedGraphs = getRandomSubgraphs(connectivity, config.numGraphs, config.maxEdgeCount, randomGenerator);
+		auto selectedGraphs = getRandomSubgraphs(connectivity, numGraphs, maxEdgeCount, randomGenerator);
 
-		if (config.sortGraphsByEdgeCount) {
+		if (sortGraphsByEdgeCount) {
 			std::ranges::sort(selectedGraphs, std::less{}, &Graph<>::edgeCount);
 		}
 
@@ -110,11 +142,11 @@ config.extractComputationalBasis, config.generateTPBs);
 		fmt::println("Random seed: {}\n", seed);
 
 		std::unique_ptr<PauliGrouper> grouper;
-		if (config.grouperType == 1) {
-			grouper = std::make_unique<PauliGrouper>(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis, config.verboseLog);
+		if (grouperType == 1) {
+			grouper = std::make_unique<PauliGrouper>(hamiltonian, selectedGraphs, numThreads, extractComputationalBasis, verboseLog);
 		}
-		else if (config.grouperType == 2) {
-			grouper = std::make_unique<PauliGrouper2>(hamiltonian, connectivity, config.numThreads, config.extractComputationalBasis, config.verboseLog, seed, config.numGraphs);
+		else if (grouperType == 2) {
+			grouper = std::make_unique<PauliGrouper2>(hamiltonian, connectivity, numThreads, extractComputationalBasis, verboseLog, seed, numGraphs);
 			//PauliGrouper grouper(hamiltonian, selectedGraphs, config.numThreads, config.extractComputationalBasis, config.verboseLog);
 		}
 		else {
@@ -124,7 +156,7 @@ config.extractComputationalBasis, config.generateTPBs);
 		while (*grouper) {
 			++count;
 			auto collection = grouper->groupOne();
-			if (config.intermediateFileFrequency != 0 && count % config.intermediateFileFrequency == 0) {
+			if (intermediateFileFrequency != 0 && count % intermediateFileFrequency == 0) {
 
 				auto parentPath = outPath.parent_path().string();
 				auto stem = outPath.stem().string();
@@ -149,9 +181,9 @@ config.extractComputationalBasis, config.generateTPBs);
 		auto R_hat_HT = estimated_shot_reduction(hamiltonian, htGrouping);
 
 		double R_hat_tpb = 0;
-		if (config.generateTPBs) {
+		if (generateTPBs) {
 			fmt::println("\n\n\n---------------\nRunning TPB grouping");
-			auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, config.numThreads, true, config.verboseLog);
+			auto tpbGrouping = applyPauliGrouper2Multithread2(hamiltonian, { Graph<>(numQubits) }, numThreads, true, verboseLog);
 			R_hat_tpb = estimated_shot_reduction(hamiltonian, tpbGrouping);
 			fmt::println("\n\n\n---------------\n");
 		}

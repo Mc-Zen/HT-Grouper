@@ -12,5 +12,6 @@ add_executable(${target}
 	json_formatting.h
 	estimated_shot_reduction.h
 	read_config.h
+	cli.h
 )
 target_link_libraries(${target} PUBLIC q-library gurobi_c++ data fmt)

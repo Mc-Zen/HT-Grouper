@@ -566,16 +566,15 @@ CollectionWithGraph Q::PauliGrouper::groupOne() {
 		std::erase_if(paulis, [&pauli](auto& val) { return val.first == pauli; });
 	}
 	computeSingleQubitLayer(*bestCollection, finders[0]);
-	printStatus(true, verboseLog);
 	collections.push_back(*bestCollection);
+	printStatus(true, verboseLog);
 
 	return *bestCollection;
 }
 
 std::vector<CollectionWithGraph> Q::PauliGrouper::groupAll() {
-	std::vector<CollectionWithGraph> collections;
 	while (*this) {
-		collections.push_back(groupOne());
+		groupOne();
 	}
 	return collections;
 }

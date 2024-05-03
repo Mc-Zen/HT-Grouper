@@ -8,7 +8,7 @@ namespace JsonFormatting {
 	struct MetaInfo {
 		long long timeInSeconds{};
 		size_t numGraphs{};
-		size_t randomSeed{};
+		int64_t randomSeed{};
 		Q::Graph<> connectivity;
 		double Rhat_HT{};
 		double Rhat_TPB{};
