@@ -14,4 +14,8 @@ namespace Q {
 	std::vector<std::string> splitOnce(const std::string& s, char delim);
 
 	std::vector<std::string> split(const std::string_view& str, const std::string_view& delims = " ");
+
+
+	std::string toLower(std::string_view input);
+
 }

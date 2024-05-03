@@ -40,6 +40,7 @@ namespace Q {
 		}
 		return output;
 	}
+
 	std::vector<std::string> split(const std::string_view& str, const std::string_view& delim) {
 		std::vector<std::string> output;
 		auto first = std::cbegin(str);
@@ -68,4 +69,14 @@ namespace Q {
 		strings.push_back(s);
 		return strings;
 	}
+
+
+
+	std::string toLower(std::string_view input) {
+		std::string output;
+		output.resize(input.size());
+		std::transform(input.begin(), input.end(), output.begin(), [](unsigned char c) { return std::tolower(c); });
+		return output;
+	}
+
 }
