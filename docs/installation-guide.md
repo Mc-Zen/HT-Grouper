@@ -37,7 +37,7 @@ This project depends on [Gurobi](https://www.gurobi.com/), a commercial mathemat
 - Open the Program ``CMake GUI`` which should be available after installing CMake. 
 - In the field `Where is the source code`, specify the **path of the repository** (e.g., `C:/[path-to]/ht-grouper`). 
 - In the field `Where to build the binaries`, type the same path and **append `/build`** (e.g., `C:/[path-to]/ht-grouper/build`). 
-- At the bottom left, **press `Configure`**. Accept the creation of the build directory. In the next dialog, select your version of Visual Studio. If you don't have other CMake generators installed, this will already be selected. Press `Finish`. 
+- At the bottom left, **press `Configure`**. Accept the creation of the build directory. In the next dialog, select your version of Visual Studio. If you don't have other CMake generators installed, this will already be selected. If CMake cannot find the Gurobi Libraries automatically, you can now also specifiy the path manually through the four variables `GUROBI_CXX_DEBUG_LIBRARY`, `GUROBI_CXX_LIBRARY`, `GUROBI_INCLUDE_DIRS`, and `GUROBI_LIBRARY`. 
 - Next to `Configure`, **press `Generate`**. If no red error messages show up in the **bottom** output field, everything is ready now. 
 - **Hit `Open Project`**. 
 
